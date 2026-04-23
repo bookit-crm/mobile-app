@@ -1,0 +1,269 @@
+// ── Design tokens (from desktop _vars.scss) ────────────────────────────────
+$warm-grey:    #efebe6;
+$basic-black:  #252422;
+$basic-white:  #ffffff;
+$label:        #100f0f;
+$stroke:       #bbbbbb;
+$grey-50:      #e9e9e9;
+$grey-300:     #6d6c6c;
+$grey-400:     #51504f;
+$grey-500:     #252423;  // primary button bg
+$orange-400:   #ff9039;
+$orange-500:   #ff7407;
+$orange-700:   #b55205;  // "third" / link button color
+$red-50:       #feeceb;
+$red-600:      #da3e33;
+$disabled-bg:  #f7f7f7;
+$disabled-text:#6d6c6c;
+
+// ── Ion content background ─────────────────────────────────────────────────
+ion-content.login-content {
+  --background: #{$warm-grey};
+}
+
+// ── Hero (top panel — mobile equivalent of side panel) ────────────────────
+.hero {
+  padding: 56px 28px 36px;
+  background: linear-gradient(155deg, #fff8f3 0%, #ffd4b2 45%, #{$orange-500} 100%);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 28px;
+    background: $warm-grey;
+    border-radius: 24px 24px 0 0;
+  }
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  &__logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  &__logo-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: $basic-black;
+    letter-spacing: -0.2px;
+  }
+
+  &__tagline {
+    font-size: 20px;
+    font-weight: 600;
+    color: $basic-black;
+    margin: 0 0 16px;
+    line-height: 28px;
+  }
+
+  &__features {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__feature {
+    font-size: 14px;
+    font-weight: 500;
+    color: $basic-black;
+    padding-left: 16px;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: $basic-black;
+    }
+  }
+}
+
+// ── Card ───────────────────────────────────────────────────────────────────
+.card {
+  background: $basic-white;
+  border-radius: 16px 16px 0 0;
+  padding: 28px 24px 40px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+
+  &__header {
+    margin-bottom: 24px;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 600;
+    color: $label;
+    margin: 0 0 6px;
+    line-height: 32px;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: $grey-400;
+    margin: 0;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+  }
+}
+
+// ── Form ───────────────────────────────────────────────────────────────────
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ── Field ──────────────────────────────────────────────────────────────────
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 400;
+    color: $label;
+    line-height: 20px;
+  }
+
+  &__input-wrap {
+    display: flex;
+    align-items: center;
+    background: $basic-white;
+    border: 1px solid $stroke;
+    border-radius: 4px;
+    padding: 0 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02);
+    transition: border-color 0.15s;
+  }
+
+  &__input {
+    flex: 1;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+    --padding-start: 0;
+    --padding-end: 0;
+    --placeholder-color: #{$grey-300};
+    --color: #{$label};
+    font-size: 14px;
+  }
+
+  &__eye {
+    --color: #{$grey-400};
+    --padding-start: 4px;
+    --padding-end: 0;
+    height: 36px;
+    margin: 0;
+    font-size: 18px;
+  }
+
+  &__error {
+    font-size: 13px;
+    color: $red-600;
+    line-height: 20px;
+  }
+
+  // focus state
+  &__input-wrap:focus-within {
+    border-color: $grey-300;
+  }
+
+  // error state
+  &--error .field__input-wrap {
+    border-color: $red-600 !important;
+  }
+}
+
+// ── Options row ────────────────────────────────────────────────────────────
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &__checkbox {
+    --size: 16px;
+    --checkbox-background-checked: #{$grey-500};
+    --border-color-checked: #{$grey-500};
+    font-size: 13px;
+    color: $grey-400;
+  }
+
+  &__forgot {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: $orange-700;
+    cursor: pointer;
+    line-height: 20px;
+
+    &:active {
+      color: $orange-500;
+    }
+  }
+}
+
+// ── Error banner ───────────────────────────────────────────────────────────
+.error-banner {
+  background: $red-50;
+  border: 1px solid $red-600;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: $red-600;
+  text-align: center;
+  line-height: 20px;
+}
+
+// ── Primary button ─────────────────────────────────────────────────────────
+.btn-primary {
+  width: 100%;
+  height: 40px;
+  background: $grey-500;
+  color: $basic-white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  transition: background 0.15s;
+
+  &:active {
+    background: $grey-400;
+  }
+
+  &:disabled {
+    background: $grey-50;
+    color: $disabled-text;
+    cursor: default;
+  }
+
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    color: $basic-white;
+  }
+}

@@ -1,0 +1,81 @@
+<ion-content class="login-content" [fullscreen]="true">
+
+  <div class="hero">
+    <div class="hero__logo">
+      <img src="assets/icon/favicon.png" alt="BookIt" class="hero__logo-img" />
+      <span class="hero__logo-title">BookIt</span>
+    </div>
+    <p class="hero__tagline">Manage your business with ease</p>
+    <div class="hero__features">
+      <span class="hero__feature">Multi-location management</span>
+      <span class="hero__feature">Smart scheduling</span>
+      <span class="hero__feature">Role-based access</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__header">
+      <h2 class="card__title">Welcome back</h2>
+      <p class="card__subtitle">Log in to your account to continue</p>
+    </div>
+
+    <form class="form" [formGroup]="loginForm" (ngSubmit)="handleLogin()">
+
+      <div class="field" [class.field--error]="emailHasError">
+        <label class="field__label">Email</label>
+        <div class="field__input-wrap">
+          <ion-input
+            type="text"
+            inputmode="email"
+            placeholder="Enter email"
+            formControlName="email"
+            autocomplete="email"
+            class="field__input"
+          ></ion-input>
+        </div>
+        <span class="field__error" *ngIf="emailHasError">
+          <span *ngIf="emailControl?.errors?.['required']">Email is required</span>
+          <span *ngIf="emailControl?.errors?.['pattern']">Enter a valid email address</span>
+        </span>
+      </div>
+
+      <div class="field" [class.field--error]="passwordHasError">
+        <label class="field__label">Password</label>
+        <div class="field__input-wrap">
+          <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Enter password"
+            formControlName="password"
+            autocomplete="current-password"
+            class="field__input"
+          ></ion-input>
+          <ion-button fill="clear" class="field__eye" (click)="togglePassword()" type="button">
+            <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+          </ion-button>
+        </div>
+        <span class="field__error" *ngIf="passwordHasError">Password is required</span>
+      </div>
+
+      <div class="row">
+        <ion-checkbox formControlName="remember_me" labelPlacement="end" class="row__checkbox">
+          Remember me
+        </ion-checkbox>
+        <button type="button" class="row__forgot">Forgot password?</button>
+      </div>
+
+      <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+      <button
+        class="btn-primary"
+        type="submit"
+        [disabled]="isLoading"
+        (click)="handleLogin()"
+      >
+        <ion-spinner *ngIf="isLoading" name="crescent" class="btn-primary__spinner"></ion-spinner>
+        <span *ngIf="!isLoading">Log In</span>
+      </button>
+
+    </form>
+  </div>
+
+</ion-content>
