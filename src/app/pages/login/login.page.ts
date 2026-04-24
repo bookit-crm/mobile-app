@@ -73,7 +73,7 @@ export class LoginPage implements OnInit {
         next: (res) => {
           localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);
           localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, res.refresh_token);
-          this.router.navigate(['/home']);
+          this.router.navigate(['/main']);
         },
         error: (err) => {
           this.isLoading = false;

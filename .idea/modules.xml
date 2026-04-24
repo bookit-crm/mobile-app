@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../core-api/.idea/core-api.iml" filepath="$PROJECT_DIR$/../core-api/.idea/core-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../desktop-app-v2/.idea/desktop-app-v2.iml" filepath="$PROJECT_DIR$/../desktop-app-v2/.idea/desktop-app-v2.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/mobile-app.iml" filepath="$PROJECT_DIR$/.idea/mobile-app.iml" />
     </modules>
   </component>

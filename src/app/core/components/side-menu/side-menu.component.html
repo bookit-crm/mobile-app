@@ -1,0 +1,63 @@
+<ion-menu contentId="main-content" menuId="main-menu" side="start">
+  <!-- Header: лого -->
+  <ion-header>
+    <ion-toolbar color="dark">
+      <ion-title>
+        <div class="menu-logo">
+          <img src="assets/images/logo.png" alt="BookIt" class="menu-logo__img" />
+          <span class="menu-logo__title">BookIt</span>
+        </div>
+      </ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Навигационные пункты -->
+  <ion-content>
+    <ion-list lines="none" class="menu-list">
+      @for (item of menuItems(); track item.url) {
+        <ion-menu-toggle autoHide="false">
+          <ion-item
+            [routerLink]="item.url"
+            routerLinkActive="active-item"
+            [routerLinkActiveOptions]="{ exact: false }"
+            detail="false"
+            class="menu-item"
+          >
+            <ion-icon slot="start" [name]="item.icon"></ion-icon>
+            <ion-label>{{ item.title | titlecase }}</ion-label>
+            @if (item.badgeSignal && item.badgeSignal() > 0) {
+              <ion-badge slot="end" color="warning">{{ item.badgeSignal() }}</ion-badge>
+            }
+          </ion-item>
+        </ion-menu-toggle>
+
+        @if (item.useSeparator) {
+          <div class="menu-separator"></div>
+        }
+      }
+    </ion-list>
+  </ion-content>
+
+  <!-- Footer: профиль + выход -->
+  <ion-footer>
+    @let user = authUser();
+    @if (user) {
+      <div class="profile-block">
+        <div class="profile-block__avatar">
+          <img
+            [src]="user.avatar?.url || 'assets/images/mock_avatar.png'"
+            alt="avatar"
+          />
+        </div>
+        <div class="profile-block__info">
+          <p class="profile-block__name">{{ user.firstName }} {{ user.lastName }}</p>
+          <p class="profile-block__role">{{ user.role }}</p>
+        </div>
+        <ion-button fill="clear" color="medium" (click)="logout()" class="logout-btn">
+          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+        </ion-button>
+      </div>
+    }
+  </ion-footer>
+</ion-menu>
+

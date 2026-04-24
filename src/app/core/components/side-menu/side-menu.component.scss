@@ -1,0 +1,177 @@
+// ─── Ion-menu override: тёмный фон Bookit ───────────────────────────────────
+ion-menu {
+  --background: var(--bk-sidebar-bg);
+  --ion-background-color: var(--bk-sidebar-bg);
+  --ion-text-color: var(--bk-stroke);
+
+  ion-header ion-toolbar {
+    --background: var(--bk-grey-800);
+    --border-color: var(--bk-grey-700);
+  }
+
+  ion-content {
+    --background: var(--bk-sidebar-bg);
+  }
+
+  ion-footer {
+    --background: var(--bk-grey-800);
+    border-top: 1px solid var(--bk-grey-500);
+  }
+}
+
+// ─── Logo ────────────────────────────────────────────────────────────────────
+.menu-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  &__img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: 0.07px;
+    color: var(--bk-basic-white);
+  }
+}
+
+// ─── Menu list ───────────────────────────────────────────────────────────────
+.menu-list {
+  padding: 8px 0;
+  background: transparent;
+}
+
+.menu-item {
+  --padding-start: 8px;
+  --inner-padding-end: 8px;
+  --background: transparent;
+  --background-activated: transparent;
+  --background-focused: transparent;
+  --background-hover: transparent;
+  --color: var(--bk-stroke);
+  --border-radius: 8px;
+  --min-height: 40px;
+
+  margin: 2px 8px;
+  border-radius: 8px;
+  transition: background-color 0.15s ease;
+
+  &::part(native) {
+    border-radius: 8px;
+    background: transparent;
+  }
+
+  ion-icon {
+    font-size: 16px;
+    margin-right: 8px;
+    color: var(--bk-stroke);
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+
+  ion-label {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.24px;
+    color: var(--bk-stroke);
+    transition: color 0.15s ease;
+  }
+
+  ion-badge {
+    --background: var(--bk-sidebar-badge-bg);
+    --color: var(--bk-basic-white);
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 10px;
+    padding: 2px 6px;
+    min-width: 18px;
+    text-align: center;
+  }
+
+  // Активный пункт — оранжевый как в desktop
+  &.active-item {
+    background-color: var(--bk-sidebar-active-bg) !important;
+
+    &::part(native) {
+      background: var(--bk-sidebar-active-bg);
+    }
+
+    ion-icon {
+      color: var(--bk-basic-white);
+    }
+
+    ion-label {
+      color: var(--bk-basic-white);
+      font-weight: 600;
+    }
+  }
+}
+
+// ─── Separator ───────────────────────────────────────────────────────────────
+.menu-separator {
+  width: 100%;
+  height: 1px;
+  background-color: var(--bk-sidebar-separator);
+  margin: 6px 0;
+}
+
+// ─── Profile block (footer) ──────────────────────────────────────────────────
+.profile-block {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+
+  &__avatar {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.24px;
+    color: var(--bk-sidebar-profile-name);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  &__role {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.24px;
+    color: var(--bk-sidebar-profile-role);
+    margin: 0;
+  }
+}
+
+.logout-btn {
+  --color: var(--bk-stroke);
+  flex-shrink: 0;
+
+  ion-icon {
+    font-size: 18px;
+  }
+}

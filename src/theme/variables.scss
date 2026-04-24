@@ -1,2 +1,43 @@
 // For information on how to create your own theme, please refer to:
 // https://ionicframework.com/docs/theming/
+
+// ── Bookit Design System ─────────────────────────────────────────────────────
+:root {
+  --bk-basic-white:      #ffffff;
+  --bk-basic-black:      #252422;
+  --bk-stroke:           #bbbbbb;
+
+  --bk-grey-50:          #e9e9e9;
+  --bk-grey-100:         #bbbbbb;
+  --bk-grey-200:         #9b9a9a;
+  --bk-grey-300:         #6d6c6c;
+  --bk-grey-400:         #51504f;
+  --bk-grey-500:         #252423;
+  --bk-grey-600:         #222120;
+  --bk-grey-700:         #1a1a19;
+  --bk-grey-800:         #141413;
+  --bk-grey-900:         #100f0f;
+
+  --bk-orange-50:        #fff1e6;
+  --bk-orange-100:       #ffd4b2;
+  --bk-orange-300:       #ffa259;
+  --bk-orange-400:       #ff9039;
+  --bk-orange-500:       #ff7407;
+  --bk-orange-600:       #e86a06;
+  --bk-orange-700:       #b55205;
+  --bk-orange-800:       #8c4004;
+
+  --bk-red-500:          #f04438;
+  --bk-green-500:        #1be885;
+
+  // Sidebar tokens
+  --bk-sidebar-bg:            var(--bk-grey-900);
+  --bk-sidebar-item-color:    var(--bk-stroke);
+  --bk-sidebar-active-bg:     var(--bk-orange-700);
+  --bk-sidebar-hover-bg:      var(--bk-orange-600);
+  --bk-sidebar-badge-bg:      var(--bk-orange-500);
+  --bk-sidebar-separator:     var(--bk-grey-500);
+  --bk-sidebar-profile-name:  var(--bk-grey-50);
+  --bk-sidebar-profile-role:  var(--bk-grey-200);
+}
+
