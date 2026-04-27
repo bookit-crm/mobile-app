@@ -1,0 +1,47 @@
+<div class="month-view">
+  <div class="month-view__header">
+    @for (name of dayNames; track name) {
+      <div class="month-view__header-cell">{{ name }}</div>
+    }
+  </div>
+  <div class="month-view__body">
+    @for (week of weeks; track $index) {
+      <div class="month-view__week">
+        @for (day of week; track day.dateStr) {
+          <div
+            class="month-view__day"
+            [class.month-view__day--other-month]="!day.isCurrentMonth"
+            [class.month-view__day--today]="day.isToday"
+            (click)="onDayClick(day)"
+          >
+            <div class="month-view__day-header">
+              <span
+                class="month-view__day-number"
+                [class.month-view__day-number--today]="day.isToday"
+              >{{ day.dayNumber }}</span>
+            </div>
+            <div class="month-view__day-events">
+              @for (apt of getVisibleAppointments(day); track apt._id) {
+                <div
+                  class="month-view__event-pill"
+                  [style.background]="getAppointmentColor(apt)"
+                  [style.borderLeftColor]="getAppointmentBorderColor(apt)"
+                >
+                  <span class="month-view__event-time">{{ apt.startDate | date:'HH:mm' }}</span>
+                  <span class="month-view__event-name">{{ apt.client?.fullName || apt.clientName }}</span>
+                </div>
+              }
+              @if (getRemainingCount(day) > 0) {
+                <div class="month-view__more">+{{ getRemainingCount(day) }} more</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+    @if (weeks.length === 0) {
+      <div class="month-view__empty">No data</div>
+    }
+  </div>
+</div>
+

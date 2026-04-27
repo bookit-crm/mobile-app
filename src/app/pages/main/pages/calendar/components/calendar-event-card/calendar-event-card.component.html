@@ -1,0 +1,8 @@
+<div class="event-card" [class]="statusClass()" [class.compact]="isCompact()">
+  <div class="event-card__name">{{ clientName() }}</div>
+  @if (!isCompact()) {
+    <div class="event-card__service">{{ serviceName() }}</div>
+  }
+  <div class="event-card__time">{{ timeRange() }}</div>
+</div>
+

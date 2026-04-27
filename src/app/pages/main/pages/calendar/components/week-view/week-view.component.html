@@ -1,0 +1,57 @@
+<div class="week-view">
+  <div class="week-view__time-col">
+    <div class="week-view__header-spacer"></div>
+    @for (slot of timeLabels; track slot.time) {
+      <div class="week-view__time-label" [class.week-view__time-label--half]="slot.minute !== 0" [style.height.px]="SLOT_HEIGHT">
+        <span>{{ slot.time }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="week-view__columns">
+    @if (currentTimeTop !== null) {
+      <div class="week-view__current-time" [style.top.px]="currentTimeTop - 5">
+        <div class="week-view__current-time-dot"></div>
+        <div class="week-view__current-time-line"></div>
+      </div>
+    }
+
+    @for (day of weekDays; track day.dateStr) {
+      <div class="week-view__column" [class.week-view__column--today]="day.isToday">
+        <div class="week-view__column-header" [class.week-view__column-header--today]="day.isToday">
+          <span class="week-view__day-name">{{ day.dayName }}</span>
+          <span class="week-view__day-number" [class.week-view__day-number--today]="day.isToday">{{ day.dayNumber }}</span>
+        </div>
+
+        <div class="week-view__slots">
+          @for (slot of day.slots; track slot.time) {
+            <div
+              class="week-view__slot"
+              [style.height.px]="SLOT_HEIGHT"
+              [class.week-view__slot--disabled]="isSlotDisabled(slot, day)"
+              [class.week-view__slot--half]="slot.minute !== 0"
+              (click)="onSlotClick(slot, day)"
+            ></div>
+          }
+
+          <div class="week-view__events-container">
+            @for (ev of day.events; track ev.appointment._id) {
+              <div
+                class="week-view__event"
+                [class.week-view__event--canceled]="ev.appointment.status === 'canceled'"
+                [style.top.px]="ev.top"
+                [style.height.px]="ev.height"
+                [style.left.%]="ev.left"
+                [style.width.%]="ev.width"
+                (click)="onEventClick(ev.appointment, $event)"
+              >
+                <app-calendar-event-card [appointment]="ev.appointment" [height]="ev.height"></app-calendar-event-card>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+

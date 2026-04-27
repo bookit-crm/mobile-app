@@ -1,0 +1,152 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Filters
+      @if (activeFiltersCount > 0) {
+        <ion-badge color="primary" class="filters-modal__title-badge">{{ activeFiltersCount }}</ion-badge>
+      }
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Department section (admin only) -->
+  @if (!isManager && departments.length > 0) {
+    <div class="filters-modal__section">
+      <div class="filters-modal__section-title">Department</div>
+      <ion-list lines="none">
+        <!-- All departments -->
+        <ion-item
+          button
+          detail="false"
+          class="filters-modal__item"
+          [class.filters-modal__item--selected]="!currentDepartmentId()"
+          (click)="selectDepartment('')"
+        >
+          <ion-label><strong>All departments</strong></ion-label>
+          @if (!currentDepartmentId()) {
+            <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
+          } @else {
+            <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
+          }
+        </ion-item>
+        @for (dept of departments; track dept._id) {
+          <ion-item
+            button
+            detail="false"
+            class="filters-modal__item"
+            [class.filters-modal__item--selected]="isDepartmentSelected(dept._id)"
+            (click)="selectDepartment(dept._id)"
+          >
+            <ion-label>{{ dept.name }}</ion-label>
+            @if (isDepartmentSelected(dept._id)) {
+              <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
+            } @else {
+              <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
+            }
+          </ion-item>
+        }
+      </ion-list>
+    </div>
+
+    <div class="filters-modal__divider"></div>
+  }
+
+  <!-- Employees section -->
+  <div class="filters-modal__section">
+    <div class="filters-modal__section-title">Employees</div>
+    <ion-list lines="none">
+      <!-- All employees -->
+      <ion-item
+        button
+        detail="false"
+        class="filters-modal__item"
+        [class.filters-modal__item--selected]="currentEmployeeIds().length === 0"
+        (click)="clearAllEmployees()"
+      >
+        <ion-label><strong>All employees</strong></ion-label>
+        @if (currentEmployeeIds().length === 0) {
+          <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
+        } @else {
+          <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
+        }
+      </ion-item>
+      @for (emp of employees; track emp._id) {
+        <ion-item
+          button
+          detail="false"
+          class="filters-modal__item"
+          [class.filters-modal__item--selected]="isEmployeeSelected(emp._id)"
+          (click)="toggleEmployee(emp._id)"
+        >
+          <ion-avatar slot="start" class="filters-modal__avatar">
+            @if (emp.avatar?.url) {
+              <img [src]="emp.avatar!.url" [alt]="emp.firstName" />
+            } @else {
+              <div class="filters-modal__avatar-placeholder">
+                {{ emp.firstName[0] }}{{ emp.lastName[0] }}
+              </div>
+            }
+          </ion-avatar>
+          <ion-label>
+            <h3>{{ emp.firstName }} {{ emp.lastName }}</h3>
+            @if (emp.position) {
+              <p>{{ emp.position }}</p>
+            }
+          </ion-label>
+          @if (isEmployeeSelected(emp._id)) {
+            <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
+          } @else {
+            <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
+          }
+        </ion-item>
+      }
+      @if (employees.length === 0) {
+        <ion-item>
+          <ion-label color="medium">No employees found</ion-label>
+        </ion-item>
+      }
+    </ion-list>
+  </div>
+
+  <div class="filters-modal__divider"></div>
+
+  <!-- Status section -->
+  <div class="filters-modal__section">
+    <div class="filters-modal__section-title">Appointment Status</div>
+    <ion-list lines="none">
+      @for (s of statusList; track s.value) {
+        <ion-item
+          button
+          detail="false"
+          class="filters-modal__item"
+          [class.filters-modal__item--selected]="isStatusSelected(s.value)"
+          (click)="toggleStatus(s.value)"
+        >
+          <div slot="start" class="filters-modal__status-dot" [class]="'filters-modal__status-dot--' + s.value"></div>
+          <ion-label>{{ s.label }}</ion-label>
+          @if (isStatusSelected(s.value)) {
+            <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
+          } @else {
+            <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
+          }
+        </ion-item>
+      }
+    </ion-list>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="filters-modal__actions">
+      <ion-button fill="outline" color="medium" expand="block" (click)="reset()">Reset all</ion-button>
+      <ion-button color="primary" expand="block" (click)="apply()">Apply filters</ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
+

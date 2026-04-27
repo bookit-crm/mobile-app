@@ -1,0 +1,32 @@
+:host { display: block; height: 100%; }
+.month-view {
+  background: #fff; width: 100%; height: 100%; overflow: auto;
+  &__header { display: grid; grid-template-columns: repeat(7, 1fr); border-bottom: 1px solid #e9e9e9; }
+  &__header-cell { padding: 8px 4px; text-align: center; font-size: 11px; font-weight: 600; color: #6d6c6c; text-transform: uppercase; letter-spacing: 0.5px; }
+  &__body { display: flex; flex-direction: column; }
+  &__week { display: grid; grid-template-columns: repeat(7, 1fr); min-height: 80px; }
+  &__day {
+    border-right: 1px solid #e9e9e9; border-bottom: 1px solid #e9e9e9;
+    padding: 3px; cursor: pointer; min-height: 80px; overflow: hidden;
+    transition: background-color 0.15s ease;
+    &:last-child { border-right: none; }
+    &:hover { background-color: rgba(255, 116, 7, 0.03); }
+    &--other-month { opacity: 0.4; }
+    &--today { background-color: rgba(255, 116, 7, 0.04); }
+  }
+  &__day-header { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 2px; }
+  &__day-number {
+    font-size: 12px; font-weight: 500; color: #252422;
+    width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; border-radius: 50%;
+    &--today { background: var(--bk-orange-500, #ff7407); color: #fff; font-weight: 700; }
+  }
+  &__day-events { display: flex; flex-direction: column; gap: 1px; }
+  &__event-pill {
+    display: flex; align-items: center; gap: 2px; padding: 1px 4px;
+    border-radius: 3px; border-left: 2px solid transparent; overflow: hidden;
+  }
+  &__event-time { font-size: 9px; font-weight: 600; color: #51504f; flex-shrink: 0; }
+  &__event-name { font-size: 9px; color: #252422; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__more { font-size: 9px; color: var(--bk-orange-500, #ff7407); font-weight: 500; padding: 1px 4px; }
+}
+

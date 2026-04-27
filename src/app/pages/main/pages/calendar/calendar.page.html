@@ -4,8 +4,127 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Calendar</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        class="cal-filter-btn"
+        (click)="openFilters()"
+        [color]="activeFiltersCount() > 0 ? 'primary' : 'medium'"
+      >
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge color="danger" class="cal-filter-badge">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Calendar page (coming soon)</p>
+
+<ion-content [fullscreen]="true">
+
+  <!-- View Type Switcher -->
+  <div class="cal-view-switcher">
+    <button
+      class="cal-view-switcher__btn"
+      [class.active]="viewType() === SchedulerViewType.Day"
+      (click)="setViewType(SchedulerViewType.Day)"
+    >Day</button>
+    <button
+      class="cal-view-switcher__btn"
+      [class.active]="viewType() === SchedulerViewType.Week"
+      (click)="setViewType(SchedulerViewType.Week)"
+    >Week</button>
+    <button
+      class="cal-view-switcher__btn"
+      [class.active]="viewType() === SchedulerViewType.Month"
+      (click)="setViewType(SchedulerViewType.Month)"
+    >Month</button>
+  </div>
+
+  <!-- Navigation Bar -->
+  <div class="cal-nav">
+    <button class="cal-nav__arrow" (click)="prevPeriod()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+    <div class="cal-nav__center" (click)="goToToday()">
+      <span class="cal-nav__label">{{ dateLabel() }}</span>
+      @if (!isToday()) {
+        <span class="cal-nav__today-hint">Tap to go today</span>
+      }
+    </div>
+    <button class="cal-nav__arrow" (click)="nextPeriod()">
+      <ion-icon name="chevron-forward-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Active filters chips -->
+  @if (activeFiltersCount() > 0) {
+    <div class="cal-filter-chips">
+      @if (selectedDepartmentId()) {
+        <div class="cal-filter-chip">
+          <ion-icon name="business-outline"></ion-icon>
+          <span>1 dept</span>
+        </div>
+      }
+      @if (selectedEmployeeIds().length > 0) {
+        <div class="cal-filter-chip">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>{{ selectedEmployeeIds().length }} emp</span>
+        </div>
+      }
+      @if (selectedStatuses().length > 0) {
+        <div class="cal-filter-chip">
+          <ion-icon name="funnel-outline"></ion-icon>
+          <span>{{ selectedStatuses().length }} status</span>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Loading -->
+  @if (isLoading()) {
+    <div class="cal-loading">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    </div>
+  }
+
+  <!-- Calendar views -->
+  @if (!isLoading()) {
+    @switch (viewType()) {
+      @case (SchedulerViewType.Day) {
+        <div class="cal-content">
+          <app-day-view
+            [date]="currentDate()"
+            [appointments]="filteredAppointments()"
+            [schedules]="schedules()"
+            [employees]="employees()"
+            [selectedEmployeeIds]="selectedEmployeeIds()"
+            (slotClicked)="onSlotClicked($event)"
+            (eventClicked)="onEventClicked($event)"
+          ></app-day-view>
+        </div>
+      }
+      @case (SchedulerViewType.Week) {
+        <div class="cal-content">
+          <app-week-view
+            [date]="currentDate()"
+            [appointments]="filteredAppointments()"
+            [schedules]="schedules()"
+            [selectedEmployeeId]="selectedEmployeeIds().at(0) ?? ''"
+            (slotClicked)="onSlotClicked($event)"
+            (eventClicked)="onEventClicked($event)"
+          ></app-week-view>
+        </div>
+      }
+      @case (SchedulerViewType.Month) {
+        <div class="cal-content cal-content--month">
+          <app-month-view
+            [date]="currentDate()"
+            [appointments]="filteredAppointments()"
+            (dayClicked)="onDayClickedFromMonth($event)"
+          ></app-month-view>
+        </div>
+      }
+    }
+  }
+
 </ion-content>

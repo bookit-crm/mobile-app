@@ -1,0 +1,76 @@
+ion-item.filters-modal__item--selected {
+  --background: rgba(var(--ion-color-primary-rgb), 0.06);
+}
+
+.filters-modal {
+  &__title-badge {
+    margin-left: 6px;
+    font-size: 11px;
+  }
+
+  &__section {
+    padding: 12px 0 4px;
+  }
+
+  &__section-title {
+    padding: 0 16px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  &__divider {
+    height: 1px;
+    background: var(--ion-color-light);
+    margin: 4px 0;
+  }
+
+  &__item {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --inner-padding-end: 0;
+  }
+
+  &__avatar {
+    width: 36px;
+    height: 36px;
+    margin-right: 12px;
+  }
+
+  &__avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--bk-orange-100, #ffd4b2);
+    color: var(--bk-orange-600, #e86a06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  &__status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 12px;
+    flex-shrink: 0;
+
+    &--new { background: #4a9fd5; }
+    &--completed { background: #1be885; }
+    &--canceled { background: #d92d20; }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 16px;
+
+    ion-button {
+      flex: 1;
+    }
+  }
+}
