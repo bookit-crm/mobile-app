@@ -1,0 +1,309 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/main/departments"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ department()?.name ?? 'Department' }}</ion-title>
+    @if (!isManager) {
+      <ion-buttons slot="end">
+        <ion-button fill="clear" (click)="openEditModal()">
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" color="danger" (click)="confirmDelete()">
+          <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+
+  <!-- Tabs -->
+  <ion-toolbar>
+    <div class="tab-bar">
+      <button
+        class="tab-bar__item"
+        [class.active]="activeTab() === 'overview'"
+        (click)="setTab('overview')"
+      >
+        <ion-icon name="information-circle-outline"></ion-icon>
+        Overview
+      </button>
+      <button
+        class="tab-bar__item"
+        [class.active]="activeTab() === 'branding'"
+        (click)="setTab('branding')"
+      >
+        <ion-icon name="images-outline"></ion-icon>
+        Branding
+      </button>
+      <button
+        class="tab-bar__item"
+        [class.active]="activeTab() === 'schedule'"
+        (click)="setTab('schedule')"
+      >
+        <ion-icon name="calendar-outline"></ion-icon>
+        Schedule
+        @if (!canEditSchedule()) {
+          <ion-icon name="lock-closed-outline" class="tab-bar__lock"></ion-icon>
+        }
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  @if (isLoading()) {
+    <div class="loading-wrapper">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  @if (!isLoading() && department()) {
+
+    <!-- ── Overview tab ── -->
+    @if (activeTab() === 'overview') {
+      @let dept = department()!;
+
+      @if (dept.logo?.url || dept.bannerImages?.length) {
+        <div class="media-section">
+          @if (dept.bannerImages?.length) {
+            <img [src]="dept.bannerImages![0].url" alt="banner" class="banner-img" />
+          }
+          @if (dept.logo?.url) {
+            <div class="logo-wrapper" [class.has-banner]="dept.bannerImages?.length">
+              <img [src]="dept.logo!.url" alt="logo" class="logo-img" />
+            </div>
+          }
+        </div>
+      }
+
+      <ion-card class="info-card">
+        <ion-card-content>
+          @for (item of getInfoItems(); track item.label) {
+            <div class="info-row">
+              <p class="info-row__label">{{ item.label }}</p>
+              <p class="info-row__value">{{ item.value }}</p>
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- ── Branding tab ── -->
+    @if (activeTab() === 'branding') {
+      @let dept = department()!;
+
+      <!-- Hidden file inputs -->
+      <input #logoInput type="file" accept="image/*" class="hidden-input"
+             (change)="onFileSelected($event, 'logo')" />
+      <input #galleryInput type="file" accept="image/*" multiple class="hidden-input"
+             (change)="onFileSelected($event, 'gallery')" />
+      <input #bannerInput type="file" accept="image/*" multiple class="hidden-input"
+             (change)="onFileSelected($event, 'banner')" />
+
+      <!-- Avatar / Logo -->
+      <ion-card class="branding-card">
+        <ion-card-content>
+          <div class="branding-section">
+            <div class="branding-section__info">
+              <h4 class="branding-section__title">Upload avatar</h4>
+              <p class="branding-section__sub">A profile picture for your department</p>
+            </div>
+            @if (!isManager) {
+              <ion-button
+                fill="outline"
+                size="small"
+                [disabled]="uploadingField() === 'logo'"
+                (click)="logoInput.click()"
+              >
+                @if (uploadingField() === 'logo') {
+                  <ion-spinner name="crescent" slot="start" class="btn-spinner"></ion-spinner>
+                } @else {
+                  <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                }
+                Upload
+              </ion-button>
+            }
+          </div>
+
+          @if (dept.logo?.url) {
+            <div class="avatar-preview">
+              <img [src]="dept.logo!.url" alt="logo" class="avatar-img" />
+              @if (!isManager) {
+                <button class="remove-btn" (click)="removeImage('logo', dept.logo!._id)">
+                  <ion-icon name="close-circle"></ion-icon>
+                </button>
+              }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Gallery Photos -->
+      <ion-card class="branding-card">
+        <ion-card-content>
+          <div class="branding-section">
+            <div class="branding-section__info">
+              <h4 class="branding-section__title">Gallery photos</h4>
+              <p class="branding-section__sub">Upload photos to showcase your department</p>
+            </div>
+            @if (!isManager) {
+              <ion-button
+                fill="outline"
+                size="small"
+                [disabled]="uploadingField() === 'gallery'"
+                (click)="galleryInput.click()"
+              >
+                @if (uploadingField() === 'gallery') {
+                  <ion-spinner name="crescent" slot="start" class="btn-spinner"></ion-spinner>
+                } @else {
+                  <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                }
+                Upload
+              </ion-button>
+            }
+          </div>
+
+          @if (dept.galleryImages?.length) {
+            <div class="image-grid">
+              @for (img of dept.galleryImages!; track img._id) {
+                <div class="image-grid__item">
+                  <img [src]="img.url" [alt]="img._id" />
+                  @if (!isManager) {
+                    <button class="remove-btn" (click)="removeImage('gallery', img._id)">
+                      <ion-icon name="close-circle"></ion-icon>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Banner Images -->
+      <ion-card class="branding-card">
+        <ion-card-content>
+          <div class="branding-section">
+            <div class="branding-section__info">
+              <h4 class="branding-section__title">Department banner</h4>
+              <p class="branding-section__sub">Add promotional banners for your department</p>
+            </div>
+            @if (!isManager) {
+              <ion-button
+                fill="outline"
+                size="small"
+                [disabled]="uploadingField() === 'banner'"
+                (click)="bannerInput.click()"
+              >
+                @if (uploadingField() === 'banner') {
+                  <ion-spinner name="crescent" slot="start" class="btn-spinner"></ion-spinner>
+                } @else {
+                  <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
+                }
+                Upload
+              </ion-button>
+            }
+          </div>
+
+          @if (dept.bannerImages?.length) {
+            <div class="banner-list">
+              @for (img of dept.bannerImages!; track img._id) {
+                <div class="banner-list__item">
+                  <img [src]="img.url" [alt]="img._id" class="banner-list__img" />
+                  @if (!isManager) {
+                    <button class="remove-btn remove-btn--banner" (click)="removeImage('banner', img._id)">
+                      <ion-icon name="close-circle"></ion-icon>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <!-- ── Schedule tab ── -->
+    @if (activeTab() === 'schedule') {
+      <div class="schedule-header">
+        <h3 class="schedule-header__title">Working Hours</h3>
+        @if (isSavingSchedule()) {
+          <div class="schedule-header__saving">
+            <ion-spinner name="dots" class="save-spinner"></ion-spinner>
+            <span>Saving…</span>
+          </div>
+        }
+      </div>
+
+      <!-- Upgrade banner (Individual tier) -->
+      @if (!canEditSchedule()) {
+        <div class="upgrade-banner">
+          <ion-icon name="lock-closed-outline" class="upgrade-banner__icon"></ion-icon>
+          <div class="upgrade-banner__text">
+            <strong>Starter plan required</strong>
+            <span>Upgrade your subscription to manage working hours.</span>
+          </div>
+        </div>
+      }
+
+      <ion-card class="info-card schedule-card" [class.schedule-card--locked]="!canEditSchedule()">
+        <ion-card-content>
+          @for (row of scheduleRows(); track row.day) {
+            <div class="schedule-row" [class.schedule-row--disabled]="!row.enabled">
+
+              <div class="schedule-row__top">
+                <div class="schedule-row__name">
+                  <span class="schedule-row__day">{{ row.label }}</span>
+                  @if (!row.enabled) {
+                    <span class="schedule-row__closed-label">Closed</span>
+                  } @else {
+                    <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
+                  }
+                </div>
+                <ion-toggle
+                  [checked]="row.enabled"
+                  [disabled]="!canEditSchedule()"
+                  color="warning"
+                  (ionChange)="canEditSchedule() && toggleDay(row.day, $event)"
+                ></ion-toggle>
+              </div>
+
+              @if (row.enabled) {
+                <div class="schedule-row__times">
+                  <div class="time-field">
+                    <label class="time-field__label">From</label>
+                    <input
+                      class="time-field__native-input"
+                      type="time"
+                      lang="en-GB"
+                      [value]="row.from"
+                      [disabled]="!canEditSchedule()"
+                      (change)="canEditSchedule() && updateTimeNative(row.day, 'from', $event)"
+                    />
+                  </div>
+                  <span class="time-field__separator">—</span>
+                  <div class="time-field">
+                    <label class="time-field__label">To</label>
+                    <input
+                      class="time-field__native-input"
+                      type="time"
+                      lang="en-GB"
+                      [value]="row.to"
+                      [disabled]="!canEditSchedule()"
+                      (change)="canEditSchedule() && updateTimeNative(row.day, 'to', $event)"
+                    />
+                  </div>
+                </div>
+              }
+
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+  }
+
+</ion-content>
+

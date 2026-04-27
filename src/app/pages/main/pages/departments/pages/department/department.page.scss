@@ -1,0 +1,424 @@
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+}
+
+// ─── Tabs ────────────────────────────────────────────────────────────────────
+
+.tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+
+  &__item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--ion-color-medium);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    ion-icon { font-size: 16px; }
+
+    &.active {
+      background: var(--bk-basic-black);
+      color: #ffffff;
+    }
+  }
+}
+
+// ─── Media ───────────────────────────────────────────────────────────────────
+
+.media-section { position: relative; margin-bottom: 16px; }
+
+.banner-img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.logo-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px;
+
+  &.has-banner {
+    position: absolute;
+    bottom: -28px;
+    left: 16px;
+  }
+}
+
+.logo-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid white;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+// ─── Info Card ───────────────────────────────────────────────────────────────
+
+.info-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child { border-bottom: none; }
+
+  &__label {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-right: 12px;
+  }
+
+  &__value {
+    font-size: 0.85rem;
+    color: var(--ion-color-dark);
+    text-align: right;
+    word-break: break-word;
+  }
+}
+
+// ─── Branding ────────────────────────────────────────────────────────────────
+
+.hidden-input {
+  display: none;
+}
+
+.branding-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 16px;
+}
+
+.branding-section {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  &__info { flex: 1; }
+
+  &__title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 2px;
+    color: var(--ion-color-dark);
+  }
+
+  &__sub {
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+}
+
+// Avatar preview
+.avatar-preview {
+  position: relative;
+  display: inline-block;
+}
+
+.avatar-img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ion-color-light);
+}
+
+// Image grid (gallery)
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 4px;
+
+  &__item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--ion-color-light);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+}
+
+// Banner list
+.banner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+
+  &__item {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+  }
+}
+
+// Remove button (shared)
+.remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+
+  ion-icon {
+    font-size: 20px;
+    color: #fff;
+  }
+
+  &--banner {
+    top: 6px;
+    right: 6px;
+  }
+}
+
+// ─── Tab bar lock icon ────────────────────────────────────────────────────────
+
+.tab-bar {
+  // ...existing code...
+  &__lock {
+    font-size: 12px;
+    margin-left: 3px;
+    opacity: 0.65;
+  }
+}
+
+// ─── Upgrade banner ───────────────────────────────────────────────────────────
+
+.upgrade-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: rgba(var(--ion-color-warning-rgb), 0.1);
+  border: 1px solid var(--ion-color-warning);
+  border-radius: 12px;
+
+  &__icon {
+    font-size: 22px;
+    color: var(--ion-color-warning);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.82rem;
+
+    strong {
+      color: var(--ion-color-dark);
+      font-weight: 600;
+    }
+
+    span {
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+// ─── Schedule ────────────────────────────────────────────────────────────────
+
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ion-color-dark);
+  }
+
+  &__saving {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+  }
+}
+
+.save-spinner {
+  width: 14px;
+  height: 14px;
+}
+
+.schedule-card {
+  ion-card-content { padding: 8px 16px 16px; }
+
+  &--locked {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+.schedule-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child { border-bottom: none; }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  &__day {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ion-color-dark);
+    min-width: 40px;
+  }
+
+  &__time-summary {
+    font-size: 0.78rem;
+    color: var(--bk-orange-600);
+    font-weight: 500;
+  }
+
+  &__closed-label {
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+
+  &__times {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.time-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label {
+    font-size: 0.72rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  &__input {
+    --border-radius: 8px;
+    --padding-start: 10px;
+    --padding-end: 10px;
+    font-size: 0.9rem;
+    min-height: 38px;
+  }
+
+  &__native-input {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ion-color-medium);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 0.9rem;
+    color: var(--ion-color-dark);
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: var(--ion-color-primary);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    // Hide AM/PM in WebKit (belt-and-suspenders alongside lang="en-GB")
+    &::-webkit-datetime-edit-ampm-field {
+      display: none;
+    }
+  }
+}
+
+.time-field__separator {
+  margin-top: 20px;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+}
+
+.no-data {
+  color: var(--ion-color-medium);
+  text-align: center;
+  padding: 24px 0;
+}

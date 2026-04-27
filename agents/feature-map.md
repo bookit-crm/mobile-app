@@ -11,9 +11,10 @@
 |------|------|-----------|--------|
 | `/home` | `src/app/home/home.page.ts` | Ionic scaffold-страница | ✅ есть |
 | `/login` | `src/app/pages/auth/login.page.ts` | Логин пользователя | 🧭 план |
-| `/appointments` | `src/app/pages/appointments/...` | Список записей клиента | 🧭 план |
-| `/departments` | `src/app/pages/departments/...` | Каталог департаментов (nearby / all) | 🧭 план |
-| `/profile` | `src/app/pages/profile/...` | Профиль пользователя | 🧭 план |
+| `/main/appointments` | `src/app/pages/main/pages/appointments/...` | Список записей клиента | 🟡 scaffold |
+| `/main/departments` | `src/app/pages/main/pages/departments/departments.page.ts` | Каталог департаментов — список с поиском, создание/редактирование/удаление | ✅ реализована |
+| `/main/departments/:id` | `src/app/pages/main/pages/departments/pages/department/department.page.ts` | Детальная страница департамента (Overview + Branding + Schedule вкладки) | ✅ реализована |
+| `/main/profile` | `src/app/pages/profile/...` | Профиль пользователя | 🧭 план |
 
 ## Core сервисы (`src/app/core/services/` — ещё не созданы)
 
@@ -21,7 +22,8 @@
 |--------|-----------|-------------------|--------|
 | `AuthService` | login/logout/refresh, хранение токена | `api/auth/*` | 🧭 |
 | `AppointmentsService` | CRUD записей клиента | `api/appointment/*` | 🧭 |
-| `DepartmentsService` | Каталог, nearby, поиск | `api/public-client/*-departments` | 🧭 |
+| `DepartmentService` | CRUD департаментов, список, детали, signals | `api/department/*` | ✅ реализован |
+| `FilesService` | Загрузка файлов (изображений) на сервер | `api/files/` | ✅ реализован |
 | `NotificationsService` | Push + in-app уведомления | `api/notification/*` | 🧭 |
 | `WebsocketService` | Socket.io singleton | — | 🧭 |
 

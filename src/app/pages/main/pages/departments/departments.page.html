@@ -5,7 +5,107 @@
     </ion-buttons>
     <ion-title>Departments</ion-title>
   </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search departments..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
+
 <ion-content class="ion-padding">
-  <p>Departments page (coming soon)</p>
+
+  @if (isLoading()) {
+    <div class="departments-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (departments().length === 0) {
+    <div class="departments-empty">
+      <ion-icon name="business-outline" class="departments-empty__icon"></ion-icon>
+      <h3 class="departments-empty__title">No departments yet</h3>
+      <p class="departments-empty__text">Create your first department to get started.</p>
+      @if (!isManager) {
+        <ion-button expand="block" (click)="openCreateModal()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Create Department
+        </ion-button>
+      }
+    </div>
+  } @else {
+    <!-- Лимит локаций -->
+    <div class="departments-meta">
+      <p class="departments-count">{{ totalCount() }} department(s)</p>
+      @if (!isManager) {
+        @if (locationLimit() !== -1) {
+          <p class="departments-limit" [class.departments-limit--warn]="!canCreateDepartment()">
+            <ion-icon [name]="canCreateDepartment() ? 'location-outline' : 'lock-closed-outline'"></ion-icon>
+            {{ totalCount() }} / {{ locationLimit() }} locations
+          </p>
+        }
+      }
+    </div>
+
+    <ion-list lines="none">
+      @for (dept of departments(); track dept._id) {
+        <ion-item-sliding>
+          <ion-item button [detail]="true" (click)="openDepartment(dept)">
+            <ion-avatar slot="start" class="dept-avatar">
+              @if (dept.logo?.url) {
+                <img [src]="dept.logo!.url" [alt]="dept.name" />
+              } @else {
+                <ion-icon name="business-outline"></ion-icon>
+              }
+            </ion-avatar>
+            <ion-label>
+              <h2>{{ dept.name }}</h2>
+              @if (dept.location?.formattedAddress) {
+                <p>
+                  <ion-icon name="location-outline"></ion-icon>
+                  {{ dept.location!.formattedAddress }}
+                </p>
+              }
+              @if (dept.phone) {
+                <p>
+                  <ion-icon name="call-outline"></ion-icon>
+                  {{ dept.phone }}
+                </p>
+              }
+            </ion-label>
+            <ion-badge
+              slot="end"
+              [color]="dept.status === 'active' ? 'success' : 'medium'"
+            >
+              {{ dept.status ?? 'active' }}
+            </ion-badge>
+          </ion-item>
+
+          @if (!isManager) {
+            <ion-item-options side="end">
+              <ion-item-option color="primary" (click)="openEditModal(dept, $event)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="confirmDelete(dept, $event)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          }
+        </ion-item-sliding>
+      }
+    </ion-list>
+  }
+
+  @if (!isManager) {
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button
+        [color]="canCreateDepartment() ? 'primary' : 'medium'"
+        (click)="openCreateModal()"
+      >
+        <ion-icon [name]="canCreateDepartment() ? 'add' : 'lock-closed-outline'"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
+
 </ion-content>
+
+

@@ -30,6 +30,36 @@
   --bk-red-500:          #f04438;
   --bk-green-500:        #1be885;
 
+  // ── Ionic color overrides (map Bookit palette → Ionic tokens) ──────────────
+  --ion-color-primary:          var(--bk-basic-black);     /* #252422 */
+  --ion-color-primary-rgb:      37, 36, 34;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade:    var(--bk-grey-700);        /* #1a1a19 */
+  --ion-color-primary-tint:     var(--bk-grey-400);        /* #51504f */
+
+  // Orange as accent (for toggles, active highlights, FAB — use color="warning" or css var)
+  --ion-color-warning:          var(--bk-orange-500);      /* #ff7407 */
+  --ion-color-warning-rgb:      255, 116, 7;
+  --ion-color-warning-contrast: #ffffff;
+  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-shade:    var(--bk-orange-600);
+  --ion-color-warning-tint:     var(--bk-orange-400);
+
+  --ion-color-danger:           var(--bk-red-500);         /* #f04438 */
+  --ion-color-danger-rgb:       240, 68, 56;
+  --ion-color-danger-contrast:  #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade:     #d33b30;
+  --ion-color-danger-tint:      #f25750;
+
+  --ion-color-success:          var(--bk-green-500);       /* #1be885 */
+  --ion-color-success-rgb:      27, 232, 133;
+  --ion-color-success-contrast: var(--bk-basic-black);
+  --ion-color-success-contrast-rgb: 37, 36, 34;
+  --ion-color-success-shade:    #18cc75;
+  --ion-color-success-tint:     #32ea91;
+
   // Sidebar tokens
   --bk-sidebar-bg:            var(--bk-grey-900);
   --bk-sidebar-item-color:    var(--bk-stroke);

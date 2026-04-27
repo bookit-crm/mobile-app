@@ -1,11 +1,24 @@
 ﻿import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { DepartmentsPage } from './departments.page';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-const routes: Routes = [{ path: '', component: DepartmentsPage }];
+
+import { DepartmentsPage } from './departments.page';
+import { DepartmentPage } from './pages/department/department.page';
+
+const routes: Routes = [
+  { path: '', component: DepartmentsPage },
+  { path: ':id', component: DepartmentPage },
+];
+
 @NgModule({
-  declarations: [DepartmentsPage],
-  imports: [CommonModule, IonicModule, RouterModule.forChild(routes)],
+  declarations: [DepartmentsPage, DepartmentPage],
+  imports: [
+    CommonModule,
+    IonicModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(routes),
+  ],
 })
 export class DepartmentsPageModule {}
