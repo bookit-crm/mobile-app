@@ -11,6 +11,7 @@ import { IonicModule, MenuController } from '@ionic/angular';
 import { EUserRole } from '@core/enums/e-user-role';
 import { AuthService } from '@core/services/auth.service';
 import { SupervisorService } from '@core/services/supervisor.service';
+import { SubscriptionService } from '@core/services/subscription.service';
 import { ISideMenuItem } from './models/side-menu-item.interface';
 import { ADMIN_MENU_CONFIG, MANAGER_MENU_CONFIG } from './constants/side-menu-config';
 import { take } from 'rxjs';
@@ -25,16 +26,27 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SideMenuComponent implements OnInit {
-  private supervisorService = inject(SupervisorService);
-  private authService = inject(AuthService);
-  private menuController = inject(MenuController);
-  private router = inject(Router);
+  private supervisorService    = inject(SupervisorService);
+  private subscriptionService  = inject(SubscriptionService);
+  private authService          = inject(AuthService);
+  private menuController       = inject(MenuController);
+  private router               = inject(Router);
 
   public authUser = this.supervisorService.authUserSignal;
 
   public menuItems: Signal<ISideMenuItem[]> = computed(() => {
-    const role = this.supervisorService.authUserSignal()?.role;
-    return role === EUserRole.MANAGER ? MANAGER_MENU_CONFIG : ADMIN_MENU_CONFIG;
+    const role   = this.supervisorService.authUserSignal()?.role;
+    const base   = role === EUserRole.MANAGER ? MANAGER_MENU_CONFIG : ADMIN_MENU_CONFIG;
+
+    // Подписка ещё не загружена — показываем все пункты без feature-gate
+    if (!this.subscriptionService.currentSubscription()) {
+      return base;
+    }
+
+    return base.filter((item) => {
+      if (!item.feature) return true;
+      return this.subscriptionService.hasFeature(item.feature, item.minLevel);
+    });
   });
 
   ngOnInit(): void {
