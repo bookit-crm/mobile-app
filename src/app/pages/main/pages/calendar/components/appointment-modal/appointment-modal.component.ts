@@ -3,16 +3,18 @@ import {
   computed, DestroyRef, inject, Input, OnInit, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { combineLatest, Observable, of, switchMap, take } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
 
-import { IAppointment, AppointmentStatus, IService } from '@core/models/appointment.interface';
+import { IAppointment, AppointmentStatus, IService, IConsumableProduct } from '@core/models/appointment.interface';
 import { IEmployee } from '@core/models/employee.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { IClient } from '@core/models/client.interface';
+import { IProduct } from '@core/models/product.interface';
+import { IPromoCode } from '@core/models/promo-code.interface';
 import { EUserRole } from '@core/enums/e-user-role';
 
 import { AppointmentsService } from '@core/services/appointments.service';
@@ -21,6 +23,9 @@ import { DepartmentService } from '@core/services/department.service';
 import { EmployeeService } from '@core/services/employee.service';
 import { ServicesService } from '@core/services/services.service';
 import { SupervisorService } from '@core/services/supervisor.service';
+import { SubscriptionService } from '@core/services/subscription.service';
+import { ProductsService } from '@core/services/products.service';
+import { PromoCodesService } from '@core/services/promo-codes.service';
 import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 
 export interface IAppointmentModalPayload {
@@ -53,6 +58,9 @@ export class AppointmentModalComponent implements OnInit {
   private readonly employeeService = inject(EmployeeService);
   private readonly servicesService = inject(ServicesService);
   private readonly supervisorService = inject(SupervisorService);
+  private readonly subscriptionService = inject(SubscriptionService);
+  private readonly productsService = inject(ProductsService);
+  private readonly promoCodesService = inject(PromoCodesService);
 
   public readonly AppointmentStatus = AppointmentStatus;
 
@@ -65,6 +73,16 @@ export class AppointmentModalComponent implements OnInit {
     if (!dept) return '';
     return typeof dept === 'string' ? dept : dept._id;
   });
+
+  /** Подписка разрешает прикрепление товаров к записи */
+  public readonly canUseProducts = computed(() =>
+    this.subscriptionService.hasFeature('productsAttachToAppointment'),
+  );
+
+  /** Подписка разрешает промокоды */
+  public readonly canUsePromoCodes = computed(() =>
+    this.subscriptionService.hasFeature('promoCodes'),
+  );
 
   // ── State ─────────────────────────────────────────────────────────────────
   public isEditMode = false;
@@ -81,8 +99,16 @@ export class AppointmentModalComponent implements OnInit {
   public employees = signal<IEmployee[]>([]);
   public services = signal<IService[]>([]);
 
+  /** Опции продуктов для селекта (value = _id, display = name (unit)) */
+  public productOptions = signal<{ value: string; display: string }[]>([]);
+  public productsMap = signal<Map<string, IProduct>>(new Map());
+  public promoCodeOptions = signal<IPromoCode[]>([]);
+
   public clientSearch = '';
   public totalPrice = signal(0);
+  public servicesPrice = signal(0);
+  public productsPrice = signal(0);
+  public discountAmount = signal(0);
   public totalDuration = signal(0); // минут
 
   public readonly statusOptions = [
@@ -90,6 +116,10 @@ export class AppointmentModalComponent implements OnInit {
     { value: AppointmentStatus.Completed, label: 'Completed' },
     { value: AppointmentStatus.Canceled, label: 'Canceled' },
   ];
+
+  get consumableProductsArray(): FormArray {
+    return this.form?.get('consumableProducts') as FormArray;
+  }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -144,6 +174,14 @@ export class AppointmentModalComponent implements OnInit {
   public selectClient(client: IClient): void {
     this.form.get('clientId')?.setValue(client._id);
     this.clientSearch = client.fullName;
+    this.cdr.markForCheck();
+  }
+
+  public clearClient(): void {
+    this.form.get('clientId')?.setValue('');
+    this.clientSearch = '';
+    this.filteredClients.set(this.clients());
+    this.cdr.markForCheck();
   }
 
   public isClientSelected(id: string): boolean {
@@ -153,8 +191,13 @@ export class AppointmentModalComponent implements OnInit {
   public onDepartmentChange(deptId: string): void {
     this.form.get('employeeId')?.setValue('');
     this.form.get('serviceIds')?.setValue([]);
+    this.form.get('promoCode')?.setValue(null);
+    this.consumableProductsArray?.clear();
     this.employees.set([]);
     this.services.set([]);
+    this.productOptions.set([]);
+    this.productsMap.set(new Map());
+    this.promoCodeOptions.set([]);
     this.totalPrice.set(0);
     this.totalDuration.set(0);
     if (deptId) {
@@ -179,6 +222,26 @@ export class AppointmentModalComponent implements OnInit {
   }
 
   public onServicesChange(): void {
+    this.recalculate();
+  }
+
+  public addConsumableProduct(): void {
+    this.consumableProductsArray.push(
+      this.fb.group({
+        product: new FormControl<string | null>(null, [Validators.required]),
+        quantity: new FormControl<number>(1, [Validators.required, Validators.min(0.01)]),
+      }),
+    );
+    this.cdr.detectChanges();
+  }
+
+  public removeConsumableProduct(index: number): void {
+    this.consumableProductsArray.removeAt(index);
+    this.recalculate();
+    this.cdr.detectChanges();
+  }
+
+  public onProductChange(): void {
     this.recalculate();
   }
 
@@ -255,6 +318,11 @@ export class AppointmentModalComponent implements OnInit {
     return this.services().find(s => s._id === id)?.name ?? id;
   }
 
+  public getProductDisplay(productId: string): string {
+    const p = this.productsMap().get(productId);
+    return p ? `${p.name} (${p.unit})` : productId;
+  }
+
   public formatDuration(minutes: number): string {
     if (!minutes) return '';
     const h = Math.floor(minutes / 60);
@@ -263,7 +331,6 @@ export class AppointmentModalComponent implements OnInit {
   }
 
   // ── DateTime picker helpers ───────────────────────────────────────────────
-  /** Converts "HH:mm" string to ISO format for ion-datetime */
   public getTimeISO(time: string): string {
     if (!time || time.length < 4) return '';
     return `2000-01-01T${time}:00`;
@@ -294,6 +361,16 @@ export class AppointmentModalComponent implements OnInit {
     const today = DateFnsHelper.getCurrentDate();
     const defaultDeptId = this.isManager() ? this.managerDepartmentId() : (this.payload?.department ?? '');
 
+    const consumableControls = (apt?.consumableProducts || []).map(
+      (item: IConsumableProduct) => this.fb.group({
+        product: new FormControl<string>(
+          typeof item.product === 'string' ? item.product : (item.product as any)._id,
+          [Validators.required],
+        ),
+        quantity: new FormControl<number>(item.quantity, [Validators.required, Validators.min(0.01)]),
+      }),
+    );
+
     this.form = this.fb.group({
       clientId: [apt?.client?._id ?? '', Validators.required],
       clientName: [''],
@@ -318,6 +395,8 @@ export class AppointmentModalComponent implements OnInit {
       ],
       comment: [apt?.comment ?? ''],
       status: [apt?.status ?? AppointmentStatus.New],
+      consumableProducts: new FormArray(consumableControls),
+      promoCode: [apt?.promoCode ?? null],
     });
 
     // auto-recalculate end time on service/time change
@@ -327,6 +406,14 @@ export class AppointmentModalComponent implements OnInit {
     ])
       .pipe(debounceTime(150), takeUntilDestroyed(this.destroyRef))
       .subscribe(([from, ids]) => this.autoCalcEndTime(from, ids));
+
+    // watch consumableProducts + promoCode changes for price recalc
+    combineLatest([
+      this.form.get('consumableProducts')!.valueChanges.pipe(startWith(this.form.get('consumableProducts')!.value)),
+      this.form.get('promoCode')!.valueChanges.pipe(startWith(this.form.value.promoCode)),
+    ])
+      .pipe(debounceTime(100), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.recalculate());
 
     this.cdr.markForCheck();
   }
@@ -410,6 +497,31 @@ export class AppointmentModalComponent implements OnInit {
         this.recalculate();
         this.cdr.markForCheck();
       });
+
+    if (this.canUseProducts()) {
+      this.productsService
+        .getProducts({ departmentId: deptId, status: 'active', limit: 100 })
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe((res) => {
+          const products = res.results || [];
+          this.productOptions.set(products.map(p => ({ value: p._id, display: `${p.name} (${p.unit})` })));
+          const map = new Map<string, IProduct>();
+          products.forEach(p => map.set(p._id, p));
+          this.productsMap.set(map);
+          this.recalculate();
+          this.cdr.markForCheck();
+        });
+    }
+
+    if (this.canUsePromoCodes()) {
+      this.promoCodesService
+        .getActiveForDepartment(deptId)
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe((res) => {
+          this.promoCodeOptions.set(res.results || []);
+          this.cdr.markForCheck();
+        });
+    }
   }
 
   private autoCalcEndTime(from: string, serviceIds: string[]): void {
@@ -432,17 +544,52 @@ export class AppointmentModalComponent implements OnInit {
   private recalculate(): void {
     const ids: string[] = this.form?.get('serviceIds')?.value ?? [];
     const allServices = this.services();
-    let price = 0;
+    let svcPrice = 0;
     let duration = 0;
     for (const id of ids) {
       const svc = allServices.find(s => s._id === id);
       if (svc) {
-        price += svc.price ?? 0;
+        svcPrice += svc.price ?? 0;
         duration += svc.duration ?? 0;
       }
     }
-    this.totalPrice.set(price);
+    this.servicesPrice.set(svcPrice);
     this.totalDuration.set(duration);
+
+    // Products price
+    let prodPrice = 0;
+    const consumables: { product: string; quantity: number }[] =
+      this.consumableProductsArray?.value ?? [];
+    const pMap = this.productsMap();
+    for (const cp of consumables) {
+      const product = cp.product ? pMap.get(cp.product) : null;
+      if (product) {
+        prodPrice += product.salePrice * (+cp.quantity || 0);
+      }
+    }
+    this.productsPrice.set(prodPrice);
+
+    // Promo code discount
+    let discount = 0;
+    const selectedPromoId: string | null = this.form?.get('promoCode')?.value ?? null;
+    if (selectedPromoId) {
+      const promoCode = this.promoCodeOptions().find(pc => pc._id === selectedPromoId);
+      if (promoCode?.services?.length) {
+        for (const pcSvc of promoCode.services) {
+          const pcSvcId = typeof pcSvc.service === 'string' ? pcSvc.service : (pcSvc.service as any)._id;
+          if (!ids.includes(pcSvcId)) continue;
+          const svc = allServices.find(s => s._id === pcSvcId);
+          const svcPrice = svc?.price ?? 0;
+          if (pcSvc.discountType === 'percentage') {
+            discount += (svcPrice * pcSvc.discountValue) / 100;
+          } else {
+            discount += Math.min(pcSvc.discountValue, svcPrice);
+          }
+        }
+      }
+    }
+    this.discountAmount.set(Math.round(discount * 100) / 100);
+    this.totalPrice.set(Math.max(svcPrice + prodPrice - discount, 0));
     this.cdr.markForCheck();
   }
 
@@ -465,6 +612,13 @@ export class AppointmentModalComponent implements OnInit {
         return (th * 60 + tm) - (fh * 60 + fm);
       })();
 
+    const consumableProducts = (v.consumableProducts ?? [])
+      .filter((cp: { product: string; quantity: number }) => cp.product)
+      .map((cp: { product: string; quantity: number }) => ({
+        product: cp.product,
+        quantity: +cp.quantity,
+      }));
+
     const payload: Record<string, unknown> = {
       client: v.clientId || undefined,
       department: v.departmentId || undefined,
@@ -474,6 +628,8 @@ export class AppointmentModalComponent implements OnInit {
       endDate: endISO,
       duration: durationMin,
       comment: v.comment || undefined,
+      consumableProducts,
+      promoCode: v.promoCode || null,
     };
     if (this.isEditMode) {
       payload['status'] = v.status;
@@ -481,5 +637,4 @@ export class AppointmentModalComponent implements OnInit {
     return payload;
   }
 }
-
 

@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/main/appointments"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Appointment History</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-select
+      class="history-filter"
+      [value]="actionFilter()"
+      placeholder="Filter by action"
+      interface="action-sheet"
+      (ionChange)="onActionFilterChange($event.detail.value)"
+    >
+      @for (opt of actionOptions; track opt.value) {
+        <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+      }
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  @if (isLoading()) {
+    <div class="history-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (historyData().length === 0) {
+    <div class="history-empty">
+      <ion-icon name="time-outline" class="history-empty__icon"></ion-icon>
+      <h3 class="history-empty__title">No history found</h3>
+      <p class="history-empty__text">No changes recorded for this appointment.</p>
+    </div>
+  } @else {
+    <div class="history-list ion-padding">
+      @for (entry of historyData(); track entry._id) {
+        <ion-card class="history-card">
+          <ion-card-header>
+            <div class="history-card-meta">
+              <ion-badge [color]="getActionColor(entry.action)">
+                {{ entry.action | titlecase }}
+              </ion-badge>
+              <span class="history-date">{{ entry.created | date: 'dd.MM.yyyy HH:mm' }}</span>
+            </div>
+            @if (entry.performedByName) {
+              <ion-card-subtitle>by {{ entry.performedByName }}</ion-card-subtitle>
+            }
+          </ion-card-header>
+
+          @if (entry.changes.length) {
+            <ion-card-content>
+              <div class="changes-list">
+                @for (change of entry.changes; track change.field) {
+                  <div class="change-item">
+                    <span class="change-field">{{ change.field }}:</span>
+                    @if (entry.action === 'created') {
+                      <span class="change-new">{{ formatValue(change.newValue) }}</span>
+                    } @else {
+                      <span class="change-old">{{ formatValue(change.oldValue) }}</span>
+                      <ion-icon name="arrow-forward-outline" class="change-arrow"></ion-icon>
+                      <span class="change-new">{{ formatValue(change.newValue) }}</span>
+                    }
+                  </div>
+                }
+              </div>
+            </ion-card-content>
+          }
+        </ion-card>
+      }
+    </div>
+  }
+
+</ion-content>
+

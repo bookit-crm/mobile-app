@@ -4,8 +4,235 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Appointments</ion-title>
+    <ion-buttons slot="end">
+      <!-- Filter button with active-count badge -->
+      <ion-button (click)="openFilterModal()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge class="filter-badge" color="primary">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search by client, phone..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="statusFilter()" (ionChange)="onStatusChange($event.detail.value?.toString() ?? 'all')">
+      @for (opt of statusOptions; track opt.value) {
+        <ion-segment-button [value]="opt.value">
+          <ion-label>{{ opt.label }}</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Appointments page (coming soon)</p>
+
+<!-- ── Advanced Filter Modal ───────────────────────────────────────────── -->
+<ion-modal
+  [isOpen]="showFilterModal()"
+  [breakpoints]="[0, 0.85]"
+  [initialBreakpoint]="0.85"
+  (didDismiss)="showFilterModal.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content">
+      <ion-list lines="full">
+
+        <!-- Department (admin only) -->
+        @if (!singleDepartmentMode()) {
+          <ion-item>
+            <ion-label position="stacked" class="filter-label">Department</ion-label>
+            <ion-select [(ngModel)]="tempDept" placeholder="All departments" interface="action-sheet">
+              <ion-select-option value="">All departments</ion-select-option>
+              @for (dept of departments(); track dept._id) {
+                <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        }
+
+        <!-- Employee -->
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Employee</ion-label>
+          <ion-select [(ngModel)]="tempEmployee" placeholder="All employees" interface="action-sheet">
+            <ion-select-option value="">All employees</ion-select-option>
+            @for (emp of employees(); track emp._id) {
+              <ion-select-option [value]="emp._id">
+                {{ getEmployeeDisplayName(emp) }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <!-- Client -->
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Client</ion-label>
+          <ion-select [(ngModel)]="tempClient" placeholder="All clients" interface="action-sheet">
+            <ion-select-option value="">All clients</ion-select-option>
+            @for (client of clientOptions(); track client._id) {
+              <ion-select-option [value]="client._id">
+                {{ client.fullName }}
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+
+        <!-- Date From -->
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Date From</ion-label>
+          <input
+            type="date"
+            class="filter-date-input"
+            [(ngModel)]="tempDateFrom"
+          />
+        </ion-item>
+
+        <!-- Date To -->
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Date To</ion-label>
+          <input
+            type="date"
+            class="filter-date-input"
+            [(ngModel)]="tempDateTo"
+          />
+        </ion-item>
+
+      </ion-list>
+    </ion-content>
+
+    <div class="filter-modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
+        Reset All
+      </ion-button>
+      <ion-button expand="block" color="primary" (click)="applyFilters()">
+        Apply Filters
+      </ion-button>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+
+  @if (isLoading() && appointments().length === 0) {
+    <div class="appt-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (!isLoading() && appointments().length === 0) {
+    <div class="appt-empty">
+      <ion-icon name="calendar-outline" class="appt-empty__icon"></ion-icon>
+      <h3 class="appt-empty__title">No appointments</h3>
+      <p class="appt-empty__text">Try changing filters or create a new appointment.</p>
+    </div>
+  } @else {
+    <div class="appt-meta">
+      <p class="appt-count">
+        {{ totalCount() }} appointment(s)
+        @if (activeFiltersCount() > 0) {
+          <span class="appt-filters-active"> · {{ activeFiltersCount() }} filter(s) active</span>
+        }
+      </p>
+    </div>
+
+    <ion-list lines="none">
+      @for (appt of appointments(); track appt._id) {
+        <ion-item-sliding>
+          <ion-item [button]="true" [detail]="false">
+            <ion-label>
+              <div class="appt-header">
+                <h2 class="appt-client">{{ appt.clientName || appt.client?.fullName || '—' }}</h2>
+                <ion-badge [color]="getStatusColor(appt.status)">{{ appt.status }}</ion-badge>
+              </div>
+              <p class="appt-info">
+                <ion-icon name="people-outline"></ion-icon>
+                {{ getEmployeeName(appt) }}
+              </p>
+              <p class="appt-info">
+                <ion-icon name="business-outline"></ion-icon>
+                {{ getDepartmentName(appt.department) }}
+              </p>
+              <p class="appt-info">
+                <ion-icon name="cut-outline"></ion-icon>
+                {{ getServiceNames(appt) }}
+              </p>
+              <div class="appt-footer">
+                <span class="appt-date">
+                  <ion-icon name="time-outline"></ion-icon>
+                  {{ appt.startDate | date: 'dd/MM/yyyy HH:mm' }}
+                </span>
+                <span class="appt-price">
+                  {{ getFinalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+            </ion-label>
+            <!-- Subtle swipe affordance: action icons hinting left-swipe -->
+            <div class="appt-swipe-hint" slot="end">
+              @if (canCreateAppointment()) {
+                <ion-icon name="create-outline"></ion-icon>
+              }
+              @if (canViewHistory()) {
+                <ion-icon name="time-outline"></ion-icon>
+              }
+              @if (canCreateAppointment()) {
+                <ion-icon name="trash-outline"></ion-icon>
+              }
+              <ion-icon name="chevron-back-outline" class="appt-swipe-hint__arrow"></ion-icon>
+            </div>
+          </ion-item>
+
+          @if (canCreateAppointment() || canViewHistory()) {
+            <ion-item-options side="end">
+              <!-- Edit — requires active subscription -->
+              @if (canCreateAppointment()) {
+                <ion-item-option color="primary" (click)="openEditModal(appt, $event)">
+                  <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+                </ion-item-option>
+              }
+              <!-- History — requires auditLogs feature -->
+              @if (canViewHistory()) {
+                <ion-item-option color="secondary" (click)="openHistory(appt, $event)">
+                  <ion-icon name="time-outline" slot="icon-only"></ion-icon>
+                </ion-item-option>
+              }
+              <!-- Delete — requires active subscription -->
+              @if (canCreateAppointment()) {
+                <ion-item-option color="danger" (click)="confirmDelete(appt, $event)">
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-item-option>
+              }
+            </ion-item-options>
+          }
+        </ion-item-sliding>
+      }
+    </ion-list>
+
+    <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+  <!-- FAB — locked when subscription inactive -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button
+      [color]="canCreateAppointment() ? 'primary' : 'medium'"
+      (click)="openCreateModal()"
+    >
+      <ion-icon [name]="canCreateAppointment() ? 'add' : 'lock-closed-outline'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

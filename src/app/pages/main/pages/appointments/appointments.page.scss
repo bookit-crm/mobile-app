@@ -1,1 +1,183 @@
-﻿
+﻿.appt-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+
+.appt-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 56px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    color: var(--ion-color-dark);
+  }
+
+  &__text {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.appt-meta {
+  padding: 8px 16px 4px;
+}
+
+.appt-count {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.appt-filters-active {
+  color: var(--ion-color-primary);
+  font-weight: 600;
+}
+
+// ── Filter button ──────────────────────────────────────────────────────────
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+// ── Filter modal ───────────────────────────────────────────────────────────
+.filter-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ion-color-medium) !important;
+  margin-bottom: 4px;
+}
+
+.filter-date-input {
+  display: block;
+  width: 100%;
+  padding: 10px 0 8px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ion-text-color);
+  font-size: 1rem;
+  font-family: inherit;
+  -webkit-appearance: none;
+}
+
+.filter-modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-color-light);
+}
+
+// ── List items ─────────────────────────────────────────────────────────────
+ion-item {
+  --padding-start: 16px;
+  --padding-end: 8px;
+}
+
+.appt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.appt-client {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appt-info {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ion-color-medium-shade);
+  margin: 2px 0;
+
+  ion-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+}
+
+.appt-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.appt-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 13px;
+  }
+}
+
+.appt-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+}
+
+// ── Swipe affordance hint ───────────────────────────────────────────────────
+.appt-swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.18;
+  pointer-events: none;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 14px;
+  }
+
+  &__arrow {
+    font-size: 12px !important;
+    margin-left: 1px;
+    opacity: 0.7;
+  }
+}
+

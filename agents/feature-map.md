@@ -11,7 +11,8 @@
 |------|------|-----------|--------|
 | `/home` | `src/app/home/home.page.ts` | Ionic scaffold-страница | ✅ есть |
 | `/login` | `src/app/pages/auth/login.page.ts` | Логин пользователя | 🧭 план |
-| `/main/appointments` | `src/app/pages/main/pages/appointments/...` | Список записей клиента | 🟡 scaffold |
+| `/main/appointments` | `src/app/pages/main/pages/appointments/appointments.page.ts` | Список записей (search + status filter + infinite scroll, create/edit/delete, history nav) | ✅ реализована |
+| `/main/appointments/:appointmentId/history` | `src/app/pages/main/pages/appointments/components/appointment-history/appointment-history.page.ts` | История изменений записи (filter by action) | ✅ реализована |
 | `/main/departments` | `src/app/pages/main/pages/departments/departments.page.ts` | Каталог департаментов — список с поиском, создание/редактирование/удаление | ✅ реализована |
 | `/main/departments/:id` | `src/app/pages/main/pages/departments/pages/department/department.page.ts` | Детальная страница департамента (Overview + Branding + Schedule вкладки) | ✅ реализована |
 | `/main/profile` | `src/app/pages/profile/...` | Профиль пользователя | 🧭 план |
@@ -21,7 +22,7 @@
 | Сервис | Назначение | Backend эндпоинты | Статус |
 |--------|-----------|-------------------|--------|
 | `AuthService` | login/logout/refresh, хранение токена | `api/auth/*` | 🧭 |
-| `AppointmentsService` | CRUD записей клиента | `api/appointment/*` | 🧭 |
+| `AppointmentsService` | CRUD + paginated list + history записей | `api/appointment/*` | ✅ реализован |
 | `DepartmentService` | CRUD департаментов, список, детали, signals | `api/department/*` | ✅ реализован |
 | `FilesService` | Загрузка файлов (изображений) на сервер | `api/files/` | ✅ реализован |
 | `NotificationsService` | Push + in-app уведомления | `api/notification/*` | 🧭 |

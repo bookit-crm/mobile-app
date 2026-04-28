@@ -39,41 +39,48 @@
         </div>
 
         @if (!isNewClient()) {
-          <ion-searchbar
-            class="apt-modal__searchbar"
-            [value]="clientSearch"
-            placeholder="Search client by name or phone"
-            (ionInput)="filterClients($any($event.target).value)"
-          ></ion-searchbar>
-          @if (filteredClients().length > 0) {
-            <ion-list lines="none" class="apt-modal__client-list">
-              @for (client of filteredClients(); track client._id) {
-                <ion-item
-                  button
-                  detail="false"
-                  [class.apt-modal__client-item--selected]="isClientSelected(client._id)"
-                  (click)="selectClient(client)"
-                >
-                  <ion-avatar slot="start" class="apt-modal__client-avatar">
-                    <div class="apt-modal__client-initials">{{ client.fullName[0] }}</div>
-                  </ion-avatar>
-                  <ion-label>
-                    <h3>{{ client.fullName }}</h3>
-                    <p>{{ client.phone }}</p>
-                  </ion-label>
-                  @if (isClientSelected(client._id)) {
-                    <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
-                  }
-                </ion-item>
-              }
-            </ion-list>
-          }
           @if (form.get('clientId')?.value) {
-            <div class="apt-modal__selected-chip">
-              <ion-icon name="person-circle-outline"></ion-icon>
-              <span>{{ clientSearch }}</span>
-              <ion-icon name="close-circle" (click)="form.get('clientId')?.setValue(''); clientSearch = ''"></ion-icon>
+            <!-- Клиент выбран — показываем чип и кнопку смены -->
+            <div class="apt-modal__selected-client">
+              <div class="apt-modal__selected-chip">
+                <ion-avatar class="apt-modal__client-avatar">
+                  <div class="apt-modal__client-initials">{{ clientSearch[0] }}</div>
+                </ion-avatar>
+                <div class="apt-modal__selected-chip-info">
+                  <span class="apt-modal__selected-chip-name">{{ clientSearch }}</span>
+                </div>
+                <ion-button fill="clear" color="medium" size="small" (click)="clearClient()">
+                  <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </div>
             </div>
+          } @else {
+            <!-- Клиент не выбран — поиск + список -->
+            <ion-searchbar
+              class="apt-modal__searchbar"
+              [value]="clientSearch"
+              placeholder="Search by name or phone..."
+              (ionInput)="filterClients($any($event.target).value)"
+            ></ion-searchbar>
+            @if (filteredClients().length > 0) {
+              <ion-list lines="none" class="apt-modal__client-list">
+                @for (client of filteredClients(); track client._id) {
+                  <ion-item
+                    [button]="true"
+                    [detail]="false"
+                    (click)="selectClient(client)"
+                  >
+                    <ion-avatar slot="start" class="apt-modal__client-avatar">
+                      <div class="apt-modal__client-initials">{{ client.fullName[0] }}</div>
+                    </ion-avatar>
+                    <ion-label>
+                      <h3>{{ client.fullName }}</h3>
+                      <p>{{ client.phone }}</p>
+                    </ion-label>
+                  </ion-item>
+                }
+              </ion-list>
+            }
           }
         } @else {
           <ion-item>
@@ -143,8 +150,8 @@
           <ion-list lines="none" class="apt-modal__service-list">
             @for (svc of services(); track svc._id) {
               <ion-item
-                button
-                detail="false"
+                [button]="true"
+                [detail]="false"
                 (click)="toggleService(svc._id)"
               >
                 <ion-label>
@@ -190,6 +197,7 @@
           />
         </div>
 
+
         <div class="apt-modal__time-row">
           <div class="apt-modal__time-item">
             <label class="apt-modal__field-label">From <span class="req">*</span></label>
@@ -231,6 +239,90 @@
         <div class="apt-modal__divider"></div>
       }
 
+      <!-- ── ADDITIONAL PRODUCTS (warehouse feature) ───────────── -->
+      @if (canUseProducts()) {
+        <div class="apt-modal__divider"></div>
+        <div class="apt-modal__section">
+          <div class="apt-modal__section-header">
+            <span class="apt-modal__section-title">Additional products</span>
+            <ion-button fill="clear" size="small" (click)="addConsumableProduct()">
+              <ion-icon name="add-outline" slot="start"></ion-icon>
+              Add
+            </ion-button>
+          </div>
+
+          @if (consumableProductsArray.controls.length > 0) {
+            <div [formGroup]="form">
+              <ng-container formArrayName="consumableProducts">
+                @for (_ctrl of consumableProductsArray.controls; track $index; let i = $index) {
+                  <div [formGroupName]="i" class="apt-modal__product-row">
+                    <ion-item class="apt-modal__product-select">
+                      <ion-select
+                        formControlName="product"
+                        placeholder="Select product"
+                        interface="action-sheet"
+                        (ionChange)="onProductChange()"
+                      >
+                        @for (opt of productOptions(); track opt.value) {
+                          <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
+                        }
+                      </ion-select>
+                    </ion-item>
+                    <ion-item class="apt-modal__product-qty">
+                      <ion-input
+                        formControlName="quantity"
+                        type="number"
+                        min="0.01"
+                        step="0.1"
+                        placeholder="Qty"
+                        (ionChange)="onProductChange()"
+                      ></ion-input>
+                    </ion-item>
+                    <ion-button
+                      fill="clear"
+                      color="danger"
+                      size="small"
+                      class="apt-modal__product-remove"
+                      (click)="removeConsumableProduct(i)"
+                    >
+                      <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                    </ion-button>
+                  </div>
+                }
+              </ng-container>
+            </div>
+          } @else {
+            <p class="apt-modal__hint">No products added yet</p>
+          }
+        </div>
+      }
+
+      <!-- ── PROMO CODE (promoCodes feature) ───────────────────── -->
+      @if (canUsePromoCodes()) {
+        <div class="apt-modal__divider"></div>
+        <div class="apt-modal__section">
+          <div class="apt-modal__section-title">Promo Code</div>
+          @if (promoCodeOptions().length > 0) {
+            <ion-item>
+              <ion-select
+                formControlName="promoCode"
+                placeholder="Select promo code (optional)"
+                interface="action-sheet"
+              >
+                <ion-select-option [value]="null">— None —</ion-select-option>
+                @for (pc of promoCodeOptions(); track pc._id) {
+                  <ion-select-option [value]="pc._id">{{ pc.name }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+          } @else {
+            <p class="apt-modal__hint">No active promo codes for this department</p>
+          }
+        </div>
+      }
+
+      <div class="apt-modal__divider"></div>
+
       <!-- ── COMMENT ─────────────────────────────────────────────── -->
       <div class="apt-modal__section">
         <div class="apt-modal__section-title">Notes</div>
@@ -245,10 +337,30 @@
       </div>
 
       <!-- ── PRICING ─────────────────────────────────────────────── -->
-      @if (totalPrice() > 0) {
+      @if (servicesPrice() > 0 || productsPrice() > 0) {
         <div class="apt-modal__pricing">
-          <span class="apt-modal__pricing-label">Total</span>
-          <span class="apt-modal__pricing-value">{{ totalPrice() | currency }}</span>
+          @if (servicesPrice() > 0) {
+            <div class="apt-modal__pricing-row">
+              <span class="apt-modal__pricing-label">Services</span>
+              <span class="apt-modal__pricing-value">{{ servicesPrice() | currency }}</span>
+            </div>
+          }
+          @if (productsPrice() > 0) {
+            <div class="apt-modal__pricing-row">
+              <span class="apt-modal__pricing-label">Products</span>
+              <span class="apt-modal__pricing-value">{{ productsPrice() | currency }}</span>
+            </div>
+          }
+          @if (discountAmount() > 0) {
+            <div class="apt-modal__pricing-row apt-modal__pricing-row--discount">
+              <span class="apt-modal__pricing-label">Discount</span>
+              <span class="apt-modal__pricing-value">−{{ discountAmount() | currency }}</span>
+            </div>
+          }
+          <div class="apt-modal__pricing-row apt-modal__pricing-row--total">
+            <span class="apt-modal__pricing-label">Total</span>
+            <span class="apt-modal__pricing-value">{{ totalPrice() | currency }}</span>
+          </div>
         </div>
       }
 
