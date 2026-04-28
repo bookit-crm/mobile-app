@@ -16,7 +16,7 @@
       </div>
     }
 
-    @for (day of weekDays; track day.dateStr) {
+    @for (day of weekDays; track day.dateStr; let colIdx = $index) {
       <div class="week-view__column" [class.week-view__column--today]="day.isToday">
         <div class="week-view__column-header" [class.week-view__column-header--today]="day.isToday">
           <span class="week-view__day-name">{{ day.dayName }}</span>
@@ -39,19 +39,46 @@
               <div
                 class="week-view__event"
                 [class.week-view__event--canceled]="ev.appointment.status === 'canceled'"
+                [class.week-view__event--dragging]="ghostVisible() && ghostAppointment()?._id === ev.appointment._id"
                 [style.top.px]="ev.top"
                 [style.height.px]="ev.height"
                 [style.left.%]="ev.left"
                 [style.width.%]="ev.width"
                 (click)="onEventClick(ev.appointment, $event)"
+                (touchstart)="onEventTouchStart($event, ev.appointment)"
+                (mousedown)="onEventMouseDown($event, ev.appointment)"
               >
                 <app-calendar-event-card [appointment]="ev.appointment" [height]="ev.height"></app-calendar-event-card>
               </div>
             }
           </div>
+
+          <!-- Drop indicator -->
+          @if (dropHighlight() && dropHighlight()!.colIdx === colIdx) {
+            <div
+              class="week-view__drop-indicator"
+              [style.top.px]="dropHighlight()!.top"
+              [style.height.px]="dropHighlight()!.height"
+            ></div>
+          }
         </div>
       </div>
     }
   </div>
 </div>
 
+<!-- Ghost — fixed, follows finger -->
+@if (ghostVisible()) {
+  <div
+    class="week-view__ghost"
+    [style.top.px]="ghostTop()"
+    [style.left.px]="ghostLeft()"
+    [style.width.px]="ghostWidth()"
+    [style.height.px]="ghostHeight()"
+  >
+    <app-calendar-event-card
+      [appointment]="ghostAppointment()"
+      [height]="ghostHeight()"
+    ></app-calendar-event-card>
+  </div>
+}

@@ -13,6 +13,7 @@ import { ISchedule, IScheduleQueries } from '@core/models/schedule.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { SchedulerViewType } from '@core/models/calendar.interface';
 import { EUserRole } from '@core/enums/e-user-role';
+import { IDragDropResult } from './utils/calendar-utils';
 import { AppointmentsService } from '@core/services/appointments.service';
 import { EmployeeService } from '@core/services/employee.service';
 import { SchedulesService } from '@core/services/schedules.service';
@@ -157,6 +158,23 @@ export class CalendarPage implements OnInit {
     this.openAppointmentModal({ _id: payload._id });
   }
 
+  /** Drag-and-drop: обновляем время/сотрудника через API и обновляем календарь */
+  public onEventDropped(result: IDragDropResult): void {
+    const patch: Record<string, unknown> = {
+      startDate: result.newStartDate,
+      endDate: result.newEndDate,
+    };
+    if (result.newEmployeeId) {
+      patch['employee'] = result.newEmployeeId;
+    }
+    this.appointmentsService
+      .patchAppointmentById(result.appointmentId, patch as any)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.ngZone.run(() => this.filters$.next(this.filters$.value)),
+      });
+  }
+
   public async openAppointmentModal(payload: IAppointmentModalPayload = {}): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: AppointmentModalComponent,
@@ -233,7 +251,10 @@ export class CalendarPage implements OnInit {
     const range = this.calendarDateRange;
     const parts = range.split(' - ');
     const from = parts[0] ?? this.currentDate();
-    const to = parts[1] ?? from;
+    const toDate = parts[1] ?? from;
+    // Если дата без времени (plain date), добавляем конец дня,
+    // иначе endDate <= '2026-04-28' отрезает все записи с временем (T10:00Z > '2026-04-28')
+    const to = toDate.includes('T') ? toDate : `${toDate}T23:59:59`;
     const current = this.filters$.value;
     this.filters$.next({ ...current, from, to });
   }

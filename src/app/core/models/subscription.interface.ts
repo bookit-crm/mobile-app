@@ -3,6 +3,21 @@
  * Зеркало бэка: core-api/src/features/subscription/constants/feature-flags.const.ts
  */
 
+/**
+ * Scope нотификаций по тарифу:
+ * - 'appointments-only' — только NewBookings/Cancellations (Individual)
+ * - 'full' — все категории (Starter / Professional / Enterprise)
+ */
+export type TNotificationsScope = 'appointments-only' | 'full';
+
+/**
+ * Категории нотификаций, разрешённые для тарифа `appointments-only`.
+ */
+export const APPOINTMENT_NOTIFICATION_CATEGORIES: readonly string[] = [
+  'new_bookings',
+  'cancellations',
+];
+
 export enum ETier {
   INDIVIDUAL   = 'individual',
   STARTER      = 'starter',

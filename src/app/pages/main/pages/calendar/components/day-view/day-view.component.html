@@ -16,7 +16,7 @@
       </div>
     }
 
-    @for (column of columns; track column.employeeId) {
+    @for (column of columns; track column.employeeId; let colIdx = $index) {
       <div class="day-view__column">
         <div class="day-view__column-header">
           <div class="day-view__avatar">
@@ -44,16 +44,28 @@
               <div
                 class="day-view__event"
                 [class.day-view__event--canceled]="ev.appointment.status === 'canceled'"
+                [class.day-view__event--dragging]="ghostVisible() && ghostAppointment()?._id === ev.appointment._id"
                 [style.top.px]="ev.top"
                 [style.height.px]="ev.height"
                 [style.left.%]="ev.left"
                 [style.width.%]="ev.width"
                 (click)="onEventClick(ev.appointment, $event)"
+                (touchstart)="onEventTouchStart($event, ev.appointment)"
+                (mousedown)="onEventMouseDown($event, ev.appointment)"
               >
                 <app-calendar-event-card [appointment]="ev.appointment" [height]="ev.height"></app-calendar-event-card>
               </div>
             }
           </div>
+
+          <!-- Drop indicator for this column -->
+          @if (dropHighlight() && dropHighlight()!.colIdx === colIdx) {
+            <div
+              class="day-view__drop-indicator"
+              [style.top.px]="dropHighlight()!.top"
+              [style.height.px]="dropHighlight()!.height"
+            ></div>
+          }
         </div>
       </div>
     }
@@ -64,3 +76,18 @@
   </div>
 </div>
 
+<!-- Drag ghost — fixed position, follows finger -->
+@if (ghostVisible()) {
+  <div
+    class="day-view__ghost"
+    [style.top.px]="ghostTop()"
+    [style.left.px]="ghostLeft()"
+    [style.width.px]="ghostWidth()"
+    [style.height.px]="ghostHeight()"
+  >
+    <app-calendar-event-card
+      [appointment]="ghostAppointment()"
+      [height]="ghostHeight()"
+    ></app-calendar-event-card>
+  </div>
+}

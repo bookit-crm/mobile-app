@@ -100,6 +100,7 @@
             [selectedEmployeeIds]="selectedEmployeeIds()"
             (slotClicked)="onSlotClicked($event)"
             (eventClicked)="onEventClicked($event)"
+            (eventDropped)="onEventDropped($event)"
           ></app-day-view>
         </div>
       }
@@ -112,6 +113,7 @@
             [selectedEmployeeId]="selectedEmployeeIds().at(0) ?? ''"
             (slotClicked)="onSlotClicked($event)"
             (eventClicked)="onEventClicked($event)"
+            (eventDropped)="onEventDropped($event)"
           ></app-week-view>
         </div>
       }
