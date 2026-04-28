@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ modalTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form">
+    <ion-list lines="full">
+
+      <!-- Full Name -->
+      <ion-item>
+        <ion-label position="stacked">
+          Full Name <span class="required">*</span>
+        </ion-label>
+        <ion-input
+          formControlName="fullName"
+          type="text"
+          placeholder="Enter full name"
+          autocomplete="name"
+        ></ion-input>
+      </ion-item>
+      @if (hasError('fullName', 'required')) {
+        <ion-note color="danger" class="field-error">Full name is required</ion-note>
+      }
+      @if (hasError('fullName', 'minlength')) {
+        <ion-note color="danger" class="field-error">Minimum 2 characters</ion-note>
+      }
+
+      <!-- Phone -->
+      <ion-item>
+        <ion-label position="stacked">
+          Phone <span class="required">*</span>
+        </ion-label>
+        <ion-input
+          formControlName="phone"
+          type="tel"
+          placeholder="+380 12 345 6789"
+          autocomplete="tel"
+        ></ion-input>
+      </ion-item>
+      @if (hasError('phone', 'required')) {
+        <ion-note color="danger" class="field-error">Phone is required</ion-note>
+      }
+      @if (hasError('phone', 'pattern')) {
+        <ion-note color="danger" class="field-error">Enter a valid phone number</ion-note>
+      }
+
+      <!-- Email -->
+      <ion-item>
+        <ion-label position="stacked">Email</ion-label>
+        <ion-input
+          formControlName="email"
+          type="email"
+          placeholder="client@example.com"
+          autocomplete="email"
+        ></ion-input>
+      </ion-item>
+      @if (hasError('email', 'pattern')) {
+        <ion-note color="danger" class="field-error">Enter a valid email</ion-note>
+      }
+
+      <!-- Date of Birth -->
+      <ion-item>
+        <ion-label position="stacked">Date of Birth</ion-label>
+        <input
+          formControlName="dateOfBirth"
+          type="date"
+          class="native-date-input"
+        />
+      </ion-item>
+
+      <!-- City -->
+      <ion-item>
+        <ion-label position="stacked">City</ion-label>
+        <ion-input
+          formControlName="city"
+          type="text"
+          placeholder="City"
+        ></ion-input>
+      </ion-item>
+
+      <!-- Description / Notes -->
+      <ion-item>
+        <ion-label position="stacked">Notes</ion-label>
+        <ion-textarea
+          formControlName="description"
+          placeholder="Any notes about this client..."
+          [rows]="3"
+          autoGrow="true"
+        ></ion-textarea>
+      </ion-item>
+
+    </ion-list>
+  </form>
+</ion-content>
+
+<div class="modal-footer">
+  <ion-button expand="block" fill="outline" color="medium" (click)="dismiss()">
+    Cancel
+  </ion-button>
+  <ion-button expand="block" color="primary" [disabled]="isSaving" (click)="submit()">
+    @if (isSaving) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+    } @else {
+      <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
+    }
+    {{ isEditMode ? 'Save Changes' : 'Add Client' }}
+  </ion-button>
+</div>
+

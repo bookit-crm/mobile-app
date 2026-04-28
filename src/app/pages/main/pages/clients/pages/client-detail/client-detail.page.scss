@@ -1,0 +1,243 @@
+.detail-loading,
+.history-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 32px;
+}
+
+// ── Profile Card ───────────────────────────────────────────────────────────
+.profile-card {
+  margin: 12px 16px;
+  border-radius: 12px;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.profile-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.profile-city {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+
+  ion-icon {
+    font-size: 13px;
+  }
+}
+
+.profile-details {
+  margin: 0 -16px;
+}
+
+.detail-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--ion-color-medium) !important;
+  margin: 0;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: var(--ion-text-color) !important;
+  margin: 2px 0 0;
+}
+
+// ── Section Header ─────────────────────────────────────────────────────────
+.section-header {
+  padding: 8px 16px 4px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+
+  ion-icon {
+    font-size: 16px;
+    color: var(--ion-color-primary);
+  }
+}
+
+.count-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+}
+
+// ── Upgrade Prompt ─────────────────────────────────────────────────────────
+.upgrade-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  text-align: center;
+
+  .upgrade-icon {
+    font-size: 40px;
+    color: var(--ion-color-medium);
+    margin-bottom: 12px;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ── History Empty ──────────────────────────────────────────────────────────
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 40px;
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+  }
+
+  &__text {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ── History List ───────────────────────────────────────────────────────────
+.history-list {
+  padding: 4px 0;
+}
+
+.history-card {
+  margin: 6px 16px;
+  border-radius: 10px;
+}
+
+.history-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.history-date {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--ion-color-medium-shade);
+  margin: 4px 0 0;
+
+  ion-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.history-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.history-price {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ion-color-primary);
+}
+
+.history-discount {
+  font-size: 12px;
+  color: var(--ion-color-success);
+}
+
+// ── Filter modal ───────────────────────────────────────────────────────────
+.filter-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ion-color-medium) !important;
+}
+
+.filter-date-input {
+  display: block;
+  width: 100%;
+  padding: 10px 0 8px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ion-text-color);
+  font-size: 1rem;
+  font-family: inherit;
+  -webkit-appearance: none;
+}
+
+.filter-modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-color-light);
+}
+

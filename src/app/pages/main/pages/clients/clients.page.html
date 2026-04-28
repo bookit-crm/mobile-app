@@ -4,8 +4,188 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Clients</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterModal()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge class="filter-badge" color="primary">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search by name, phone, email..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Clients page (coming soon)</p>
+
+<!-- ── Filter Modal ─────────────────────────────────────────────────────── -->
+<ion-modal
+  [isOpen]="showFilterModal()"
+  [breakpoints]="[0, 0.6]"
+  [initialBreakpoint]="0.6"
+  (didDismiss)="showFilterModal.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content">
+      <ion-list lines="full">
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Last Visit From</ion-label>
+          <input type="date" class="filter-date-input" [(ngModel)]="tempLastVisitFrom" />
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Last Visit To</ion-label>
+          <input type="date" class="filter-date-input" [(ngModel)]="tempLastVisitTo" />
+        </ion-item>
+      </ion-list>
+    </ion-content>
+    <div class="filter-modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
+        Reset All
+      </ion-button>
+      <ion-button expand="block" color="primary" (click)="applyFilters()">
+        Apply Filters
+      </ion-button>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+
+  @if (isLoading() && clients().length === 0) {
+    <div class="clients-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (!isLoading() && clients().length === 0) {
+    <div class="clients-empty">
+      <ion-icon name="people-outline" class="clients-empty__icon"></ion-icon>
+      <h3 class="clients-empty__title">No clients yet</h3>
+      <p class="clients-empty__text">Add your first client or import from Excel.</p>
+      @if (canManageClients()) {
+        <ion-button color="primary" (click)="openCreateModal()">
+          <ion-icon name="add-outline" slot="start"></ion-icon>
+          Add Client
+        </ion-button>
+      }
+    </div>
+  } @else {
+    <div class="clients-meta">
+      <p class="clients-count">
+        {{ totalCount() }} client(s)
+        @if (activeFiltersCount() > 0) {
+          <span class="clients-filters-active"> · {{ activeFiltersCount() }} filter(s) active</span>
+        }
+      </p>
+    </div>
+
+    <div class="swipe-hint">
+      <ion-icon name="swap-horizontal-outline"></ion-icon>
+      <span>Swipe left on a card for options</span>
+    </div>
+
+    <ion-list lines="none">
+      @for (client of clients(); track client._id) {
+        <ion-item-sliding>
+          <ion-item [button]="true" [detail]="false">
+            <div class="client-avatar" slot="start">
+              {{ getInitials(client.fullName) }}
+            </div>
+            <ion-label>
+              <div class="client-header">
+                <h2 class="client-name">{{ client.fullName }}</h2>
+              </div>
+              <p class="client-info">
+                <ion-icon name="call-outline"></ion-icon>
+                {{ client.phone }}
+              </p>
+              @if (client.email) {
+                <p class="client-info">
+                  <ion-icon name="mail-outline"></ion-icon>
+                  {{ client.email }}
+                </p>
+              }
+              @if (client.city) {
+                <p class="client-info">
+                  <ion-icon name="location-outline"></ion-icon>
+                  {{ client.city }}
+                </p>
+              }
+              @if (client.lastVisitDate) {
+                <p class="client-info client-info--last-visit">
+                  <ion-icon name="time-outline"></ion-icon>
+                  Last visit: {{ formatDate(client.lastVisitDate) }}
+                </p>
+              }
+            </ion-label>
+            @if (canManageClients() || canViewHistory()) {
+              <ion-icon
+                name="chevron-back-outline"
+                slot="end"
+                class="swipe-indicator"
+              ></ion-icon>
+            }
+          </ion-item>
+
+          @if (canManageClients() || canViewHistory()) {
+            <ion-item-options side="end">
+              @if (canManageClients()) {
+                <!-- Edit -->
+                <ion-item-option color="primary" (click)="openEditModal(client, $event)">
+                  <ion-icon name="create-outline" slot="top"></ion-icon>
+                  <span class="option-label">Edit</span>
+                </ion-item-option>
+                <!-- New Appointment -->
+                <ion-item-option color="success" (click)="openNewAppointment(client, $event)">
+                  <ion-icon name="calendar-outline" slot="top"></ion-icon>
+                  <span class="option-label">Book</span>
+                </ion-item-option>
+              }
+              @if (canViewHistory()) {
+                <!-- History -->
+                <ion-item-option color="secondary" (click)="viewHistory(client, $event)">
+                  <ion-icon name="time-outline" slot="top"></ion-icon>
+                  <span class="option-label">History</span>
+                </ion-item-option>
+              }
+              @if (canManageClients()) {
+                <!-- Delete -->
+                <ion-item-option color="danger" (click)="confirmDelete(client, $event)">
+                  <ion-icon name="trash-outline" slot="top"></ion-icon>
+                  <span class="option-label">Delete</span>
+                </ion-item-option>
+              }
+            </ion-item-options>
+          }
+        </ion-item-sliding>
+      }
+    </ion-list>
+
+    <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+  <!-- FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button
+      [color]="canManageClients() ? 'primary' : 'medium'"
+      (click)="openCreateModal()"
+    >
+      <ion-icon [name]="canManageClients() ? 'person-add-outline' : 'lock-closed-outline'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

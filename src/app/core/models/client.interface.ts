@@ -3,6 +3,11 @@ export interface IClient {
   fullName: string;
   phone: string;
   email?: string;
+  dateOfBirth?: string;
+  city?: string;
+  description?: string;
+  lastVisitDate?: string;
+  created?: string;
 }
 
 export interface IClientList {
@@ -10,3 +15,11 @@ export interface IClientList {
   count: number;
 }
 
+export interface ICreateClientPayload {
+  fullName: string;
+  phone: string;
+  email?: string;
+  dateOfBirth?: string;
+  city?: string;
+  description?: string;
+}

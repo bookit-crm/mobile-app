@@ -15,16 +15,20 @@
 | `/main/appointments/:appointmentId/history` | `src/app/pages/main/pages/appointments/components/appointment-history/appointment-history.page.ts` | История изменений записи (filter by action) | ✅ реализована |
 | `/main/departments` | `src/app/pages/main/pages/departments/departments.page.ts` | Каталог департаментов — список с поиском, создание/редактирование/удаление | ✅ реализована |
 | `/main/departments/:id` | `src/app/pages/main/pages/departments/pages/department/department.page.ts` | Детальная страница департамента (Overview + Branding + Schedule вкладки) | ✅ реализована |
+| `/main/clients` | `src/app/pages/main/pages/clients/clients.page.ts` | Список клиентов (search + dateRange filter + infinite scroll, create/edit/delete, swipe actions, history modal, new appointment) | ✅ реализована |
+| `/main/clients → modal(clientId)` | `src/app/pages/main/pages/clients/pages/client-detail/client-detail.page.ts` | Детали клиента + история визитов (standalone, открывается как Ionic modal) | ✅ реализована |
 | `/main/profile` | `src/app/pages/profile/...` | Профиль пользователя | 🧭 план |
 
-## Core сервисы (`src/app/core/services/` — ещё не созданы)
+## Core сервисы (`src/app/core/services/`)
 
 | Сервис | Назначение | Backend эндпоинты | Статус |
 |--------|-----------|-------------------|--------|
 | `AuthService` | login/logout/refresh, хранение токена | `api/auth/*` | 🧭 |
 | `AppointmentsService` | CRUD + paginated list + history записей | `api/appointment/*` | ✅ реализован |
+| `ClientsService` | CRUD клиентов, paginated list, importExcel, getClientAppointments | `api/client/*`, `api/appointment/client/:id/` | ✅ реализован |
 | `DepartmentService` | CRUD департаментов, список, детали, signals | `api/department/*` | ✅ реализован |
 | `FilesService` | Загрузка файлов (изображений) на сервер | `api/files/` | ✅ реализован |
+| `SubscriptionService` | Загрузка подписки, hasFeature(), meetsTier(), isActive() | `api/subscription/self/` | ✅ реализован |
 | `NotificationsService` | Push + in-app уведомления | `api/notification/*` | 🧭 |
 | `WebsocketService` | Socket.io singleton | — | 🧭 |
 

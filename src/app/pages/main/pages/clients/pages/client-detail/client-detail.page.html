@@ -1,0 +1,198 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Client Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterModal()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- ── Filter Modal ─────────────────────────────────────────────────────── -->
+<ion-modal
+  [isOpen]="showFilterModal()"
+  [breakpoints]="[0, 0.55]"
+  [initialBreakpoint]="0.55"
+  (didDismiss)="showFilterModal.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filter History</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content">
+      <ion-list lines="full">
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Date From</ion-label>
+          <input type="date" class="filter-date-input" [(ngModel)]="tempDateFrom" />
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked" class="filter-label">Date To</ion-label>
+          <input type="date" class="filter-date-input" [(ngModel)]="tempDateTo" />
+        </ion-item>
+      </ion-list>
+    </ion-content>
+    <div class="filter-modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
+        Reset
+      </ion-button>
+      <ion-button expand="block" color="primary" (click)="applyFilters()">
+        Apply
+      </ion-button>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+
+  <!-- ── Client Profile Card ──────────────────────────────────────────────── -->
+  @if (isLoadingClient()) {
+    <div class="detail-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (client()) {
+    <ion-card class="profile-card">
+      <ion-card-content>
+        <div class="profile-header">
+          <div class="profile-avatar">{{ getInitials(client()!.fullName) }}</div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ client()!.fullName }}</h2>
+            @if (client()!.city) {
+              <p class="profile-city">
+                <ion-icon name="location-outline"></ion-icon>
+                {{ client()!.city }}
+              </p>
+            }
+          </div>
+        </div>
+
+        <ion-list lines="none" class="profile-details">
+          <ion-item>
+            <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <p class="detail-label">Phone</p>
+              <p class="detail-value">{{ client()!.phone }}</p>
+            </ion-label>
+          </ion-item>
+
+          @if (client()!.email) {
+            <ion-item>
+              <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <p class="detail-label">Email</p>
+                <p class="detail-value">{{ client()!.email }}</p>
+              </ion-label>
+            </ion-item>
+          }
+
+          @if (client()!.dateOfBirth) {
+            <ion-item>
+              <ion-icon name="gift-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <p class="detail-label">Date of Birth</p>
+                <p class="detail-value">{{ formatDate(client()!.dateOfBirth) }}</p>
+              </ion-label>
+            </ion-item>
+          }
+
+          @if (client()!.lastVisitDate) {
+            <ion-item>
+              <ion-icon name="time-outline" slot="start" color="secondary"></ion-icon>
+              <ion-label>
+                <p class="detail-label">Last Visit</p>
+                <p class="detail-value">{{ formatDate(client()!.lastVisitDate) }}</p>
+              </ion-label>
+            </ion-item>
+          }
+
+          @if (client()!.description) {
+            <ion-item>
+              <ion-icon name="document-text-outline" slot="start" color="medium"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <p class="detail-label">Notes</p>
+                <p class="detail-value">{{ client()!.description }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- ── Visit History ────────────────────────────────────────────────────── -->
+  <div class="section-header">
+    <h3 class="section-title">
+      <ion-icon name="calendar-outline"></ion-icon>
+      Visit History
+      @if (totalCount() > 0) {
+        <ion-badge color="medium" class="count-badge">{{ totalCount() }}</ion-badge>
+      }
+    </h3>
+  </div>
+
+  @if (!canViewHistory()) {
+    <div class="upgrade-prompt">
+      <ion-icon name="lock-closed-outline" class="upgrade-icon"></ion-icon>
+      <h4>Upgrade Required</h4>
+      <p>Visit history is available on Professional and Enterprise plans.</p>
+    </div>
+  } @else if (isLoadingHistory() && appointments().length === 0) {
+    <div class="history-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (!isLoadingHistory() && appointments().length === 0) {
+    <div class="history-empty">
+      <ion-icon name="calendar-outline" class="history-empty__icon"></ion-icon>
+      <p class="history-empty__text">No visit history found</p>
+    </div>
+  } @else {
+    <ion-list lines="none" class="history-list">
+      @for (appt of appointments(); track appt._id) {
+        <ion-card class="history-card">
+          <ion-card-header>
+            <div class="history-card-meta">
+              <ion-badge [color]="getStatusColor(appt.status)">{{ appt.status }}</ion-badge>
+              <span class="history-date">{{ formatDateTime(appt.startDate) }}</span>
+            </div>
+          </ion-card-header>
+          <ion-card-content>
+            <p class="history-row">
+              <ion-icon name="business-outline"></ion-icon>
+              <span>{{ getDepartmentName(appt.department) }}</span>
+            </p>
+            <p class="history-row">
+              <ion-icon name="cut-outline"></ion-icon>
+              <span>{{ getServiceNames(appt) }}</span>
+            </p>
+            <div class="history-footer">
+              <span class="history-price">
+                {{ getFinalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
+              </span>
+              @if (appt.discountAmount) {
+                <span class="history-discount">-{{ appt.discountAmount | currency: 'USD' : 'symbol' : '1.0-0' }} discount</span>
+              }
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </ion-list>
+
+    <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+</ion-content>
+

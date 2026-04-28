@@ -32,6 +32,7 @@ export interface IAppointmentModalPayload {
   _id?: string;          // если задан → edit mode
   department?: string;
   employee?: string;
+  clientId?: string;     // если задан → клиент предзаполняется
   startDate?: string;    // YYYY-MM-DD
   from?: string;         // HH:mm
 }
@@ -372,7 +373,7 @@ export class AppointmentModalComponent implements OnInit {
     );
 
     this.form = this.fb.group({
-      clientId: [apt?.client?._id ?? '', Validators.required],
+      clientId: [apt?.client?._id ?? this.payload?.clientId ?? '', Validators.required],
       clientName: [''],
       clientPhone: [''],
       departmentId: [
