@@ -1,1 +1,311 @@
-﻿
+﻿$label-width: 160px;
+$cell-height: 48px;
+$cell-min-width: 40px;
+$border-color: var(--ion-border-color, #e0e0e0);
+
+
+// ─── Department selector (toolbar top-right) ─────────────────────────────────
+.ds-dept-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px 4px 4px;
+  cursor: pointer;
+
+  &__icon {
+    font-size: 16px;
+    color: var(--ion-color-medium, #92949c);
+    flex-shrink: 0;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+}
+
+.ds-dept-select {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  max-width: 110px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ion-text-color, #333);
+  line-height: 1.3;
+}
+
+// ─── Day switcher ────────────────────────────────────────────────────────────
+.ds-switcher-toolbar {
+  --min-height: auto;
+  padding: 4px 0;
+}
+
+.ds-switcher-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.ds-day-switcher {
+  display: flex;
+  flex: 1;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  &__btn {
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 44px;
+    transition: background 0.15s ease;
+
+    &:hover, &:active {
+      background: var(--ion-color-light, #f4f5f8);
+    }
+
+    &.active {
+      background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.12);
+
+      .ds-day-switcher__day-name,
+      .ds-day-switcher__day-date {
+        color: var(--ion-color-primary, #3880ff);
+        font-weight: 600;
+      }
+    }
+  }
+
+  &__day-name {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ion-color-medium, #92949c);
+    line-height: 1.3;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  &__day-date {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--ion-text-color, #333);
+    line-height: 1.3;
+    white-space: nowrap;
+  }
+}
+
+// ─── Date row ────────────────────────────────────────────────────────────────
+.ds-date-toolbar {
+  --min-height: auto;
+  padding: 4px 8px;
+}
+
+.ds-date-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+// ─── Info row (legend + dept hours chip) ─────────────────────────────────────
+.ds-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// ─── Legend ──────────────────────────────────────────────────────────────────
+.ds-legend {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ion-color-medium, #92949c);
+  }
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+
+    &--working { background: #90caf9; }
+    &--not-working { background: #ef9a9a; }
+    &--closed {
+      background: var(--ion-color-light, #f4f5f8);
+      border: 1px solid $border-color;
+    }
+  }
+}
+
+// ─── Department hours chip ───────────────────────────────────────────────────
+.ds-hours-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--ion-color-primary-tint, #4c8dff);
+  background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.08);
+  color: var(--ion-color-primary, #3880ff);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 14px; }
+
+  &__label {
+    font-weight: 400;
+    opacity: 0.75;
+  }
+
+  &__value {
+    font-weight: 600;
+  }
+}
+
+// ─── Loading / Empty ─────────────────────────────────────────────────────────
+.ds-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.ds-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--ion-color-medium, #92949c);
+  font-size: 14px;
+  gap: 8px;
+  ion-icon { font-size: 40px; }
+}
+
+// ─── Grid ─────────────────────────────────────────────────────────────────────
+.ds-grid-wrapper {
+  overflow-x: auto;
+  overflow-y: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid $border-color;
+}
+
+.ds-grid {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: max-content;
+
+  &__row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child { border-bottom: none; }
+
+    &--header {
+      position: sticky;
+      top: 0;
+      z-index: 20;   // выше now-line (10), выше label (12)
+      background: var(--ion-background-color, #fff);
+
+      .ds-grid__label {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ion-text-color, #333);
+        background: var(--ion-background-color, #fff);
+        // z-index наследуется от строки-заголовка
+      }
+    }
+  }
+
+  // Sticky label — ВЫШЕ now-line, чтобы линия не заезжала на имена при скролле
+  &__label {
+    width: $label-width;
+    min-width: $label-width;
+    max-width: $label-width;
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    position: sticky;
+    left: 0;
+    background: var(--ion-background-color, #fff);
+    z-index: 12;   // > now-line (z-index: 10)
+    border-right: 1px solid $border-color;
+  }
+
+  &__hour-header {
+    min-width: $cell-min-width;
+    width: $cell-min-width;
+    height: $cell-height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--ion-color-medium, #92949c);
+    border-right: 1px solid $border-color;
+
+    &:last-child { border-right: none; }
+  }
+
+  &__cell {
+    min-width: $cell-min-width;
+    width: $cell-min-width;
+    height: $cell-height;
+    border-right: 1px solid $border-color;
+
+    &:last-child { border-right: none; }
+    &--working { background: #90caf9; }
+    &--not-working { background: #ef9a9a; }
+    &--closed { background: var(--ion-color-light, #f4f5f8); }
+    &--open { background: #bbdefb; }
+  }
+
+  // Now-line: z-index 10, ниже sticky-лейблов (12) —
+  // поэтому при скролле лейбл перекрывает линию, а не наоборот
+  &__now-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--ion-color-danger, #eb445a);
+    z-index: 10;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: $cell-height; // сдвиг на высоту header-строки — кружок не скрыт за sticky заголовком
+      left: -4px;
+      width: 10px;
+      height: 10px;
+      background: var(--ion-color-danger, #eb445a);
+      border-radius: 50%;
+    }
+  }
+}

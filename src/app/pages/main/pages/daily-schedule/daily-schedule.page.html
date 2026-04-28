@@ -4,8 +4,177 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Daily Schedule</ion-title>
+
+    <!-- Department selector в правом верхнем углу (только для multi-dept) -->
+    @if (!singleDepartmentMode() && departments().length > 1) {
+      <ion-buttons slot="end">
+        <div class="ds-dept-btn">
+          <ion-icon name="business-outline" class="ds-dept-btn__icon"></ion-icon>
+          <div class="ds-dept-btn__text">
+            <ion-select
+              class="ds-dept-select"
+              [value]="selectedDepartment()?._id"
+              interface="action-sheet"
+              [interfaceOptions]="{ header: 'Select Department' }"
+              (ionChange)="onDepartmentChange($event.detail.value)"
+            >
+              @for (dept of departmentOptions(); track dept.id) {
+                <ion-select-option [value]="dept.id">{{ dept.name }}</ion-select-option>
+              }
+            </ion-select>
+          </div>
+        </div>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+
+  <!-- Day switcher -->
+  <ion-toolbar class="ds-switcher-toolbar">
+    <div class="ds-switcher-row">
+      <ion-button fill="clear" size="small" (click)="prevWeek()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+
+      <div class="ds-day-switcher">
+        @for (day of dayNames; track day.value) {
+          <button
+            class="ds-day-switcher__btn"
+            [class.active]="selectedDayIndex() === day.value"
+            (click)="selectDay(day.value)"
+          >
+            <span class="ds-day-switcher__day-name">{{ day.display }}</span>
+            <span class="ds-day-switcher__day-date">{{ weekDates()[day.value] }}</span>
+          </button>
+        }
+      </div>
+
+      <ion-button fill="clear" size="small" (click)="nextWeek()">
+        <ion-icon slot="icon-only" name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+
+  <!-- Date picker + Today button row -->
+  <ion-toolbar class="ds-date-toolbar">
+    <div class="ds-date-row">
+      <ion-button fill="outline" size="small" (click)="openDatePicker()">
+        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+        {{ selectedDateString().slice(0, 10).split('-').reverse().join('/') }}
+      </ion-button>
+
+      @if (!isTodaySignal()) {
+        <ion-button fill="outline" size="small" color="medium" (click)="goToToday()">
+          Today
+        </ion-button>
+      }
+    </div>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Daily Schedule page (coming soon)</p>
+
+<!-- Date Picker Modal -->
+<ion-modal [isOpen]="datePickerOpen()" (didDismiss)="datePickerOpen.set(false)">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Select Date</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="datePickerOpen.set(false)">Close</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-datetime
+        presentation="date"
+        [value]="selectedDateString()"
+        (ionChange)="onDatePickerChange($event.detail.value)"
+      ></ion-datetime>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+  <!-- Legend + dept hours -->
+  <div class="ds-info-row">
+    <div class="ds-legend">
+      <span class="ds-legend__item">
+        <span class="ds-legend__dot ds-legend__dot--working"></span>
+        Working
+      </span>
+      <span class="ds-legend__item">
+        <span class="ds-legend__dot ds-legend__dot--not-working"></span>
+        Not Working
+      </span>
+      <span class="ds-legend__item">
+        <span class="ds-legend__dot ds-legend__dot--closed"></span>
+        Closed
+      </span>
+    </div>
+    @if (departmentTimeLabel()) {
+      <div class="ds-hours-chip">
+        <ion-icon name="business-outline"></ion-icon>
+        <span class="ds-hours-chip__label">Dept hours:</span>
+        <span class="ds-hours-chip__value">{{ departmentTimeLabel() }}</span>
+      </div>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="ds-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!loading() && !employees().length && selectedDepartment()) {
+    <div class="ds-empty">
+      <ion-icon name="people-outline"></ion-icon>
+      <p>No employees for this day</p>
+    </div>
+  }
+
+  <!-- Grid -->
+  @if (!loading() && employees().length) {
+    <div class="ds-grid-wrapper">
+      <div class="ds-grid">
+        <!-- Header row (hours) -->
+        <div class="ds-grid__row ds-grid__row--header">
+          <div class="ds-grid__label">Employees</div>
+          @for (hour of hours; track hour) {
+            <div class="ds-grid__hour-header">
+              {{ hour === 24 ? '0' : hour }}:00
+            </div>
+          }
+        </div>
+
+        <!-- Employee rows -->
+        @for (emp of employees(); track emp.employee._id) {
+          <div class="ds-grid__row ds-grid__row--employee">
+            <div class="ds-grid__label">
+              <app-employee-avatar
+                [employee]="emp.employee"
+                [color]="colorMap().get(emp.employee._id) ?? '#C8B6FF'"
+                [isManager]="managerIds().has(emp.employee._id)"
+              ></app-employee-avatar>
+            </div>
+            @for (hour of hours; track hour) {
+              <div
+                class="ds-grid__cell ds-grid__cell--{{ cellClassMap().get(emp.employee._id + '_' + hour) }}"
+              ></div>
+            }
+          </div>
+        }
+
+        <!-- Now indicator -->
+        @if (isTodaySignal() && nowHourPosition() !== null) {
+          <div
+            class="ds-grid__now-line"
+            [style.left]="'calc(' + labelWidth + 'px + (100% - ' + labelWidth + 'px) * ' + (nowHourPosition()! / 100) + ')'"
+          ></div>
+        }
+      </div>
+    </div>
+  }
 </ion-content>
+
+

@@ -22,3 +22,16 @@ export interface IScheduleQueries {
   employeeIds?: string[];
   statuses?: string[];
 }
+
+export interface IDailyEmployeeSchedule {
+  employee: IEmployee;
+  daySchedule: IDayModel | null;
+  status: 'working' | 'dayOff';
+}
+
+export interface IDailyScheduleResponse {
+  departmentSchedule: IDayModel | null;
+  employees: IDailyEmployeeSchedule[];
+  managers: IDailyEmployeeSchedule[];
+}
+
