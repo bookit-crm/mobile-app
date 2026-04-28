@@ -1,1 +1,112 @@
-﻿
+﻿.employees-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+}
+
+.employees-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.employees-meta {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.employees-count {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+// ── Swipe hint banner ──────────────────────────────────────
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light-shade);
+
+  ion-icon {
+    font-size: 15px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ── Swipe indicator icon on each card ─────────────────────
+.swipe-indicator {
+  font-size: 16px;
+  color: var(--ion-color-medium-shade);
+  opacity: 0.45;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  margin-right: 4px;
+}
+
+// ── Avatar ─────────────────────────────────────────────────
+.avatar-icon {
+  font-size: 36px;
+  color: var(--ion-color-medium);
+  width: 100%;
+  height: 100%;
+}
+
+ion-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-color-light);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+ion-item {
+  --padding-start: 16px;
+}
+
+ion-label p {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 13px;
+  }
+}

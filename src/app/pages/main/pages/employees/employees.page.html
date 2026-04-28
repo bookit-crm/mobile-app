@@ -5,7 +5,202 @@
     </ion-buttons>
     <ion-title>Employees</ion-title>
   </ion-toolbar>
+
+  <!-- Tabs: только для Admin/Owner -->
+  @if (!isManager) {
+    <ion-toolbar>
+      <ion-segment [value]="activeTab()" (ionChange)="onTabChange($any($event.detail.value))">
+        <ion-segment-button value="employees">
+          <ion-label>Employees ({{ employeesTotal() }})</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="managers">
+          <ion-label>Managers ({{ managersTotal() }})</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+  }
+
+  <ion-toolbar>
+    <ion-searchbar
+      [placeholder]="activeTab() === 'employees' ? 'Search employees...' : 'Search managers...'"
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Employees page (coming soon)</p>
+
+<ion-content>
+
+  <!-- ────── Loading ────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="employees-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  <!-- ────── EMPLOYEES TAB ──────────────────────────────── -->
+  @if (!isLoading() && activeTab() === 'employees') {
+    @if (employees().length === 0) {
+      <div class="employees-empty">
+        <ion-icon name="people-outline" class="employees-empty__icon"></ion-icon>
+        <h3>No employees yet</h3>
+        <p>Add your first employee to get started.</p>
+      </div>
+    } @else {
+      <!-- Подсказка о свайпе — показываем один раз над списком -->
+      <div class="swipe-hint">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Swipe left on a card for options</span>
+      </div>
+
+      <ion-list lines="none">
+        @for (emp of employees(); track emp._id) {
+          <ion-item-sliding>
+            <ion-item>
+              <ion-avatar slot="start">
+                @if (emp.avatar?.url) {
+                  <img [src]="emp.avatar!.url" [alt]="emp.firstName" />
+                } @else {
+                  <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+                }
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ emp.firstName }} {{ emp.lastName }}</h2>
+                @if (emp.position) {
+                  <p><ion-icon name="briefcase-outline"></ion-icon> {{ emp.position }}</p>
+                }
+                <p><ion-icon name="business-outline"></ion-icon> {{ getDeptName(emp) }}</p>
+                @if (emp.phone) {
+                  <p><ion-icon name="call-outline"></ion-icon> {{ emp.phone }}</p>
+                }
+                @if (emp.services?.length) {
+                  <p>
+                    <ion-icon name="cut-outline"></ion-icon>
+                    {{ emp.services!.length }} service(s)
+                  </p>
+                }
+              </ion-label>
+              <!-- Индикатор свайпа -->
+              <ion-icon
+                name="chevron-back-outline"
+                slot="end"
+                class="swipe-indicator"
+              ></ion-icon>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="primary" (click)="openEditEmployee(emp, $event)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="confirmDeleteEmployee(emp, $event)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+    }
+
+    <!-- Limit info -->
+    @if (!isManager) {
+      <div class="employees-meta ion-padding-horizontal">
+        <p class="employees-count">
+          {{ employeesTotal() }} employee(s)
+          @if (subscriptionService.getLimit('employees') !== -1) {
+             / {{ subscriptionService.getLimit('employees') }} max
+          }
+        </p>
+      </div>
+    }
+
+    <!-- FAB (только Admin/Owner) -->
+    @if (!isManager) {
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button
+          [color]="canAddEmployee() ? 'primary' : 'medium'"
+          (click)="openAddEmployee()"
+        >
+          <ion-icon [name]="canAddEmployee() ? 'add' : 'lock-closed-outline'"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
+  }
+
+  <!-- ────── MANAGERS TAB (только Admin/Owner) ──────────── -->
+  @if (!isLoading() && activeTab() === 'managers' && !isManager) {
+    @if (managers().length === 0) {
+      <div class="employees-empty">
+        <ion-icon name="shield-outline" class="employees-empty__icon"></ion-icon>
+        <h3>No managers yet</h3>
+        <p>Create a manager to assign them to a department.</p>
+      </div>
+    } @else {
+      <!-- Подсказка о свайпе -->
+      <div class="swipe-hint">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Swipe left on a card for options</span>
+      </div>
+
+      <ion-list lines="none">
+        @for (mgr of managers(); track mgr._id) {
+          <ion-item-sliding>
+            <ion-item>
+              <ion-avatar slot="start">
+                @if (mgr.avatar?.url) {
+                  <img [src]="mgr.avatar!.url" [alt]="mgr.firstName" />
+                } @else {
+                  <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+                }
+              </ion-avatar>
+              <ion-label>
+                <h2>{{ mgr.firstName }} {{ mgr.lastName }}</h2>
+                <p><ion-icon name="business-outline"></ion-icon> {{ getDeptName(mgr) }}</p>
+                @if (mgr.phone) {
+                  <p><ion-icon name="call-outline"></ion-icon> {{ mgr.phone }}</p>
+                }
+              </ion-label>
+              <ion-badge
+                slot="end"
+                [color]="isManagerAssigned(mgr) ? 'success' : 'warning'"
+                class="status-badge"
+              >
+                {{ isManagerAssigned(mgr) ? 'Assigned' : 'Unassigned' }}
+              </ion-badge>
+              <!-- Индикатор свайпа -->
+              <ion-icon
+                name="chevron-back-outline"
+                slot="end"
+                class="swipe-indicator"
+              ></ion-icon>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option
+                [color]="isManagerAssigned(mgr) ? 'warning' : 'success'"
+                (click)="toggleAssignManager(mgr, $event)"
+              >
+                <ion-icon
+                  [name]="isManagerAssigned(mgr) ? 'person-remove-outline' : 'person-add-outline'"
+                  slot="icon-only"
+                ></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="primary" (click)="openEditManager(mgr, $event)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="confirmDeleteManager(mgr, $event)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+    }
+
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary" (click)="openAddManager()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
+
 </ion-content>

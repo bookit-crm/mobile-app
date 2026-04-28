@@ -42,9 +42,6 @@
       >
         <ion-icon name="calendar-outline"></ion-icon>
         Schedule
-        @if (!canEditSchedule()) {
-          <ion-icon name="lock-closed-outline" class="tab-bar__lock"></ion-icon>
-        }
       </button>
     </div>
   </ion-toolbar>
@@ -236,16 +233,6 @@
         }
       </div>
 
-      <!-- Upgrade banner (Individual tier) -->
-      @if (!canEditSchedule()) {
-        <div class="upgrade-banner">
-          <ion-icon name="lock-closed-outline" class="upgrade-banner__icon"></ion-icon>
-          <div class="upgrade-banner__text">
-            <strong>Starter plan required</strong>
-            <span>Upgrade your subscription to manage working hours.</span>
-          </div>
-        </div>
-      }
 
       <ion-card class="info-card schedule-card" [class.schedule-card--locked]="!canEditSchedule()">
         <ion-card-content>

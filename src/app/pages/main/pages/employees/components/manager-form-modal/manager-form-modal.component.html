@@ -1,0 +1,199 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ isEditMode ? 'Edit Manager' : 'Add Manager' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form">
+
+    <!-- ── Профиль ─────────────────────────────────────── -->
+    <ion-list-header>
+      <ion-label><strong>Profile</strong></ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label position="stacked">First Name *</ion-label>
+      <ion-input formControlName="firstName" placeholder="John" [clearInput]="true"></ion-input>
+      @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
+        <ion-note color="danger" slot="helper">First name is required</ion-note>
+      }
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Last Name *</ion-label>
+      <ion-input formControlName="lastName" placeholder="Doe" [clearInput]="true"></ion-input>
+      @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
+        <ion-note color="danger" slot="helper">Last name is required</ion-note>
+      }
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Phone *</ion-label>
+      <ion-input formControlName="phone" type="tel" placeholder="+1234567890" [clearInput]="true"></ion-input>
+      @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
+        <ion-note color="danger" slot="helper">Enter a valid phone number</ion-note>
+      }
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Email *</ion-label>
+      <ion-input formControlName="email" type="email" placeholder="john@example.com" [clearInput]="true"></ion-input>
+      @if (form.get('email')?.invalid && form.get('email')?.touched) {
+        <ion-note color="danger" slot="helper">Enter a valid email</ion-note>
+      }
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Date of Birth</ion-label>
+      <ion-input formControlName="dateOfBirth" type="date"></ion-input>
+    </ion-item>
+
+    <!-- ── Пароль ──────────────────────────────────────── -->
+    <ion-list-header>
+      <ion-label>
+        <strong>{{ isEditMode ? 'Change Password (optional)' : 'Password' }}</strong>
+      </ion-label>
+    </ion-list-header>
+
+    <ion-item>
+      <ion-label position="stacked">{{ isEditMode ? 'New Password' : 'Password *' }}</ion-label>
+      <ion-input formControlName="password" type="password" [placeholder]="isEditMode ? 'Leave blank to keep current' : 'Min 10 chars'"></ion-input>
+      @if (form.get('password')?.invalid && form.get('password')?.touched) {
+        <ion-note color="danger" slot="helper">
+          @if (form.get('password')?.errors?.['required']) { Password is required. }
+          @else if (form.get('password')?.errors?.['minlength']) { At least 10 characters. }
+          @else { Must contain uppercase, lowercase, digit and special char. }
+        </ion-note>
+      }
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">{{ isEditMode ? 'Confirm New Password' : 'Confirm Password *' }}</ion-label>
+      <ion-input formControlName="confirmPassword" type="password" placeholder="Repeat password"></ion-input>
+      @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+        <ion-note color="danger" slot="helper">Passwords do not match</ion-note>
+      }
+      @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
+        <ion-note color="danger" slot="helper">Confirm password is required</ion-note>
+      }
+    </ion-item>
+
+    <!-- ── Зарплатная ставка ───────────────────────────── -->
+    @if (canShowSalaryRate) {
+      <ion-list-header>
+        <ion-label><strong>Salary Rate</strong></ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label position="stacked">Rate Type</ion-label>
+        <ion-select
+          formControlName="salaryRateType"
+          placeholder="Select type"
+          (ionChange)="onSalaryRateChange($event.detail.value)"
+        >
+          @for (opt of salaryRateOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      @if (showBaseAmount) {
+        <ion-item>
+          <ion-label position="stacked">Base Amount</ion-label>
+          <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
+        </ion-item>
+      }
+
+      @if (showCommissionPercent) {
+        <ion-item>
+          <ion-label position="stacked">Commission %</ion-label>
+          <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
+        </ion-item>
+      }
+    }
+
+  </form>
+
+  <!-- ── Расписание (вне form, signal-based как у employee) ─── -->
+  <div class="schedule-section">
+    <div class="schedule-header">
+      <h3 class="schedule-header__title">Working Hours</h3>
+    </div>
+
+    <ion-card class="schedule-card">
+      <ion-card-content>
+        @for (row of scheduleRows(); track row.day) {
+          <div class="schedule-row" [class.schedule-row--disabled]="!row.enabled">
+
+            <div class="schedule-row__top">
+              <div class="schedule-row__name">
+                <span class="schedule-row__day">{{ row.label }}</span>
+                @if (!row.enabled) {
+                  <span class="schedule-row__closed-label">Closed</span>
+                } @else {
+                  <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
+                }
+              </div>
+              <ion-toggle
+                [checked]="row.enabled"
+                color="warning"
+                (ionChange)="toggleDay(row.day, $event)"
+              ></ion-toggle>
+            </div>
+
+            @if (row.enabled) {
+              <div class="schedule-row__times">
+                <div class="time-field">
+                  <label class="time-field__label">From</label>
+                  <input
+                    class="time-field__native-input"
+                    type="time"
+                    lang="en-GB"
+                    [value]="row.from"
+                    (change)="updateTimeNative(row.day, 'from', $event)"
+                  />
+                </div>
+                <span class="time-field__separator">—</span>
+                <div class="time-field">
+                  <label class="time-field__label">To</label>
+                  <input
+                    class="time-field__native-input"
+                    type="time"
+                    lang="en-GB"
+                    [value]="row.to"
+                    (change)="updateTimeNative(row.day, 'to', $event)"
+                  />
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="outline" (click)="dismiss()">Cancel</ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" [disabled]="isSubmitting" (click)="submit()">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+        }
+        {{ isEditMode ? 'Save' : 'Create' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-footer>
+

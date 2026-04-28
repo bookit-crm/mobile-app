@@ -1,11 +1,26 @@
 ﻿import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { EmployeesPage } from './employees.page';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+
+import { EmployeesPage } from './employees.page';
+import { EmployeeFormModalComponent } from './components/employee-form-modal/employee-form-modal.component';
+import { ManagerFormModalComponent } from './components/manager-form-modal/manager-form-modal.component';
+
 const routes: Routes = [{ path: '', component: EmployeesPage }];
+
 @NgModule({
   declarations: [EmployeesPage],
-  imports: [CommonModule, IonicModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    IonicModule,
+    ReactiveFormsModule,
+    CurrencyPipe,
+    RouterModule.forChild(routes),
+    // Standalone modal components
+    EmployeeFormModalComponent,
+    ManagerFormModalComponent,
+  ],
 })
 export class EmployeesPageModule {}

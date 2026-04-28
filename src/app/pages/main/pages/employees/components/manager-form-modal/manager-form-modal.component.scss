@@ -1,0 +1,126 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+ion-list-header {
+  margin-top: 16px;
+}
+
+// ── Schedule section ───────────────────────────────────────
+.schedule-section {
+  margin-top: 16px;
+}
+
+.schedule-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  &__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0 16px;
+    color: var(--ion-color-dark);
+  }
+}
+
+.schedule-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  ion-card-content { padding: 8px 16px 16px; }
+}
+
+.schedule-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child { border-bottom: none; }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  &__day {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ion-color-dark);
+    min-width: 40px;
+  }
+
+  &__time-summary {
+    font-size: 0.78rem;
+    color: var(--bk-orange-600, #ea580c);
+    font-weight: 500;
+  }
+
+  &__closed-label {
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+
+  &__times {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.time-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label {
+    font-size: 0.72rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  &__native-input {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ion-color-medium);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 0.9rem;
+    color: var(--ion-color-dark);
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: var(--ion-color-primary);
+    }
+
+    &::-webkit-datetime-edit-ampm-field {
+      display: none;
+    }
+  }
+}
+
+.time-field__separator {
+  margin-top: 20px;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+}

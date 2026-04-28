@@ -161,23 +161,33 @@ ion-item {
   color: var(--ion-color-primary);
 }
 
-// ── Swipe affordance hint ───────────────────────────────────────────────────
-.appt-swipe-hint {
+// ── Swipe hint banner (same as employees page) ─────────────────────────────
+.swipe-hint {
   display: flex;
   align-items: center;
-  gap: 2px;
-  opacity: 0.18;
-  pointer-events: none;
-  color: var(--ion-color-medium);
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light-shade);
 
   ion-icon {
-    font-size: 14px;
+    font-size: 15px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
   }
 
-  &__arrow {
-    font-size: 12px !important;
-    margin-left: 1px;
-    opacity: 0.7;
+  span {
+    font-size: 12px;
+    color: var(--ion-color-medium);
   }
+}
+
+// ── Swipe indicator icon on each card ──────────────────────────────────────
+.swipe-indicator {
+  font-size: 16px;
+  color: var(--ion-color-medium-shade);
+  opacity: 0.45;
+  margin-left: 2px;
+  flex-shrink: 0;
 }
 

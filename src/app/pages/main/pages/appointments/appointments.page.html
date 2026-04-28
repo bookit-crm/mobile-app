@@ -15,13 +15,6 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-searchbar
-      placeholder="Search by client, phone..."
-      [debounce]="0"
-      (ionInput)="onSearchChange($event)"
-    ></ion-searchbar>
-  </ion-toolbar>
-  <ion-toolbar>
     <ion-segment [value]="statusFilter()" (ionChange)="onStatusChange($event.detail.value?.toString() ?? 'all')">
       @for (opt of statusOptions; track opt.value) {
         <ion-segment-button [value]="opt.value">
@@ -29,6 +22,13 @@
         </ion-segment-button>
       }
     </ion-segment>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search by client, phone..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
@@ -148,6 +148,12 @@
       </p>
     </div>
 
+    <!-- Подсказка о свайпе — как на странице Employees -->
+    <div class="swipe-hint">
+      <ion-icon name="swap-horizontal-outline"></ion-icon>
+      <span>Swipe left on a card for options</span>
+    </div>
+
     <ion-list lines="none">
       @for (appt of appointments(); track appt._id) {
         <ion-item-sliding>
@@ -179,19 +185,12 @@
                 </span>
               </div>
             </ion-label>
-            <!-- Subtle swipe affordance: action icons hinting left-swipe -->
-            <div class="appt-swipe-hint" slot="end">
-              @if (canCreateAppointment()) {
-                <ion-icon name="create-outline"></ion-icon>
-              }
-              @if (canViewHistory()) {
-                <ion-icon name="time-outline"></ion-icon>
-              }
-              @if (canCreateAppointment()) {
-                <ion-icon name="trash-outline"></ion-icon>
-              }
-              <ion-icon name="chevron-back-outline" class="appt-swipe-hint__arrow"></ion-icon>
-            </div>
+            <!-- Индикатор свайпа -->
+            <ion-icon
+              name="chevron-back-outline"
+              slot="end"
+              class="swipe-indicator"
+            ></ion-icon>
           </ion-item>
 
           @if (canCreateAppointment() || canViewHistory()) {

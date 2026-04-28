@@ -305,16 +305,39 @@ export class DailySchedulePage implements OnInit, OnDestroy {
 
   private isHourInRange(hour: number, day: IDayModel | null | undefined): boolean {
     if (!day?.from || !day?.to) return false;
-    const fromH = new Date(day.from).getHours();
-    const toH = new Date(day.to).getHours();
-    const toM = new Date(day.to).getMinutes();
+    const fromH = this.extractHour(day.from);
+    const toH = this.extractHour(day.to);
+    const toM = this.extractMinutes(day.to);
+    if (fromH === null || toH === null) return false;
     const effectiveToH = toH === 0 && toM === 0 ? 24 : toH;
     const effectiveTo = toM > 0 ? effectiveToH : effectiveToH - 1;
     return hour >= fromH && hour <= effectiveTo;
   }
 
-  private formatTime(iso: string): string {
-    const d = new Date(iso);
+  /** Парсит час из ISO-строки ("2026-04-28T06:00:00.000Z") или HH:mm ("06:00") */
+  private extractHour(timeStr: string): number | null {
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(timeStr)) {
+      return parseInt(timeStr.slice(0, 2), 10);
+    }
+    const d = new Date(timeStr);
+    return isNaN(d.getTime()) ? null : d.getHours();
+  }
+
+  /** Парсит минуты из ISO-строки или HH:mm */
+  private extractMinutes(timeStr: string): number {
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(timeStr)) {
+      return parseInt(timeStr.slice(3, 5), 10);
+    }
+    const d = new Date(timeStr);
+    return isNaN(d.getTime()) ? 0 : d.getMinutes();
+  }
+
+  private formatTime(timeStr: string): string {
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(timeStr)) {
+      return timeStr.slice(0, 5);
+    }
+    const d = new Date(timeStr);
+    if (isNaN(d.getTime())) return '';
     const h = d.getHours().toString().padStart(2, '0');
     const m = d.getMinutes().toString().padStart(2, '0');
     return `${h}:${m}`;

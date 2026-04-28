@@ -1,4 +1,5 @@
 import { EUserRole } from '@core/enums/e-user-role';
+import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
 
 export interface ISupervisor {
   _id: string;
@@ -6,8 +7,19 @@ export interface ISupervisor {
   firstName: string;
   lastName: string;
   phone: string;
+  dateOfBirth?: string;
   role: EUserRole;
-  avatar?: { url: string };
-  department?: { _id: string; name: string } | string;
+  avatar?: { _id: string; url: string } | null;
+  department?: { _id: string; name: string; manager?: string | null } | string | null;
+  accessAllowed?: boolean;
+  expiresSoon?: boolean;
+  subscriptionRenewalDate?: string;
+  salaryRateType?: ESalaryRateType;
+  baseAmount?: number;
+  commissionPercent?: number;
 }
 
+export interface ISupervisorList {
+  results: ISupervisor[];
+  count: number;
+}

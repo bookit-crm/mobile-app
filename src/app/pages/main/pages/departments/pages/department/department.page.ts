@@ -68,10 +68,8 @@ export class DepartmentPage implements OnInit {
   /** Which branding field is currently uploading */
   public uploadingField = signal<'logo' | 'gallery' | 'banner' | null>(null);
 
-  /** true если план позволяет редактировать расписание (Starter+) */
-  public readonly canEditSchedule = computed(() =>
-    this.subscriptionService.meetsTier(ETier.STARTER),
-  );
+  /** true если план позволяет редактировать расписание — убрано ограничение, всегда true */
+  public readonly canEditSchedule = computed(() => true);
 
   public get isManager(): boolean {
     return this.supervisorService.authUserSignal()?.role === EUserRole.MANAGER;

@@ -51,6 +51,14 @@
 | `authGuard` | Защита приватных роутов | 🧭 |
 | `guestGuard` | Не пускает залогиненного на /login | 🧭 опц. |
 
+## Enums (`src/app/core/enums/`)
+
+| Enum | Назначение | Статус |
+|------|-----------|--------|
+| `EUserRole` | `ADMIN`, `MANAGER` | ✅ |
+| `ELocalStorageKeys` | Ключи localStorage | ✅ |
+| `ESalaryRateType` | `fixed`, `commission`, `fixed_plus_commission`, `base_or_commission` | ✅ |
+
 ## Модели (`src/app/core/models/`)
 
 Главное правило: **переиспользуй контракты из `core-api`** (см. `core-api/agents/feature-map.md`). Совпадающие DTO — такие же интерфейсы `IAppointment`, `IDepartment`, `IUser` и т.д.
