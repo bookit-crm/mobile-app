@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ modalTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-select
+      [value]="selectedAction"
+      interface="action-sheet"
+      placeholder="Filter by action"
+      (ionChange)="onActionChange($event)"
+      class="action-filter"
+    >
+      @for (opt of actionOptions; track opt.value) {
+        <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+      }
+    </ion-select>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (isLoading() && history().length === 0) {
+    <div class="history-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (!isLoading() && history().length === 0) {
+    <div class="history-empty">
+      <ion-icon name="time-outline" class="history-empty__icon"></ion-icon>
+      <h3 class="history-empty__title">No history found</h3>
+      <p class="history-empty__text">Try changing the action filter.</p>
+    </div>
+  } @else {
+    <div class="history-meta">
+      <p class="history-count">{{ totalCount() }} record(s)</p>
+    </div>
+
+    <ion-list lines="full">
+      @for (item of history(); track item._id) {
+        <ion-item class="history-item">
+          <ion-label>
+            <div class="history-row">
+              <ion-badge [color]="getActionColor(item.action)" class="action-badge">
+                {{ item.action }}
+              </ion-badge>
+              <span class="history-date">{{ formatDate(item.createdAt) }}</span>
+            </div>
+            @if (!productId) {
+              <p class="history-product">
+                <ion-icon name="cube-outline"></ion-icon>
+                {{ getProductName(item) }}
+              </p>
+            }
+            @if (item.changes && item.changes.length > 0) {
+              <div class="history-changes">
+                @for (change of item.changes; track change.field) {
+                  <p class="change-row">
+                    <span class="change-field">{{ change.field }}:</span>
+                    <span class="change-old">{{ change.oldValue }}</span>
+                    <ion-icon name="arrow-forward-outline" class="change-arrow"></ion-icon>
+                    <span class="change-new">{{ change.newValue }}</span>
+                  </p>
+                }
+              </div>
+            }
+            @if (item.comment) {
+              <p class="history-comment">
+                <ion-icon name="chatbubble-outline"></ion-icon>
+                {{ item.comment }}
+              </p>
+            }
+          </ion-label>
+        </ion-item>
+      }
+    </ion-list>
+
+    <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+</ion-content>
+

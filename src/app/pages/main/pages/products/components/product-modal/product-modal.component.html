@@ -1,0 +1,135 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ modalTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form">
+    <ion-list lines="full">
+
+      <!-- Name -->
+      <ion-item>
+        <ion-label position="stacked">Name <span class="required">*</span></ion-label>
+        <ion-input formControlName="name" type="text" placeholder="Product name"></ion-input>
+      </ion-item>
+      @if (hasError('name', 'required')) {
+        <ion-note color="danger" class="field-error">Name is required</ion-note>
+      }
+
+      <!-- SKU -->
+      <ion-item>
+        <ion-label position="stacked">SKU / Barcode</ion-label>
+        <ion-input formControlName="sku" type="text" placeholder="e.g. PROD-001"></ion-input>
+      </ion-item>
+
+      <!-- Unit -->
+      <ion-item>
+        <ion-label position="stacked">Unit</ion-label>
+        <ion-select formControlName="unit" interface="action-sheet" placeholder="Select unit">
+          @for (opt of unitOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Purchase Price -->
+      <ion-item>
+        <ion-label position="stacked">Purchase Price <span class="required">*</span></ion-label>
+        <ion-input formControlName="purchasePrice" type="number" placeholder="0.00" min="0"></ion-input>
+      </ion-item>
+      @if (hasError('purchasePrice', 'required')) {
+        <ion-note color="danger" class="field-error">Purchase price is required</ion-note>
+      }
+      @if (hasError('purchasePrice', 'min')) {
+        <ion-note color="danger" class="field-error">Must be ≥ 0</ion-note>
+      }
+
+      <!-- Sale Price -->
+      <ion-item>
+        <ion-label position="stacked">Sale Price <span class="required">*</span></ion-label>
+        <ion-input formControlName="salePrice" type="number" placeholder="0.00" min="0"></ion-input>
+      </ion-item>
+      @if (hasError('salePrice', 'required')) {
+        <ion-note color="danger" class="field-error">Sale price is required</ion-note>
+      }
+      @if (hasError('salePrice', 'min')) {
+        <ion-note color="danger" class="field-error">Must be ≥ 0</ion-note>
+      }
+
+      <!-- Stock -->
+      <ion-item>
+        <ion-label position="stacked">Current Stock</ion-label>
+        <ion-input formControlName="stock" type="number" placeholder="0" min="0"></ion-input>
+      </ion-item>
+
+      <!-- Min Stock -->
+      <ion-item>
+        <ion-label position="stacked">Min Stock (alert threshold)</ion-label>
+        <ion-input formControlName="minStock" type="number" placeholder="Optional" min="0"></ion-input>
+      </ion-item>
+
+      <!-- Max Stock -->
+      <ion-item>
+        <ion-label position="stacked">Max Stock</ion-label>
+        <ion-input formControlName="maxStock" type="number" placeholder="Optional" min="0"></ion-input>
+      </ion-item>
+
+      <!-- Description -->
+      <ion-item>
+        <ion-label position="stacked">Description</ion-label>
+        <ion-textarea
+          formControlName="description"
+          placeholder="Product description..."
+          [rows]="3"
+          autoGrow="true"
+        ></ion-textarea>
+      </ion-item>
+
+      <!-- Department (only for create, hidden if single-department mode) -->
+      @if (!isEditMode && !singleDepartmentMode()) {
+        <ion-item [button]="true" (click)="pickDepartment()">
+          <ion-label position="stacked">
+            Department <span class="required">*</span>
+          </ion-label>
+          <ion-text slot="end" [color]="selectedDepartmentId ? 'dark' : 'medium'">
+            {{ selectedDepartmentName || 'Select department' }}
+          </ion-text>
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-item>
+        @if (!selectedDepartmentId) {
+          <ion-note color="medium" class="field-error">Required for creating a product</ion-note>
+        }
+      }
+
+      <!-- Comment (edit only) -->
+      @if (isEditMode) {
+        <ion-item>
+          <ion-label position="stacked">Change Comment</ion-label>
+          <ion-input formControlName="comment" type="text" placeholder="Optional note about this change"></ion-input>
+        </ion-item>
+      }
+
+    </ion-list>
+  </form>
+</ion-content>
+
+<div class="modal-footer">
+  <ion-button expand="block" fill="outline" color="medium" (click)="dismiss()">
+    Cancel
+  </ion-button>
+  <ion-button expand="block" color="primary" [disabled]="isSaving" (click)="submit()">
+    @if (isSaving) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+    } @else {
+      <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
+    }
+    {{ isEditMode ? 'Save Changes' : 'Add Product' }}
+  </ion-button>
+</div>
+

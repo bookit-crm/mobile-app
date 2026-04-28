@@ -1,0 +1,138 @@
+.history-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40vh;
+}
+
+.history-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 48px;
+    color: var(--ion-color-medium);
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+
+  &__text {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.history-meta {
+  padding: 8px 16px 4px;
+}
+
+.history-count {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+.history-item {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.action-badge {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.history-date {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  margin-left: auto;
+}
+
+.history-product {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ion-color-dark);
+  margin: 2px 0;
+
+  ion-icon {
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}
+
+.history-changes {
+  margin-top: 4px;
+  padding: 4px 0;
+}
+
+.change-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin: 2px 0;
+  flex-wrap: wrap;
+}
+
+.change-field {
+  font-weight: 600;
+  color: var(--ion-color-dark);
+}
+
+.change-old {
+  color: var(--ion-color-danger);
+  text-decoration: line-through;
+}
+
+.change-arrow {
+  font-size: 11px;
+  color: var(--ion-color-medium);
+}
+
+.change-new {
+  color: var(--ion-color-success);
+  font-weight: 600;
+}
+
+.history-comment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  font-style: italic;
+  margin-top: 4px;
+
+  ion-icon {
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+}
+
+.action-filter {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  width: 100%;
+}
+
