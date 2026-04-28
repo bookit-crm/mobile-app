@@ -1,0 +1,126 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ title }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list lines="none">
+
+    <!-- Name -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Name <ion-text color="danger">*</ion-text></ion-label>
+      <ion-input
+        [(ngModel)]="name"
+        placeholder="Enter service name"
+        [clearInput]="true"
+      ></ion-input>
+    </ion-item>
+
+    <!-- Category -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Category</ion-label>
+      <ion-input
+        [(ngModel)]="category"
+        placeholder="e.g. Hair, Massage, Nails"
+        [clearInput]="true"
+      ></ion-input>
+    </ion-item>
+
+    <!-- Department -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Department <ion-text color="danger">*</ion-text></ion-label>
+      <ion-select [(ngModel)]="selectedDepartmentId" placeholder="Select department">
+        @for (dept of departments; track dept._id) {
+          <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <!-- Duration -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Duration (min)</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="duration"
+        min="5"
+        max="480"
+      ></ion-input>
+    </ion-item>
+
+    <!-- Price -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Price</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="price"
+        min="0"
+        placeholder="0.00"
+      ></ion-input>
+    </ion-item>
+
+    <!-- Description -->
+    <ion-item class="form-item">
+      <ion-label position="stacked">Description</ion-label>
+      <ion-textarea
+        [(ngModel)]="description"
+        placeholder="Optional description"
+        [rows]="3"
+        [autoGrow]="true"
+      ></ion-textarea>
+    </ion-item>
+
+  </ion-list>
+
+  <!-- Consumable Products -->
+  <div class="section-header">
+    <span>Consumable Products</span>
+    <ion-button fill="clear" size="small" (click)="addConsumable()">
+      <ion-icon slot="start" name="add-outline"></ion-icon>
+      Add
+    </ion-button>
+  </div>
+
+  @if (consumables.length === 0) {
+    <p class="empty-hint">No consumables attached to this service.</p>
+  }
+
+  @for (c of consumables; track trackByIndex($index)) {
+    <ion-card class="consumable-card">
+      <ion-card-content>
+        <ion-item lines="none">
+          <ion-label position="stacked">Product</ion-label>
+          <ion-select [(ngModel)]="c.productId" placeholder="Select product" interface="action-sheet">
+            @for (p of availableProducts; track p._id) {
+              <ion-select-option [value]="p._id">{{ p.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        <ion-item lines="none">
+          <ion-label position="stacked">Quantity</ion-label>
+          <ion-input type="number" [(ngModel)]="c.quantity" min="1"></ion-input>
+        </ion-item>
+        <ion-button fill="clear" color="danger" size="small" (click)="removeConsumable($index)">
+          <ion-icon slot="start" name="trash-outline"></ion-icon>
+          Remove
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" (click)="save()" [disabled]="isLoading()">
+      @if (isLoading()) {
+        <ion-spinner name="crescent" slot="start"></ion-spinner>
+      }
+      {{ isEdit ? 'Save Changes' : 'Create Service' }}
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>

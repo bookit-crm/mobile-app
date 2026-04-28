@@ -2,6 +2,13 @@ import { IAppointment } from '@core/models/appointment.interface';
 import { ISchedule } from '@core/models/schedule.interface';
 import { format, startOfDay } from 'date-fns';
 
+export interface IDragDropResult {
+  appointmentId: string;
+  newStartDate: string; // ISO string
+  newEndDate: string;   // ISO string
+  newEmployeeId?: string; // undefined → не менять сотрудника
+}
+
 export interface ITimeSlot {
   time: string;
   date: Date;

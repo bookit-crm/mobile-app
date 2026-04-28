@@ -27,6 +27,32 @@
   &__events-container { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
   &__event { position: absolute; pointer-events: all; z-index: 1; box-sizing: border-box; padding: 0 1px; cursor: pointer;
     &--canceled { opacity: 0.8; }
+    &--dragging { opacity: 0.35; }
   }
   &__empty { display: flex; align-items: center; justify-content: center; flex: 1; color: #9b9a9a; font-size: 14px; padding: 24px; }
+
+  // Drop indicator
+  &__drop-indicator {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border: 2px dashed var(--ion-color-primary, #ff7407);
+    border-radius: 6px;
+    background: rgba(255, 116, 7, 0.08);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+// Drag ghost — fixed, поверх всего, следует за пальцем
+.day-view__ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  border-radius: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  opacity: 0.88;
+  transform: scale(1.03);
+  overflow: hidden;
+  transform-origin: top center;
 }
