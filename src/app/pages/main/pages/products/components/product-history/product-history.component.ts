@@ -92,8 +92,11 @@ export class ProductHistoryComponent implements OnInit {
     return map[action] ?? 'medium';
   }
 
-  public formatDate(date: string): string {
-    return new Date(date).toLocaleString('en-GB', {
+  public formatDate(date: string | null | undefined): string {
+    if (!date) return '—';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleString('en-GB', {
       day: '2-digit', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });

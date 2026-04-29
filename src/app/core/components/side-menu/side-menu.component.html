@@ -42,20 +42,22 @@
   <ion-footer>
     @let user = authUser();
     @if (user) {
-      <div class="profile-block">
+      <div class="profile-block" (click)="openAccountSettings()" role="button" aria-label="Account settings">
+        <!-- Avatar: фото или инициалы -->
         <div class="profile-block__avatar">
-          <img
-            [src]="user.avatar?.url || 'assets/images/mock_avatar.png'"
-            alt="avatar"
-          />
+          @if (user.avatar?.url) {
+            <img [src]="user.avatar!.url" alt="avatar" />
+          } @else {
+            <div class="profile-block__avatar-initials">{{ initials() }}</div>
+          }
         </div>
+
         <div class="profile-block__info">
           <p class="profile-block__name">{{ user.firstName }} {{ user.lastName }}</p>
           <p class="profile-block__role">{{ user.role }}</p>
         </div>
-        <ion-button fill="clear" color="medium" (click)="logout()" class="logout-btn">
-          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-        </ion-button>
+
+        <ion-icon name="settings-outline" class="profile-block__settings-icon"></ion-icon>
       </div>
     }
   </ion-footer>

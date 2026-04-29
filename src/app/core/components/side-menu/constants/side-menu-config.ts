@@ -16,6 +16,7 @@ export const ADMIN_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'Promo Codes',    url: '/main/promo-codes',   icon: 'pricetag-outline',   feature: 'promoCodes' },
   { title: 'Notification',   url: '/main/notification',  icon: 'notifications-outline', useSeparator: true },
   { title: 'FAQ',            url: '/main/faq',           icon: 'help-circle-outline' },
+  { title: 'Support',        url: '/main/support',       icon: 'headset-outline' },
 ];
 
 export const MANAGER_MENU_CONFIG: ISideMenuItem[] = [
@@ -32,4 +33,5 @@ export const MANAGER_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'Promo Codes',    url: '/main/promo-codes',   icon: 'pricetag-outline',   feature: 'promoCodes' },
   { title: 'Notification',   url: '/main/notification',  icon: 'notifications-outline', useSeparator: true },
   { title: 'FAQ',            url: '/main/faq',           icon: 'help-circle-outline' },
+  { title: 'Support',        url: '/main/support',       icon: 'headset-outline' },
 ];

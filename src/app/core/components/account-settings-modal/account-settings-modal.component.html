@@ -1,0 +1,274 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-title>My Account</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Tabs -->
+  <ion-toolbar>
+    <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event.detail.value))">
+      <ion-segment-button value="profile">
+        <ion-label>Profile</ion-label>
+      </ion-segment-button>
+      @if (showSecurity()) {
+        <ion-segment-button value="security">
+          <ion-label>Security</ion-label>
+        </ion-segment-button>
+      }
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="acc-modal__content">
+
+  <!-- ── PROFILE TAB ─────────────────────────────── -->
+  @if (activeTab() === 'profile') {
+    <div class="acc-modal__section">
+
+      <!-- Avatar -->
+      <div class="acc-modal__avatar-block">
+        @if (authUser()?.avatar?.url) {
+          <img [src]="authUser()!.avatar!.url" alt="avatar" class="acc-modal__avatar-img" />
+        } @else {
+          <div class="acc-modal__avatar-initials">{{ initials() }}</div>
+        }
+
+        <div class="acc-modal__avatar-actions">
+          <ion-button
+            fill="outline"
+            size="small"
+            (click)="uploadAvatar()"
+            [disabled]="isUploadingAvatar()"
+          >
+            <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
+            {{ authUser()?.avatar?.url ? 'Change' : 'Upload' }}
+          </ion-button>
+
+          @if (authUser()?.avatar?.url) {
+            <ion-button
+              fill="clear"
+              size="small"
+              color="danger"
+              (click)="removeAvatar()"
+            >
+              <ion-icon slot="start" name="trash-outline"></ion-icon>
+              Remove
+            </ion-button>
+          }
+        </div>
+      </div>
+
+      <!-- Profile form -->
+      <form [formGroup]="profileForm" class="acc-modal__form">
+        <ion-list lines="none" class="acc-modal__form-list">
+
+          <ion-item class="acc-modal__field">
+            <ion-input
+              label="First Name"
+              labelPlacement="stacked"
+              placeholder="Enter first name"
+              formControlName="firstName"
+              clearInput
+            ></ion-input>
+          </ion-item>
+          @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
+            <p class="acc-modal__field-error">First name is required</p>
+          }
+
+          <ion-item class="acc-modal__field">
+            <ion-input
+              label="Last Name"
+              labelPlacement="stacked"
+              placeholder="Enter last name"
+              formControlName="lastName"
+              clearInput
+            ></ion-input>
+          </ion-item>
+
+          <ion-item class="acc-modal__field">
+            <ion-input
+              label="Email"
+              labelPlacement="stacked"
+              placeholder="Enter email"
+              type="email"
+              formControlName="email"
+              clearInput
+            ></ion-input>
+          </ion-item>
+          @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
+            <p class="acc-modal__field-error">Please enter a valid email</p>
+          }
+
+          <ion-item class="acc-modal__field">
+            <ion-input
+              label="Phone"
+              labelPlacement="stacked"
+              placeholder="Enter phone"
+              type="tel"
+              formControlName="phone"
+              clearInput
+            ></ion-input>
+          </ion-item>
+
+        </ion-list>
+      </form>
+    </div>
+  }
+
+  <!-- ── SECURITY TAB ────────────────────────────── -->
+  @if (activeTab() === 'security') {
+    <div class="acc-modal__section">
+      <div class="acc-modal__section-header">
+        <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
+        <div>
+          <h4 class="acc-modal__section-title">Change Password</h4>
+          <p class="acc-modal__section-sub">Update your password to keep your account secure</p>
+        </div>
+      </div>
+
+      <form [formGroup]="securityForm" class="acc-modal__form">
+        <ion-list lines="none" class="acc-modal__form-list">
+
+          <!-- Step 1: Enter email -->
+          @if (changePasswordStep() === EChangePasswordStep.Email) {
+            <ion-item class="acc-modal__field">
+              <ion-input
+                label="Email address"
+                labelPlacement="stacked"
+                placeholder="Enter your email"
+                type="email"
+                formControlName="email"
+                clearInput
+              ></ion-input>
+            </ion-item>
+          }
+
+          <!-- Step 2: Enter OTP -->
+          @if (changePasswordStep() === EChangePasswordStep.Otp) {
+            <div class="acc-modal__otp-hint">
+              <ion-icon name="mail-outline" color="primary"></ion-icon>
+              <p>We sent a verification code to your email</p>
+            </div>
+            <ion-item class="acc-modal__field">
+              <ion-input
+                label="Verification Code"
+                labelPlacement="stacked"
+                placeholder="Enter code"
+                formControlName="otpCode"
+                inputmode="numeric"
+                clearInput
+              ></ion-input>
+            </ion-item>
+          }
+
+          <!-- Step 3: New password -->
+          @if (changePasswordStep() === EChangePasswordStep.Password) {
+            <ion-item class="acc-modal__field">
+              <ion-input
+                label="New Password"
+                labelPlacement="stacked"
+                placeholder="Enter new password"
+                type="password"
+                formControlName="password"
+                clearInput
+              ></ion-input>
+            </ion-item>
+            <ion-item class="acc-modal__field">
+              <ion-input
+                label="Confirm Password"
+                labelPlacement="stacked"
+                placeholder="Confirm new password"
+                type="password"
+                formControlName="confirmPassword"
+                clearInput
+              ></ion-input>
+            </ion-item>
+          }
+
+        </ion-list>
+      </form>
+    </div>
+  }
+
+</ion-content>
+
+<!-- Footer actions -->
+<ion-footer class="ion-no-border acc-modal__footer">
+
+  <!-- Logout -->
+  <ion-button
+    expand="block"
+    fill="clear"
+    color="danger"
+    class="acc-modal__logout-btn"
+    (click)="logout()"
+  >
+    <ion-icon slot="start" name="log-out-outline"></ion-icon>
+    Log Out
+  </ion-button>
+
+  <!-- Primary action -->
+  @if (activeTab() === 'profile') {
+    <ion-button
+      expand="block"
+      color="dark"
+      [disabled]="isSavingProfile()"
+      (click)="saveProfile()"
+    >
+      @if (isSavingProfile()) {
+        <ion-spinner slot="start" name="crescent"></ion-spinner>
+      }
+      Save Changes
+    </ion-button>
+  }
+
+  @if (activeTab() === 'security') {
+    @if (changePasswordStep() === EChangePasswordStep.Email) {
+      <ion-button
+        expand="block"
+        color="dark"
+        [disabled]="!securityForm.get('email')?.value || isSavingSecurity()"
+        (click)="sendVerificationCode()"
+      >
+        @if (isSavingSecurity()) {
+          <ion-spinner slot="start" name="crescent"></ion-spinner>
+        }
+        Send Verification Code
+      </ion-button>
+    }
+
+    @if (changePasswordStep() === EChangePasswordStep.Otp) {
+      <ion-button
+        expand="block"
+        color="dark"
+        [disabled]="securityForm.get('otpCode')?.invalid || isSavingSecurity()"
+        (click)="confirmOtp()"
+      >
+        @if (isSavingSecurity()) {
+          <ion-spinner slot="start" name="crescent"></ion-spinner>
+        }
+        Confirm Code
+      </ion-button>
+    }
+
+    @if (changePasswordStep() === EChangePasswordStep.Password) {
+      <ion-button
+        expand="block"
+        color="dark"
+        [disabled]="securityForm.get('password')?.invalid || isSavingSecurity()"
+        (click)="confirmNewPassword()"
+      >
+        @if (isSavingSecurity()) {
+          <ion-spinner slot="start" name="crescent"></ion-spinner>
+        }
+        Set New Password
+      </ion-button>
+    }
+  }
+
+</ion-footer>
+

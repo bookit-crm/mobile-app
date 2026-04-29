@@ -78,6 +78,11 @@ export class SupervisorService extends HttpHelper {
     return this.httpPatchRequest<ISupervisor>(`api/supervisor/manager/${id}/`, payload);
   }
 
+  /** Менеджер редактирует свой профиль — обновляем authUserSignal */
+  public editSupervisorManagerBySelf(id: string, payload: Partial<ISupervisor>): Observable<ISupervisor> {
+    return this.httpPatchRequest<ISupervisor>(`api/supervisor/manager/${id}/`, payload);
+  }
+
   public deleteManager(id: string): Observable<void> {
     return this.httpDeleteRequest<void>(`api/supervisor/manager/${id}/`);
   }

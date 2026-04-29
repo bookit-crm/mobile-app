@@ -1,6 +1,6 @@
-<!-- FAB button -->
-<div class="support-fab-wrapper">
-  <button class="support-fab" (click)="toggleWidget()">
+<!-- Support chat FAB — bottom-left, не конфликтует с кнопками страниц -->
+<div class="support-fab-wrap">
+  <button class="support-fab" (click)="toggleWidget()" aria-label="Support chat">
     @if (isOpen()) {
       <ion-icon name="close-outline" class="support-fab__icon"></ion-icon>
     } @else {

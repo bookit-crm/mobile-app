@@ -1,0 +1,150 @@
+// ──────────────────────────────────────────────
+//  Content area
+// ──────────────────────────────────────────────
+.acc-modal__content {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.acc-modal__section {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ──────────────────────────────────────────────
+//  Avatar block
+// ──────────────────────────────────────────────
+.acc-modal__avatar-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.acc-modal__avatar-img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid var(--ion-color-light-shade);
+}
+
+.acc-modal__avatar-initials {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--ion-color-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 1px;
+}
+
+.acc-modal__avatar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// ──────────────────────────────────────────────
+//  Form
+// ──────────────────────────────────────────────
+.acc-modal__form {
+  width: 100%;
+}
+
+.acc-modal__form-list {
+  padding: 0;
+  background: transparent;
+}
+
+.acc-modal__field {
+  --background: var(--ion-color-light);
+  --border-radius: 10px;
+  --padding-start: 14px;
+  --min-height: 52px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.acc-modal__field-error {
+  font-size: 12px;
+  color: var(--ion-color-danger);
+  margin: -8px 4px 8px;
+  padding: 0;
+}
+
+// ──────────────────────────────────────────────
+//  Security section header
+// ──────────────────────────────────────────────
+.acc-modal__section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+
+.acc-modal__section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  margin: 0 0 4px;
+}
+
+.acc-modal__section-sub {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+// ──────────────────────────────────────────────
+//  OTP hint
+// ──────────────────────────────────────────────
+.acc-modal__otp-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--ion-color-primary-tint);
+  border-radius: 10px;
+  margin-bottom: 4px;
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-primary-shade);
+    margin: 0;
+  }
+}
+
+// ──────────────────────────────────────────────
+//  Footer
+// ──────────────────────────────────────────────
+.acc-modal__footer {
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.acc-modal__logout-btn {
+  font-size: 14px;
+}
+

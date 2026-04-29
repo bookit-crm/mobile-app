@@ -29,14 +29,14 @@ import { SupportChatService } from '@services/support-chat.service';
 import { SupervisorService } from '@services/supervisor.service';
 
 @Component({
-  selector: 'app-support-chat-widget',
+  selector: 'app-support-page',
   standalone: true,
   imports: [CommonModule, IonicModule, ReactiveFormsModule, DatePipe],
-  templateUrl: './support-chat-widget.component.html',
-  styleUrls: ['./support-chat-widget.component.scss'],
+  templateUrl: './support.page.html',
+  styleUrls: ['./support.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SupportChatWidgetComponent implements AfterViewChecked {
+export class SupportPage implements AfterViewChecked {
   @ViewChild('messagesContainer')
   private messagesContainer?: ElementRef<HTMLDivElement>;
 
@@ -47,25 +47,15 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
 
   public readonly messageControl = new FormControl('');
 
-  /** Widget open/close state */
-  public readonly isOpen: WritableSignal<boolean> = signal(false);
-
-
-  /** Loading flags */
   public readonly isLoadingHistory: WritableSignal<boolean> = signal(false);
   public readonly isSending: WritableSignal<boolean> = signal(false);
 
-  /** Whether user is scrolled to bottom */
   private shouldScrollToBottom = false;
-
-  /** Track if this is the initial history load */
   private isInitialLoad = true;
 
-  /** Signals from services */
   public readonly messages = this.chatService.messagesSignal;
   public readonly activeChat = this.chatService.activeChatSignal;
   public readonly hasMoreMessages = this.chatService.hasMoreMessagesSignal;
-  public readonly unreadCount = this.wsService.unreadCount;
   public readonly connectionStatus = this.wsService.connectionStatus;
 
   public readonly isConnected = computed(
@@ -79,7 +69,6 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
   public readonly ESenderType = ESenderType;
 
   constructor() {
-    // React to incoming WebSocket messages
     effect(() => {
       const msg = this.wsService.incomingMessage();
       if (msg) {
@@ -88,7 +77,6 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
       }
     });
 
-    // React to chat closed by operator
     effect(() => {
       const closedChatId = this.wsService.chatClosed();
       if (closedChatId) {
@@ -102,13 +90,17 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
       }
     });
 
-    // Connect WebSocket when user is authenticated
     effect(() => {
       const user = this.supervisorService.authUserSignal();
       if (user) {
         this.initializeChat();
       }
     });
+  }
+
+  ionViewDidEnter(): void {
+    this.wsService.resetUnreadCount();
+    this.shouldScrollToBottom = true;
   }
 
   ngAfterViewChecked(): void {
@@ -118,16 +110,13 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
     }
   }
 
-  /** Initialize: connect WS and load the last open chat (if any). */
   private initializeChat(): void {
     this.wsService.connect();
     this.loadOpenChat();
   }
 
-  /** Load the user's most recent open chat and its messages. */
   private loadOpenChat(): void {
     const filters = this.buildDefaultFilters();
-
     this.chatService
       .getChats({ ...filters, status: EChatStatus.Open, offset: '0', limit: '1' })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -141,7 +130,6 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
       });
   }
 
-  /** Build default query filters based on the current user's role. */
   private buildDefaultFilters(): ISupportChatFilters {
     const user = this.supervisorService.authUserSignal();
     const filters: ISupportChatFilters = {};
@@ -152,7 +140,6 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
     return filters;
   }
 
-  /** Load messages for a given chat. */
   private loadMessages(chatId: string, offset = 0): void {
     this.isLoadingHistory.set(true);
     this.chatService
@@ -172,28 +159,11 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
       });
   }
 
-  /** Toggle widget open/close. */
-  public toggleWidget(): void {
-    this.isOpen.update((v) => !v);
-    if (this.isOpen()) {
-      this.wsService.resetUnreadCount();
-      this.shouldScrollToBottom = true;
-    }
-  }
-
-
-  /** Close the widget. */
-  public closeWidget(): void {
-    this.isOpen.set(false);
-  }
-
-  /** Send a message. */
   public sendMessage(): void {
     const text = this.messageControl.value?.trim();
     if (!text || this.isSending()) return;
 
     this.isSending.set(true);
-
     const activeChat = this.activeChat();
     const payload = activeChat ? { chatId: activeChat._id, text } : { text };
 
@@ -205,8 +175,6 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
           this.messageControl.reset();
           this.isSending.set(false);
           this.shouldScrollToBottom = true;
-
-          // If new chat created, join the WS room
           if (!activeChat) {
             this.wsService.joinChat(res.chat._id);
           }
@@ -217,31 +185,26 @@ export class SupportChatWidgetComponent implements AfterViewChecked {
       });
   }
 
-  /** Close the current chat session. */
   public endChat(): void {
     const chat = this.activeChat();
     if (!chat) return;
-
     this.chatService
       .closeChat(chat._id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe();
   }
 
-  /** Start a new chat after the previous was closed. */
   public startNewChat(): void {
     this.chatService.reset();
     this.isInitialLoad = true;
   }
 
-  /** Load older messages (scroll up to load more). */
   public loadMore(): void {
     const chat = this.activeChat();
     if (!chat || this.isLoadingHistory()) return;
     this.loadMessages(chat._id, this.messages().length);
   }
 
-  /** Track messages by ID for @for. */
   public trackByMessageId(_index: number, msg: ISupportMessage): string {
     return msg._id;
   }

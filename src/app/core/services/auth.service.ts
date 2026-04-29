@@ -14,6 +14,23 @@ export class AuthService extends HttpHelper {
     return this.httpPostRequest('api/auth/logout/', null);
   }
 
+  public confirmChangePasswordEmail(email: string): Observable<void> {
+    return this.httpPostRequest('api/auth/change-password/', { email });
+  }
+
+  public confirmChangePasswordCode(payload: { email: string; otpCode: string }): Observable<void> {
+    return this.httpPostRequest('api/auth/confirm-change-password-code/', payload);
+  }
+
+  public confirmChangePassword(payload: {
+    email: string;
+    otpCode: string;
+    password: string;
+    confirmPassword: string;
+  }): Observable<void> {
+    return this.httpPostRequest('api/auth/confirm-change-password/', payload);
+  }
+
   public refreshToken(refreshToken: string): Observable<IAuthTokens> {
     return this.httpPostRequest('api/auth/refresh-token/', {
       refresh_token: refreshToken,

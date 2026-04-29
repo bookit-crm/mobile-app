@@ -126,12 +126,20 @@ ion-menu {
   gap: 8px;
   padding: 12px 12px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-radius: 8px;
+  margin: 0 4px 2px;
+
+  &:active {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
 
   &__avatar {
-    width: 32px;
-    min-width: 32px;
-    height: 32px;
-    border-radius: 4px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
 
@@ -140,6 +148,20 @@ ion-menu {
       height: 100%;
       object-fit: cover;
     }
+  }
+
+  &__avatar-initials {
+    width: 100%;
+    height: 100%;
+    background: var(--bk-sidebar-active-bg, #e07b39);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-radius: 50%;
   }
 
   &__info {
@@ -164,6 +186,14 @@ ion-menu {
     letter-spacing: 0.24px;
     color: var(--bk-sidebar-profile-role);
     margin: 0;
+    text-transform: capitalize;
+  }
+
+  &__settings-icon {
+    font-size: 18px;
+    color: var(--bk-stroke);
+    flex-shrink: 0;
+    opacity: 0.6;
   }
 }
 

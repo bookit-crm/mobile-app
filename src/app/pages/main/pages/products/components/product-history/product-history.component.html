@@ -46,7 +46,7 @@
               <ion-badge [color]="getActionColor(item.action)" class="action-badge">
                 {{ item.action }}
               </ion-badge>
-              <span class="history-date">{{ formatDate(item.createdAt) }}</span>
+              <span class="history-date">{{ formatDate(item.created ?? item.createdAt) }}</span>
             </div>
             @if (!productId) {
               <p class="history-product">

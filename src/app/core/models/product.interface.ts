@@ -50,7 +50,10 @@ export interface IProductHistory {
   changes?: IProductHistoryChange[];
   comment?: string;
   createdBy?: string;
-  createdAt: string;
+  /** Поле в схеме называется `created` (без -At) */
+  created: string;
+  /** Алиас на случай если API вернёт camelCase вариант */
+  createdAt?: string;
 }
 
 export interface IProductHistoryList {

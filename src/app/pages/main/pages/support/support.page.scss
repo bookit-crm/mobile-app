@@ -1,65 +1,8 @@
 // ──────────────────────────────────────────────
-//  FAB wrap — ЛЕВЫЙ нижний угол
-//  Кнопки создания сущностей всегда bottom-right →
-//  виджет туда не лезет
+//  Support Chat — Full Page
 // ──────────────────────────────────────────────
-.support-fab-wrap {
-  position: fixed;
-  bottom: 28px;
-  left: 16px;
-  z-index: 1001;
-  // Relative-контейнер для бейджа
-  display: inline-block;
-}
 
-// ── FAB round button ───────────────────────────
-.support-fab {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--ion-color-dark);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
-  transition: transform 0.15s ease, opacity 0.15s ease;
-
-  &:active {
-    transform: scale(0.92);
-    opacity: 0.85;
-  }
-
-  &__icon {
-    font-size: 22px;
-    color: #fff;
-  }
-}
-
-// ── Unread badge ───────────────────────────────
-.support-fab__badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 10px;
-  background: var(--ion-color-danger);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  pointer-events: none;
-}
-
-// ──────────────────────────────────────────────
-//  Modal header
-// ──────────────────────────────────────────────
+// ── Header ─────────────────────────────────────
 .support-chat__header {
   ion-toolbar {
     --padding-start: 12px;
@@ -107,9 +50,7 @@
   }
 }
 
-// ──────────────────────────────────────────────
-//  Content / messages
-// ──────────────────────────────────────────────
+// ── Content ────────────────────────────────────
 .support-chat__content {
   --padding-start: 0;
   --padding-end: 0;
@@ -168,9 +109,7 @@
   margin: 0;
 }
 
-// ──────────────────────────────────────────────
-//  Messages list
-// ──────────────────────────────────────────────
+// ── Messages ───────────────────────────────────
 .support-chat__messages {
   display: flex;
   flex-direction: column;
@@ -246,9 +185,7 @@
   align-self: flex-end;
 }
 
-// ──────────────────────────────────────────────
-//  Closed notice
-// ──────────────────────────────────────────────
+// ── Closed notice ──────────────────────────────
 .support-chat__closed-notice {
   display: flex;
   flex-direction: column;
@@ -265,9 +202,7 @@
   }
 }
 
-// ──────────────────────────────────────────────
-//  Footer / Input
-// ──────────────────────────────────────────────
+// ── Footer ─────────────────────────────────────
 .support-chat__footer {
   padding: 8px 12px 12px;
 
