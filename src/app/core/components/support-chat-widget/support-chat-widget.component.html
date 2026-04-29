@@ -1,0 +1,183 @@
+<!-- FAB button -->
+<div class="support-fab-wrapper">
+  <button class="support-fab" (click)="toggleWidget()">
+    @if (isOpen()) {
+      <ion-icon name="close-outline" class="support-fab__icon"></ion-icon>
+    } @else {
+      <ion-icon name="chatbubble-ellipses-outline" class="support-fab__icon"></ion-icon>
+    }
+  </button>
+
+  @if (unreadCount() > 0 && !isOpen()) {
+    <span class="support-fab__badge">
+      {{ unreadCount() > 99 ? '99+' : unreadCount() }}
+    </span>
+  }
+</div>
+
+<!-- Chat panel (sheet modal) -->
+<ion-modal
+  [isOpen]="isOpen()"
+  [breakpoints]="[0, 0.75, 1]"
+  [initialBreakpoint]="0.75"
+  [handle]="true"
+  [backdropDismiss]="true"
+  (ionModalDidDismiss)="closeWidget()"
+  class="support-chat-modal"
+>
+  <!-- Header -->
+  <ng-template>
+    <ion-header class="ion-no-border support-chat__header">
+      <ion-toolbar>
+        <ion-buttons slot="start">
+          <div class="support-chat__avatar">
+            <ion-icon name="headset-outline" class="support-chat__avatar-icon"></ion-icon>
+          </div>
+        </ion-buttons>
+
+        <ion-title>
+          <div class="support-chat__header-info">
+            <span class="support-chat__header-name">Support Agent</span>
+            <span
+              class="support-chat__header-status"
+              [class.online]="isConnected()"
+            >
+              @if (isConnected()) {
+                Online
+              } @else if (isReconnecting()) {
+                Reconnecting…
+              } @else {
+                Offline
+              }
+            </span>
+          </div>
+        </ion-title>
+
+        <ion-buttons slot="end">
+          @if (activeChat()) {
+            <ion-button
+              fill="clear"
+              color="medium"
+              (click)="endChat()"
+              title="End chat"
+            >
+              <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+            </ion-button>
+          }
+          <ion-button fill="clear" color="medium" (click)="closeWidget()">
+            <ion-icon slot="icon-only" name="chevron-down-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <!-- Messages area -->
+    <ion-content class="support-chat__content">
+      <!-- Load more -->
+      @if (hasMoreMessages()) {
+        <div class="support-chat__load-more">
+          <ion-button
+            fill="clear"
+            size="small"
+            (click)="loadMore()"
+            [disabled]="isLoadingHistory()"
+          >
+            @if (isLoadingHistory()) {
+              Loading…
+            } @else {
+              Load older messages
+            }
+          </ion-button>
+        </div>
+      }
+
+      <!-- Loading state -->
+      @if (isLoadingHistory() && messages().length === 0) {
+        <div class="support-chat__loading">
+          <ion-spinner name="dots" color="medium"></ion-spinner>
+        </div>
+      }
+
+      <!-- Empty / welcome state -->
+      @if (!isLoadingHistory() && messages().length === 0 && !activeChat()) {
+        <div class="support-chat__empty">
+          <div class="support-chat__empty-icon-wrap">
+            <ion-icon name="chatbubble-ellipses-outline" class="support-chat__empty-icon"></ion-icon>
+          </div>
+          <p class="support-chat__empty-title">How can we help?</p>
+          <p class="support-chat__empty-text">
+            Send us a message and we'll get back to you as soon as possible.
+          </p>
+        </div>
+      }
+
+      <!-- Messages list -->
+      <div class="support-chat__messages" #messagesContainer>
+        @for (message of messages(); track message._id) {
+          <div
+            class="support-chat__message"
+            [class.support-chat__message--user]="message.senderType === ESenderType.User"
+            [class.support-chat__message--operator]="message.senderType === ESenderType.Operator"
+          >
+            @if (message.senderType === ESenderType.Operator) {
+              <div class="support-chat__message-avatar">
+                <ion-icon name="headset-outline" class="support-chat__message-avatar-icon"></ion-icon>
+              </div>
+            }
+            <div class="support-chat__bubble">
+              <p class="support-chat__bubble-text">{{ message.text }}</p>
+              <span class="support-chat__bubble-time">
+                {{ message.createdAt | date: 'HH:mm' }}
+              </span>
+            </div>
+          </div>
+        }
+
+        <!-- Chat closed notice -->
+        @if (activeChat()?.status === 'closed') {
+          <div class="support-chat__closed-notice">
+            <p>This chat session has been closed.</p>
+            <ion-button fill="outline" size="small" color="primary" (click)="startNewChat()">
+              Start new conversation
+            </ion-button>
+          </div>
+        }
+      </div>
+    </ion-content>
+
+    <!-- Footer / Input area -->
+    @if (activeChat()?.status !== 'closed') {
+      <ion-footer class="ion-no-border support-chat__footer">
+        <div class="support-chat__input-row">
+          <ion-textarea
+            class="support-chat__input"
+            placeholder="Type a message…"
+            [formControl]="messageControl"
+            [autoGrow]="true"
+            [rows]="1"
+            [maxlength]="2000"
+            fill="outline"
+            (keydown.enter)="$event.preventDefault(); sendMessage()"
+          ></ion-textarea>
+          <ion-button
+            class="support-chat__send-btn"
+            fill="solid"
+            color="dark"
+            shape="round"
+            (click)="sendMessage()"
+            [disabled]="isSending() || !messageControl.value?.trim()"
+          >
+            <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </ion-footer>
+    } @else {
+      <ion-footer class="ion-no-border support-chat__footer support-chat__footer--closed">
+        <ion-button expand="block" fill="outline" color="primary" (click)="startNewChat()">
+          Start new conversation
+        </ion-button>
+      </ion-footer>
+    }
+  </ng-template>
+</ion-modal>
+

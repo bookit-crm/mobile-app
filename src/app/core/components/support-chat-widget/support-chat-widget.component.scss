@@ -1,0 +1,302 @@
+// ──────────────────────────────────────────────
+//  FAB wrapper — фиксированный контейнер
+// ──────────────────────────────────────────────
+.support-fab-wrapper {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  z-index: 1001;
+  // relative для позиционирования бейджа
+  display: inline-block;
+}
+
+// ── FAB button ──
+.support-fab {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ion-color-dark);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  &:active {
+    transform: scale(0.93);
+    opacity: 0.85;
+  }
+
+  &__icon {
+    font-size: 24px;
+    color: #fff;
+  }
+}
+
+// ── Badge — вне кнопки, свободно выходит за её границы ──
+.support-fab__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--ion-color-danger);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  // Бейдж не обрезается — он находится в .support-fab-wrapper с overflow: visible
+}
+
+// ──────────────────────────────────────────────
+//  Modal header
+// ──────────────────────────────────────────────
+.support-chat__header {
+  ion-toolbar {
+    --padding-start: 12px;
+    --padding-end: 8px;
+  }
+}
+
+.support-chat__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ion-color-primary-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.support-chat__avatar-icon {
+  font-size: 18px;
+  color: var(--ion-color-primary);
+}
+
+.support-chat__header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.support-chat__header-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  line-height: 1.3;
+}
+
+.support-chat__header-status {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  line-height: 1.2;
+
+  &.online {
+    color: var(--ion-color-success);
+  }
+}
+
+// ──────────────────────────────────────────────
+//  Content / messages
+// ──────────────────────────────────────────────
+.support-chat__content {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.support-chat__load-more {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 0;
+}
+
+.support-chat__loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.support-chat__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px 24px;
+  text-align: center;
+  gap: 12px;
+}
+
+.support-chat__empty-icon-wrap {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--ion-color-primary-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.support-chat__empty-icon {
+  font-size: 28px;
+  color: var(--ion-color-primary);
+}
+
+.support-chat__empty-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  margin: 0;
+}
+
+.support-chat__empty-text {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  max-width: 260px;
+  margin: 0;
+}
+
+// ──────────────────────────────────────────────
+//  Messages list
+// ──────────────────────────────────────────────
+.support-chat__messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+
+.support-chat__message {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+
+  &--user {
+    justify-content: flex-end;
+
+    .support-chat__bubble {
+      background: var(--ion-color-dark);
+      border-radius: 16px 16px 4px 16px;
+    }
+
+    .support-chat__bubble-text {
+      color: #fff;
+    }
+
+    .support-chat__bubble-time {
+      color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  &--operator {
+    justify-content: flex-start;
+  }
+}
+
+.support-chat__message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ion-color-primary-tint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.support-chat__message-avatar-icon {
+  font-size: 14px;
+  color: var(--ion-color-primary);
+}
+
+.support-chat__bubble {
+  max-width: 78%;
+  padding: 10px 14px;
+  background: var(--ion-color-light);
+  border-radius: 16px 16px 16px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.support-chat__bubble-text {
+  font-size: 14px;
+  color: var(--ion-text-color);
+  word-break: break-word;
+  white-space: pre-wrap;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.support-chat__bubble-time {
+  font-size: 11px;
+  color: var(--ion-color-medium);
+  align-self: flex-end;
+}
+
+// ──────────────────────────────────────────────
+//  Closed notice
+// ──────────────────────────────────────────────
+.support-chat__closed-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 8px;
+
+  p {
+    font-size: 13px;
+    color: var(--ion-color-medium);
+    text-align: center;
+    margin: 0;
+  }
+}
+
+// ──────────────────────────────────────────────
+//  Footer / Input
+// ──────────────────────────────────────────────
+.support-chat__footer {
+  padding: 8px 12px 12px;
+
+  &--closed {
+    padding: 12px 16px 16px;
+  }
+}
+
+.support-chat__input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.support-chat__input {
+  flex: 1;
+  --padding-start: 12px;
+  --padding-end: 12px;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+  --border-radius: 20px;
+  font-size: 14px;
+  max-height: 120px;
+}
+
+.support-chat__send-btn {
+  flex-shrink: 0;
+  --border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 2px;
+}
+
