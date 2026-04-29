@@ -35,7 +35,7 @@
 <!-- ── Advanced Filter Modal ───────────────────────────────────────────── -->
 <ion-modal
   [isOpen]="showFilterModal()"
-  [breakpoints]="[0, 0.85]"
+  [breakpoints]="[0, 0.85, 1]"
   [initialBreakpoint]="0.85"
   (didDismiss)="showFilterModal.set(false)"
 >
@@ -115,14 +115,14 @@
       </ion-list>
     </ion-content>
 
-    <div class="filter-modal-footer">
-      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
-        Reset All
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="applyFilters()">
-        Apply Filters
-      </ion-button>
-    </div>
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
   </ng-template>
 </ion-modal>
 
@@ -180,9 +180,21 @@
                   <ion-icon name="time-outline"></ion-icon>
                   {{ appt.startDate | date: 'dd/MM/yyyy HH:mm' }}
                 </span>
-                <span class="appt-price">
-                  {{ getFinalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
-                </span>
+                <div class="appt-price-block">
+                  @if ((appt.discountAmount ?? 0) > 0) {
+                    <span class="appt-price-original">
+                      {{ getOriginalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
+                    </span>
+                  }
+                  <span class="appt-price" [class.appt-price--discounted]="(appt.discountAmount ?? 0) > 0">
+                    {{ getFinalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
+                  </span>
+                  @if ((appt.discountAmount ?? 0) > 0) {
+                    <ion-badge class="appt-discount-badge" color="success">
+                      −{{ appt.discountAmount | currency: 'USD' : 'symbol' : '1.0-0' }}
+                    </ion-badge>
+                  }
+                </div>
               </div>
             </ion-label>
             <!-- Индикатор свайпа -->

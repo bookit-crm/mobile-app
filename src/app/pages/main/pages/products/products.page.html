@@ -30,7 +30,7 @@
 <!-- ── Filter Modal ─────────────────────────────────────────────────────── -->
 <ion-modal
   [isOpen]="showFilterModal()"
-  [breakpoints]="[0, 0.72]"
+  [breakpoints]="[0, 0.72, 1]"
   [initialBreakpoint]="0.72"
   (didDismiss)="showFilterModal.set(false)"
 >
@@ -79,14 +79,14 @@
       </ion-list>
     </ion-content>
 
-    <div class="filter-modal-footer">
-      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
-        Reset All
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="applyFilters()">
-        Apply Filters
-      </ion-button>
-    </div>
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
 
   </ng-template>
 </ion-modal>
@@ -154,7 +154,7 @@
               <p class="product-info">
                 <ion-icon name="storefront-outline"></ion-icon>
                 Stock: <strong>{{ product.stock ?? 0 }} {{ product.unit }}</strong>
-                @if (product.minStock != null) {
+                @if (product.minStock !== null && product.minStock !== undefined) {
                   <span class="stock-threshold"> / min {{ product.minStock }}</span>
                 }
               </p>
@@ -162,7 +162,7 @@
               <p class="product-info product-price">
                 <ion-icon name="pricetag-outline"></ion-icon>
                 Sale: <strong>{{ formatPrice(product.salePrice) }}</strong>
-                @if (product.purchasePrice != null) {
+                @if (product.purchasePrice !== null && product.purchasePrice !== undefined) {
                   <span class="price-purchase"> · Cost: {{ formatPrice(product.purchasePrice) }}</span>
                 }
               </p>

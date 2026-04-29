@@ -155,10 +155,35 @@ ion-item {
   }
 }
 
+.appt-price-block {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.appt-price-original {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ion-color-medium);
+  text-decoration: line-through;
+}
+
 .appt-price {
   font-size: 14px;
   font-weight: 600;
   color: var(--ion-color-primary);
+
+  &--discounted {
+    color: var(--ion-color-success);
+  }
+}
+
+.appt-discount-badge {
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 6px;
 }
 
 // ── Swipe hint banner (same as employees page) ─────────────────────────────
@@ -191,3 +216,9 @@ ion-item {
   flex-shrink: 0;
 }
 
+.filter-footer-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}

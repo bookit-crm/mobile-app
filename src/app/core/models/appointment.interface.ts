@@ -41,7 +41,7 @@ export interface IAppointment {
   totalPrice: number;
   discountAmount?: number;
   consumableProducts?: IConsumableProduct[];
-  promoCode?: string;
+  promoCode?: string | { _id: string; name: string; services?: unknown[] };
   created: string;
 }
 

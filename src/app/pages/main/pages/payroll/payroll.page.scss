@@ -246,3 +246,9 @@ ion-label p {
   border-top: 1px solid var(--ion-color-light-shade);
   background: var(--ion-background-color, #fff);
 }
+.filter-footer-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}

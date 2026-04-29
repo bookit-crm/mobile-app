@@ -1,1 +1,188 @@
-﻿
+﻿// ── Loading ─────────────────────────────────────────────────
+.pc-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+}
+
+// ── Empty / locked ──────────────────────────────────────────
+.pc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ── Filter button & badge ────────────────────────────────────
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  padding: 0 3px;
+  pointer-events: none;
+}
+
+// ── Filter sheet styles ───────────────────────────────────────
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.filter-date-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  color: var(--ion-text-color);
+  padding: 8px 0;
+  outline: none;
+}
+
+.filter-modal-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ion-color-light-shade);
+  background: var(--ion-background-color, #fff);
+}
+
+.filter-footer-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+// ── Swipe hint ──────────────────────────────────────────────
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light-shade);
+
+  ion-icon {
+    font-size: 15px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ── Swipe indicator ─────────────────────────────────────────
+.swipe-indicator {
+  font-size: 16px;
+  color: var(--ion-color-medium-shade);
+  opacity: 0.45;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+// ── Promo item ──────────────────────────────────────────────
+ion-item {
+  --padding-start: 16px;
+}
+
+.promo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+
+  h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.vis-badge {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+ion-label p {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 13px;
+  }
+}
+
+// ── Service chips ───────────────────────────────────────────
+.service-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--ion-color-primary);
+  color: var(--ion-color-primary-contrast); // #ffffff — всегда читабельно на тёмном фоне
+  font-size: 11px;
+  font-weight: 500;
+}
+
+// ── Meta footer ─────────────────────────────────────────────
+.pc-meta {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.pc-count {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+// ── Page-level ion overrides ─────────────────────────────────

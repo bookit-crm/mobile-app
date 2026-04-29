@@ -4,8 +4,207 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Promo Codes</ion-title>
+    <ion-buttons slot="end">
+      <!-- Filter button with active-count badge -->
+      <ion-button fill="clear" (click)="openFilterSheet()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount > 0) {
+          <ion-badge color="primary" class="filter-badge">{{ activeFiltersCount }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search promo codes..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Promo Codes page (coming soon)</p>
+
+<ion-content>
+
+  <!-- ── Loading ─────────────────────────────────────────────── -->
+  @if (isLoading()) {
+    <div class="pc-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  <!-- ── No subscription feature ─────────────────────────────── -->
+  @if (!isLoading() && !hasPromoCodesFeature()) {
+    <div class="pc-empty">
+      <ion-icon name="lock-closed-outline" class="pc-empty__icon"></ion-icon>
+      <h3>Upgrade Required</h3>
+      <p>Promo codes are available on Starter plan and above.</p>
+    </div>
+  }
+
+  <!-- ── Empty state ──────────────────────────────────────────── -->
+  @if (!isLoading() && hasPromoCodesFeature() && promoCodes().length === 0) {
+    <div class="pc-empty">
+      <ion-icon name="pricetag-outline" class="pc-empty__icon"></ion-icon>
+      <h3>No promo codes yet</h3>
+      <p>Create your first promo code to offer discounts to clients.</p>
+    </div>
+  }
+
+  <!-- ── List ─────────────────────────────────────────────────── -->
+  @if (!isLoading() && hasPromoCodesFeature() && promoCodes().length > 0) {
+
+    <div class="swipe-hint">
+      <ion-icon name="swap-horizontal-outline"></ion-icon>
+      <span>Swipe left on a card for options</span>
+    </div>
+
+    <ion-list lines="none">
+      @for (promo of promoCodes(); track promo._id) {
+        <ion-item-sliding>
+          <ion-item>
+            <ion-label>
+              <div class="promo-header">
+                <h2>{{ promo.name }}</h2>
+                <ion-badge [color]="promo.isVisible ? 'success' : 'medium'" class="vis-badge">
+                  {{ promo.isVisible ? 'Visible' : 'Hidden' }}
+                </ion-badge>
+              </div>
+
+              @if (!singleDepartmentMode()) {
+                <p><ion-icon name="business-outline"></ion-icon> {{ getDeptName(promo) }}</p>
+              }
+
+              <!-- Date range -->
+              <p>
+                <ion-icon name="calendar-outline"></ion-icon>
+                {{ formatDate(promo.startDate) }} — {{ formatDate(promo.endDate) }}
+              </p>
+
+              <!-- Services chips -->
+              @if (promo.services?.length) {
+                <div class="service-chips">
+                  @for (svc of promo.services; track $index) {
+                    <span class="chip">{{ formatDiscount(svc) }}</span>
+                  }
+                </div>
+              }
+            </ion-label>
+
+            <!-- Swipe indicator -->
+            <ion-icon
+              name="chevron-back-outline"
+              slot="end"
+              class="swipe-indicator"
+            ></ion-icon>
+          </ion-item>
+
+          <ion-item-options side="end">
+            <!-- Toggle visibility -->
+            <ion-item-option
+              [color]="promo.isVisible ? 'warning' : 'success'"
+              (click)="toggleVisibility(promo, $event)"
+            >
+              <ion-icon
+                [name]="promo.isVisible ? 'eye-off-outline' : 'eye-outline'"
+                slot="icon-only"
+              ></ion-icon>
+            </ion-item-option>
+
+            <!-- Edit -->
+            <ion-item-option color="primary" (click)="openEdit(promo, $event)">
+              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+            </ion-item-option>
+
+            <!-- Delete -->
+            <ion-item-option color="danger" (click)="confirmDelete(promo, $event)">
+              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+            </ion-item-option>
+          </ion-item-options>
+        </ion-item-sliding>
+      }
+    </ion-list>
+
+    <div class="pc-meta ion-padding-horizontal">
+      <p class="pc-count">{{ promoCodesTotal() }} promo code(s)</p>
+    </div>
+  }
+
+  <!-- ── FAB ──────────────────────────────────────────────────── -->
+  @if (hasPromoCodesFeature()) {
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary" (click)="openAdd()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+  }
+
 </ion-content>
+
+<ion-modal
+  [isOpen]="isFilterOpen()"
+  [breakpoints]="[0, 0.65, 1]"
+  [initialBreakpoint]="0.65"
+  (didDismiss)="closeFilterSheet()"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="closeFilterSheet()">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content ion-padding">
+
+      <!-- Visibility -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Visibility</ion-label>
+        <ion-select
+          [value]="visibilityFilter()"
+          (ionChange)="visibilityFilter.set($any($event.detail.value))"
+          interface="action-sheet"
+          placeholder="All"
+        >
+          @for (opt of visibilityOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Date from -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Valid From</ion-label>
+        <input
+          type="date"
+          class="filter-date-input"
+          [value]="dateFrom() ?? ''"
+          (change)="dateFrom.set($any($event.target).value || null)"
+        />
+      </ion-item>
+
+      <!-- Date to -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Valid To</ion-label>
+        <input
+          type="date"
+          class="filter-date-input"
+          [value]="dateTo() ?? ''"
+          (change)="dateTo.set($any($event.target).value || null)"
+        />
+      </ion-item>
+
+    </ion-content>
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>

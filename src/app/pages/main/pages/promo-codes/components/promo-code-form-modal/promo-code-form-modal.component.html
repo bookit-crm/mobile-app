@@ -1,0 +1,116 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ isEditMode ? 'Edit Promo Code' : 'New Promo Code' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" [disabled]="isSubmitting" (click)="submit()">
+        <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
+        {{ isEditMode ? 'Save' : 'Create' }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form">
+
+    <!-- Department (readonly) -->
+    <ion-item lines="full" class="dept-item">
+      <ion-label>
+        <p class="field-hint">Department</p>
+        <h3>{{ departmentName }}</h3>
+      </ion-label>
+      <ion-icon name="business-outline" slot="end" color="medium"></ion-icon>
+    </ion-item>
+
+    <!-- Name -->
+    <ion-item lines="full">
+      <ion-label position="stacked">Name <span class="required">*</span></ion-label>
+      <ion-input formControlName="name" placeholder="e.g. SUMMER20" clearInput></ion-input>
+    </ion-item>
+    @if (form.get('name')?.invalid && form.get('name')?.touched) {
+      <ion-note color="danger" class="validation-note">Name is required</ion-note>
+    }
+
+    <!-- Date range -->
+    <ion-item lines="full">
+      <ion-label position="stacked">Start Date</ion-label>
+      <ion-input formControlName="startDate" type="date"></ion-input>
+    </ion-item>
+
+    <ion-item lines="full">
+      <ion-label position="stacked">End Date</ion-label>
+      <ion-input formControlName="endDate" type="date"></ion-input>
+    </ion-item>
+
+    <!-- Visibility toggle -->
+    <ion-item lines="full">
+      <ion-label>Visible to clients</ion-label>
+      <ion-toggle formControlName="isVisible" slot="end"></ion-toggle>
+    </ion-item>
+
+    <!-- Services section -->
+    <div class="section-header">
+      <h3>Services & Discounts</h3>
+      <ion-button fill="clear" size="small" color="primary" (click)="addServiceRow()">
+        <ion-icon name="add-circle-outline" slot="start"></ion-icon>
+        Add Service
+      </ion-button>
+    </div>
+
+    <div formArrayName="serviceRows">
+      @for (row of serviceRows.controls; track $index) {
+        <ion-card class="service-row">
+          <ion-card-content>
+            <div class="row-header">
+              <span class="row-label">Service {{ $index + 1 }}</span>
+              <ion-button fill="clear" color="danger" size="small" (click)="removeServiceRow($index)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-button>
+            </div>
+
+            <ion-item lines="full" [formGroupName]="$index">
+              <ion-label position="stacked">Service <span class="required">*</span></ion-label>
+              <ion-select formControlName="service" interface="action-sheet" placeholder="Select service">
+                @for (svc of availableServices; track svc._id) {
+                  <ion-select-option [value]="svc">{{ svc.name }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+
+            <div class="discount-row" [formGroupName]="$index">
+              <ion-item lines="none" class="discount-type-item">
+                <ion-label position="stacked">Type</ion-label>
+                <ion-select formControlName="discountType" interface="popover">
+                  @for (opt of discountTypeOptions; track opt.value) {
+                    <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+                  }
+                </ion-select>
+              </ion-item>
+
+              <ion-item lines="none" class="discount-value-item">
+                <ion-label position="stacked">
+                  Value {{ getRowControl(row, 'discountType').value === 'percentage' ? '(%)' : '($)' }}
+                </ion-label>
+                <ion-input formControlName="discountValue" type="number" min="0" placeholder="0"></ion-input>
+              </ion-item>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+    </div>
+
+    @if (serviceRows.length === 0) {
+      <div class="no-services">
+        <ion-icon name="pricetag-outline"></ion-icon>
+        <p>No services added yet</p>
+      </div>
+    }
+
+  </form>
+</ion-content>
+

@@ -397,7 +397,9 @@ export class AppointmentModalComponent implements OnInit {
       comment: [apt?.comment ?? ''],
       status: [apt?.status ?? AppointmentStatus.New],
       consumableProducts: new FormArray(consumableControls),
-      promoCode: [apt?.promoCode ?? null],
+      promoCode: [apt?.promoCode
+        ? (typeof apt.promoCode === 'string' ? apt.promoCode : apt.promoCode._id)
+        : null],
     });
 
     // auto-recalculate end time on service/time change
@@ -520,6 +522,7 @@ export class AppointmentModalComponent implements OnInit {
         .pipe(take(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((res) => {
           this.promoCodeOptions.set(res.results || []);
+          this.recalculate(); // пересчитываем после загрузки, чтобы применилась скидка
           this.cdr.markForCheck();
         });
     }

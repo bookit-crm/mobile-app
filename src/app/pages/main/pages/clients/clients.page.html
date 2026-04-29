@@ -25,8 +25,8 @@
 <!-- ── Filter Modal ─────────────────────────────────────────────────────── -->
 <ion-modal
   [isOpen]="showFilterModal()"
-  [breakpoints]="[0, 0.6]"
-  [initialBreakpoint]="0.6"
+  [breakpoints]="[0, 0.65, 1]"
+  [initialBreakpoint]="0.65"
   (didDismiss)="showFilterModal.set(false)"
 >
   <ng-template>
@@ -52,14 +52,14 @@
         </ion-item>
       </ion-list>
     </ion-content>
-    <div class="filter-modal-footer">
-      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
-        Reset All
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="applyFilters()">
-        Apply Filters
-      </ion-button>
-    </div>
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
   </ng-template>
 </ion-modal>
 

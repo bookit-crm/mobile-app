@@ -10,6 +10,14 @@
           <ion-icon slot="icon-only" name="add-outline"></ion-icon>
         </ion-button>
       }
+      @if (!singleDepartmentMode()) {
+        <ion-button (click)="openFilterModal()" class="filter-btn">
+          <ion-icon slot="icon-only" name="options-outline"></ion-icon>
+          @if (activeFiltersCount() > 0) {
+            <ion-badge color="primary" class="filter-badge">{{ activeFiltersCount() }}</ion-badge>
+          }
+        </ion-button>
+      }
     </ion-buttons>
   </ion-toolbar>
 
@@ -17,20 +25,10 @@
   <ion-toolbar>
     <ion-searchbar
       placeholder="Search services..."
-      debounce="0"
+      [debounce]="0"
       (ionInput)="onSearchChange($event)"
       [value]="searchQuery()"
     ></ion-searchbar>
-    @if (!singleDepartmentMode()) {
-      <ion-buttons slot="end">
-        <ion-button (click)="openFilterModal()">
-          <ion-icon slot="icon-only" name="options-outline"></ion-icon>
-          @if (activeFiltersCount() > 0) {
-            <ion-badge color="primary">{{ activeFiltersCount() }}</ion-badge>
-          }
-        </ion-button>
-      </ion-buttons>
-    }
   </ion-toolbar>
 </ion-header>
 
@@ -71,18 +69,18 @@
 
       @for (service of services(); track service._id) {
         <ion-item-sliding>
-          <ion-item class="service-item" button (click)="openEditModal(service, $event)">
+          <ion-item class="service-item" [button]="true" (click)="openEditModal(service, $event)">
             <ion-label>
               <h2 class="service-item__name">{{ service.name }}</h2>
               @if (service.category) {
                 <p class="service-item__category">{{ service.category }}</p>
               }
               <div class="service-item__meta">
-                <ion-chip color="primary" outline>
+                <ion-chip color="primary" [outline]="true">
                   <ion-icon name="time-outline"></ion-icon>
                   <ion-label>{{ service.duration }} min</ion-label>
                 </ion-chip>
-                <ion-chip color="success" outline>
+                <ion-chip color="success" [outline]="true">
                   <ion-icon name="pricetag-outline"></ion-icon>
                   <ion-label>${{ service.price }}</ion-label>
                 </ion-chip>
@@ -138,35 +136,40 @@
 
 <!-- Filter Modal -->
 @if (!singleDepartmentMode()) {
-  <ion-modal [isOpen]="showFilterModal()" (didDismiss)="showFilterModal.set(false)">
+  <ion-modal
+    [isOpen]="showFilterModal()"
+    [breakpoints]="[0, 0.5, 1]"
+    [initialBreakpoint]="0.5"
+    (didDismiss)="showFilterModal.set(false)"
+  >
     <ng-template>
       <ion-header>
         <ion-toolbar>
           <ion-title>Filter Services</ion-title>
           <ion-buttons slot="end">
-            <ion-button (click)="showFilterModal.set(false)">
+            <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
               <ion-icon slot="icon-only" name="close-outline"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
-      <ion-content class="ion-padding">
-        <ion-list>
-          <ion-item>
-            <ion-label>Department</ion-label>
-            <ion-select [(ngModel)]="tempDept" placeholder="All departments" interface="action-sheet">
-              <ion-select-option value="">All departments</ion-select-option>
-              @for (dept of departments(); track dept._id) {
-                <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
-              }
-            </ion-select>
-          </ion-item>
-        </ion-list>
+      <ion-content class="filter-modal-content ion-padding">
+        <ion-item lines="full">
+          <ion-label position="stacked" class="filter-label">Department</ion-label>
+          <ion-select [(ngModel)]="tempDept" placeholder="All departments" interface="action-sheet">
+            <ion-select-option value="">All departments</ion-select-option>
+            @for (dept of departments(); track dept._id) {
+              <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
       </ion-content>
       <ion-footer>
-        <ion-toolbar>
-          <ion-button expand="block" fill="outline" (click)="resetFilters()">Reset</ion-button>
-          <ion-button expand="block" (click)="applyFilters()">Apply Filters</ion-button>
+        <ion-toolbar class="filter-footer-toolbar">
+          <div class="filter-modal-footer">
+            <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+            <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          </div>
         </ion-toolbar>
       </ion-footer>
     </ng-template>

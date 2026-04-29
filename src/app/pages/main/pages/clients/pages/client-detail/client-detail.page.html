@@ -17,7 +17,7 @@
 <!-- ── Filter Modal ─────────────────────────────────────────────────────── -->
 <ion-modal
   [isOpen]="showFilterModal()"
-  [breakpoints]="[0, 0.55]"
+  [breakpoints]="[0, 0.55, 1]"
   [initialBreakpoint]="0.55"
   (didDismiss)="showFilterModal.set(false)"
 >
@@ -44,14 +44,14 @@
         </ion-item>
       </ion-list>
     </ion-content>
-    <div class="filter-modal-footer">
-      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">
-        Reset
-      </ion-button>
-      <ion-button expand="block" color="primary" (click)="applyFilters()">
-        Apply
-      </ion-button>
-    </div>
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
   </ng-template>
 </ion-modal>
 
@@ -177,11 +177,18 @@
               <span>{{ getServiceNames(appt) }}</span>
             </p>
             <div class="history-footer">
-              <span class="history-price">
+              @if ((appt.discountAmount ?? 0) > 0) {
+                <span class="history-price-original">
+                  {{ getOriginalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              }
+              <span class="history-price" [class.history-price--discounted]="(appt.discountAmount ?? 0) > 0">
                 {{ getFinalPrice(appt) | currency: 'USD' : 'symbol' : '1.0-0' }}
               </span>
-              @if (appt.discountAmount) {
-                <span class="history-discount">-{{ appt.discountAmount | currency: 'USD' : 'symbol' : '1.0-0' }} discount</span>
+              @if ((appt.discountAmount ?? 0) > 0) {
+                <ion-badge color="success" class="history-discount-badge">
+                  −{{ appt.discountAmount | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </ion-badge>
               }
             </div>
           </ion-card-content>

@@ -130,8 +130,14 @@ export class ClientDetailPage implements OnInit {
     return appt.services.map((s) => s.name).join(', ');
   }
 
+  /** Итоговая цена — бэк уже возвращает totalPrice со скидкой */
   public getFinalPrice(appt: IAppointment): number {
-    return (appt.totalPrice ?? 0) - (appt.discountAmount ?? 0);
+    return appt.totalPrice ?? 0;
+  }
+
+  /** Цена до скидки = totalPrice + discountAmount */
+  public getOriginalPrice(appt: IAppointment): number {
+    return (appt.totalPrice ?? 0) + (appt.discountAmount ?? 0);
   }
 
   public formatDate(date: string | undefined): string {
