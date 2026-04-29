@@ -82,7 +82,7 @@
               </p>
 
               <!-- Services chips -->
-              @if (promo.services?.length) {
+              @if (promo.services.length) {
                 <div class="service-chips">
                   @for (svc of promo.services; track $index) {
                     <span class="chip">{{ formatDiscount(svc) }}</span>

@@ -184,10 +184,10 @@
       @for (item of lineItems(); track item._id) {
         <ion-item class="line-item">
           <ion-label>
-            <h3>{{ item.appointment?.services?.[0]?.name ?? 'Appointment' }}</h3>
+            <h3>{{ item.appointment.services[0]?.name ?? 'Appointment' }}</h3>
             <p>
               <ion-icon name="calendar-outline"></ion-icon>
-              {{ item.appointment?.startDate | date: 'dd/MM/yyyy' }}
+              {{ item.appointment.startDate | date: 'dd/MM/yyyy' }}
             </p>
             <p>
               Price: {{ item.servicePrice | currency: 'USD' }}
