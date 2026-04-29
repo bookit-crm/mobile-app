@@ -1,0 +1,219 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="arrow-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Payroll Period</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="activeSegment()" (ionChange)="onSegmentChange($any($event.detail.value))">
+      <ion-segment-button value="overview">
+        <ion-label>Overview</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="items">
+        <ion-label>Line Items</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  @if (isLoading()) {
+    <div class="detail-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  }
+
+  <!-- ── OVERVIEW TAB ─────────────────────────────────────────────────────── -->
+  @if (!isLoading() && activeSegment() === 'overview' && period()) {
+    <!-- Staff info -->
+    <div class="staff-card">
+      <div class="staff-card__info">
+        <h2>{{ getStaffName() }}</h2>
+        <ion-badge color="primary" class="dept-badge">{{ getDeptName() }}</ion-badge>
+        @if (isSupervisorPeriod()) {
+          <ion-badge color="secondary">Manager</ion-badge>
+        }
+      </div>
+      <ion-badge [color]="periodStatusColor(period()!.status)" class="status-badge">
+        {{ period()!.status | titlecase }}
+      </ion-badge>
+    </div>
+
+    <!-- Period dates -->
+    <div class="info-row">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <span>{{ period()!.periodStart | date: 'dd MMM yyyy' }} — {{ period()!.periodEnd | date: 'dd MMM yyyy' }}</span>
+    </div>
+
+    <!-- Summary cards -->
+    @if (summary()) {
+      <div class="summary-grid">
+        <div class="summary-card">
+          <p class="summary-card__label">Appointments</p>
+          <p class="summary-card__value">{{ summary()!.appointmentCount }}</p>
+        </div>
+        <div class="summary-card">
+          <p class="summary-card__label">Base Salary</p>
+          <p class="summary-card__value">{{ summary()!.totalBase | currency: 'USD' }}</p>
+        </div>
+        <div class="summary-card">
+          <p class="summary-card__label">Commission</p>
+          <p class="summary-card__value">{{ summary()!.totalCommission | currency: 'USD' }}</p>
+        </div>
+        <div class="summary-card summary-card--total">
+          <p class="summary-card__label">Total Payout</p>
+          <p class="summary-card__value">{{ summary()!.totalPayout | currency: 'USD' }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- Actions row -->
+    <div class="actions-row">
+      <ion-button fill="outline" size="small" (click)="syncLineItems()">
+        <ion-icon name="sync-outline" slot="start"></ion-icon>
+        Sync
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="downloadPdf()">
+        <ion-icon name="document-outline" slot="start"></ion-icon>
+        PDF
+      </ion-button>
+      <ion-button fill="outline" size="small" (click)="downloadCsv()">
+        <ion-icon name="download-outline" slot="start"></ion-icon>
+        CSV
+      </ion-button>
+    </div>
+
+    <!-- Payout form (only if Open) -->
+    @if (period()!.status === EPayrollPeriodStatus.Open) {
+      <div class="payout-section">
+        <h3 class="payout-title">Record Payout</h3>
+        <form [formGroup]="payoutForm">
+          <ion-item lines="full">
+            <ion-label position="stacked" class="form-label">Payment Method *</ion-label>
+            <ion-select formControlName="paymentMethod" interface="action-sheet" placeholder="Select method">
+              @for (opt of paymentMethodOptions; track opt.value) {
+                <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-label position="stacked" class="form-label">Payment Date *</ion-label>
+            <input type="date" class="date-input" formControlName="paymentDate" />
+          </ion-item>
+
+          <ion-item lines="full">
+            <ion-label position="stacked" class="form-label">Note</ion-label>
+            <ion-textarea formControlName="paymentNote" placeholder="Optional note..." rows="2"></ion-textarea>
+          </ion-item>
+
+          <ion-button
+            expand="block"
+            color="success"
+            class="ion-margin-top"
+            [disabled]="payoutForm.invalid"
+            (click)="confirmPayout()"
+          >
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Confirm Payout
+          </ion-button>
+        </form>
+      </div>
+    } @else if (period()!.status === EPayrollPeriodStatus.Paid) {
+      <div class="paid-info">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <div>
+          <p>Paid on {{ period()!.paidAt | date: 'dd MMM yyyy' }}</p>
+          @if (period()!.paymentNote) {
+            <p class="paid-note">{{ period()!.paymentNote }}</p>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <!-- ── LINE ITEMS TAB ───────────────────────────────────────────────────── -->
+  @if (activeSegment() === 'items') {
+    <!-- Filters row -->
+    <div class="items-filters">
+      <ion-select
+        [value]="filterItemStatus()"
+        (ionChange)="filterItemStatus.set($any($event.detail.value)); applyItemFilters()"
+        interface="action-sheet"
+        placeholder="All statuses"
+        class="filter-select"
+      >
+        @for (opt of statusOptions; track opt.value) {
+          <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+        }
+      </ion-select>
+    </div>
+
+    <div class="date-filters">
+      <ion-item lines="full" class="date-item">
+        <ion-label position="stacked" class="form-label">From</ion-label>
+        <input type="date" class="date-input" [value]="filterItemDateFrom()"
+          (change)="filterItemDateFrom.set($any($event.target).value); applyItemFilters()" />
+      </ion-item>
+      <ion-item lines="full" class="date-item">
+        <ion-label position="stacked" class="form-label">To</ion-label>
+        <input type="date" class="date-input" [value]="filterItemDateTo()"
+          (change)="filterItemDateTo.set($any($event.target).value); applyItemFilters()" />
+      </ion-item>
+    </div>
+
+    @if (isLoadingItems() && lineItems().length === 0) {
+      <div class="detail-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    }
+
+    @if (!isLoadingItems() && lineItems().length === 0) {
+      <div class="empty-items">
+        <ion-icon name="list-outline"></ion-icon>
+        <p>No line items found.</p>
+      </div>
+    }
+
+    <ion-list lines="none">
+      @for (item of lineItems(); track item._id) {
+        <ion-item class="line-item">
+          <ion-label>
+            <h3>{{ item.appointment?.services?.[0]?.name ?? 'Appointment' }}</h3>
+            <p>
+              <ion-icon name="calendar-outline"></ion-icon>
+              {{ item.appointment?.startDate | date: 'dd/MM/yyyy' }}
+            </p>
+            <p>
+              Price: {{ item.servicePrice | currency: 'USD' }}
+              · Base: {{ item.commissionBase | currency: 'USD' }}
+              · Rate: {{ item.appliedRatePercent }}%
+            </p>
+          </ion-label>
+          <div slot="end" class="item-end">
+            <p class="item-commission">{{ item.commissionAmount | currency: 'USD' }}</p>
+            <ion-badge [color]="lineItemStatusColor(item.status)" class="status-badge">
+              {{ item.status }}
+            </ion-badge>
+          </div>
+        </ion-item>
+      }
+    </ion-list>
+
+    <ion-infinite-scroll [disabled]="!lineItemsHasMore()" (ionInfinite)="onLineItemsInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    @if (lineItems().length > 0) {
+      <p class="items-count ion-padding-horizontal">{{ lineItemsTotal() }} line item(s)</p>
+    }
+  }
+
+</ion-content>
+
+

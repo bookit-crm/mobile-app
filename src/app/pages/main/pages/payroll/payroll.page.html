@@ -4,8 +4,209 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Payroll</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterSheet()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge class="filter-badge" color="primary">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Payroll page (coming soon)</p>
+
+<!-- ── Filter bottom sheet ──────────────────────────────────────────────── -->
+<ion-modal
+  [isOpen]="showFilterSheet()"
+  [breakpoints]="[0, 0.6]"
+  [initialBreakpoint]="0.6"
+  (didDismiss)="showFilterSheet.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="showFilterSheet.set(false)">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content ion-padding">
+
+      <!-- Status -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Status</ion-label>
+        <ion-select
+          [value]="tempStatus()"
+          (ionChange)="tempStatus.set($any($event.detail.value))"
+          interface="action-sheet"
+          placeholder="All statuses"
+        >
+          @for (opt of statusOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Department (multi-location only) -->
+      @if (!singleDepartmentMode()) {
+        <ion-item lines="full">
+          <ion-label position="stacked" class="filter-label">Department</ion-label>
+          <ion-select
+            [value]="tempDepartmentId()"
+            (ionChange)="tempDepartmentId.set($any($event.detail.value))"
+            interface="action-sheet"
+            placeholder="All departments"
+          >
+            <ion-select-option value="">All departments</ion-select-option>
+            @for (dept of departments(); track dept._id) {
+              <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+
+    </ion-content>
+    <div class="filter-modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+      <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+
+  <!-- ── Feature gate ────────────────────────────────────────────────────── -->
+  @if (!hasPayrollFeature()) {
+    <div class="payroll-locked">
+      <ion-icon name="lock-closed-outline" class="payroll-locked__icon"></ion-icon>
+      <h3>Payroll</h3>
+      <p>This feature is available on Starter plan and above. Upgrade your subscription to manage payroll.</p>
+      <ion-badge color="warning">Upgrade Required</ion-badge>
+    </div>
+  } @else {
+
+    <!-- ── Month / Year navigator ──────────────────────────────────────────── -->
+    <div class="year-nav">
+      <ion-button fill="clear" size="small" (click)="prevYear()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <span class="year-label">{{ selectedYear() }}</span>
+      <ion-button fill="clear" size="small" (click)="nextYear()">
+        <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <div class="months-row">
+      @for (name of MONTH_NAMES; track $index) {
+        <ion-chip
+          [color]="selectedMonth() === $index ? 'primary' : monthChipColor($index)"
+          [outline]="selectedMonth() !== $index"
+          (click)="selectMonth($index)"
+          class="month-chip"
+        >
+          {{ name }}
+          @if (getMonthStatus($index).length > 0) {
+            <span class="month-dot"></span>
+          }
+        </ion-chip>
+      }
+    </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    @if (isLoading() && periods().length === 0) {
+      <div class="payroll-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    }
+
+    <!-- ── Empty state ───────────────────────────────────────────────────── -->
+    @if (!isLoading() && periods().length === 0) {
+      <div class="payroll-empty">
+        <ion-icon name="cash-outline" class="payroll-empty__icon"></ion-icon>
+        <h3>No payroll periods</h3>
+        <p>No periods found for {{ MONTH_NAMES[selectedMonth()] }} {{ selectedYear() }}.</p>
+      </div>
+    }
+
+    <!-- ── List ──────────────────────────────────────────────────────────── -->
+    @if (periods().length > 0) {
+      <div class="swipe-hint">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Swipe left on a card for options</span>
+      </div>
+
+      <ion-list lines="none">
+        @for (period of periods(); track period._id) {
+          <ion-item-sliding>
+            <ion-item button (click)="openViewDetail(period)">
+              <ion-avatar slot="start">
+                @if (period.employee?.avatar?.url || period.supervisor?.avatar?.url) {
+                  <img [src]="period.employee?.avatar?.url || period.supervisor?.avatar?.url" [alt]="getStaffName(period)" />
+                } @else {
+                  <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+                }
+              </ion-avatar>
+              <ion-label>
+                <h2>
+                  {{ getStaffName(period) }}
+                  @if (period.supervisor) {
+                    <ion-badge color="secondary" class="mgr-badge">Mgr</ion-badge>
+                  }
+                </h2>
+                <p>
+                  <ion-icon name="business-outline"></ion-icon>
+                  {{ getDeptName(period) }}
+                </p>
+                <p>
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  {{ period.periodStart | date: 'dd/MM' }} — {{ period.periodEnd | date: 'dd/MM/yyyy' }}
+                </p>
+              </ion-label>
+              <div slot="end" class="period-end">
+                <p class="period-amount">{{ period.totalPayout | currency: 'USD' }}</p>
+                <ion-badge [color]="periodStatusColor(period.status)" class="status-badge">
+                  {{ period.status }}
+                </ion-badge>
+                <ion-icon name="chevron-back-outline" class="swipe-indicator"></ion-icon>
+              </div>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="primary" (click)="openViewDetail(period, $event)">
+                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              @if (period.status === EPayrollPeriodStatus.Open) {
+                <ion-item-option color="danger" (click)="confirmDelete(period, $event)">
+                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                </ion-item-option>
+              }
+            </ion-item-options>
+          </ion-item-sliding>
+        }
+      </ion-list>
+
+      <!-- Meta -->
+      <div class="payroll-meta ion-padding-horizontal">
+        <p class="payroll-count">{{ totalCount() }} period(s)</p>
+      </div>
+    }
+
+    <!-- ── Infinite scroll ────────────────────────────────────────────────── -->
+    <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <!-- ── FAB (Admin/Owner only) ─────────────────────────────────────────── -->
+    @if (!isManager) {
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button color="primary" (click)="openCreatePeriodsModal()">
+          <ion-icon name="add"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    }
+
+  }
 </ion-content>

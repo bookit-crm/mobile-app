@@ -1,1 +1,248 @@
-﻿
+﻿// ── Loading / Empty ────────────────────────────────────────────────────────
+.payroll-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
+}
+
+.payroll-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+
+  &__icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ── Feature locked ────────────────────────────────────────────────────────
+.payroll-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+  text-align: center;
+
+  &__icon {
+    font-size: 72px;
+    color: var(--ion-color-warning);
+    margin-bottom: 20px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0 0 12px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+  }
+}
+
+// ── Year navigator ────────────────────────────────────────────────────────
+.year-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px 4px;
+}
+
+.year-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  min-width: 60px;
+  text-align: center;
+}
+
+// ── Months row ────────────────────────────────────────────────────────────
+.months-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 12px 12px;
+}
+
+.month-chip {
+  --border-radius: 20px;
+  font-size: 12px;
+  height: 28px;
+  margin: 0;
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.month-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  margin-left: 3px;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+
+// ── Swipe hint ────────────────────────────────────────────────────────────
+.swipe-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light-shade);
+
+  ion-icon {
+    font-size: 15px;
+    color: var(--ion-color-medium);
+    flex-shrink: 0;
+  }
+
+  span {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// ── Swipe indicator ────────────────────────────────────────────────────────
+.swipe-indicator {
+  font-size: 16px;
+  color: var(--ion-color-medium-shade);
+  opacity: 0.45;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+// ── Period item ────────────────────────────────────────────────────────────
+.avatar-icon {
+  font-size: 36px;
+  color: var(--ion-color-medium);
+  width: 100%;
+  height: 100%;
+}
+
+ion-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-color-light);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.mgr-badge {
+  font-size: 9px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+.period-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  min-width: 90px;
+}
+
+.period-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ion-color-dark);
+  margin: 0;
+}
+
+.status-badge {
+  font-size: 10px;
+}
+
+ion-item {
+  --padding-start: 16px;
+}
+
+ion-label p {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0;
+  font-size: 13px;
+  color: var(--ion-color-medium);
+
+  ion-icon {
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Meta ──────────────────────────────────────────────────────────────────
+.payroll-meta {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.payroll-count {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  margin: 0;
+}
+
+// ── Filter button with badge ──────────────────────────────────────────────
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 9px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  padding: 0 3px;
+}
+
+// ── Filter bottom sheet ───────────────────────────────────────────────────
+.filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.filter-modal-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ion-color-light-shade);
+  background: var(--ion-background-color, #fff);
+}

@@ -1,0 +1,119 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Create Payroll Periods</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <p class="modal-subtitle">{{ targetMonthLabel }}</p>
+
+  <!-- Department selector (multi-location) -->
+  @if (!singleDepartmentMode) {
+    <ion-item lines="full" class="modal-item">
+      <ion-label position="stacked" class="modal-label">Department</ion-label>
+      <ion-select
+        [value]="selectedDepartmentId()"
+        (ionChange)="onDepartmentChange($any($event.detail.value))"
+        interface="action-sheet"
+        placeholder="All departments"
+      >
+        <ion-select-option value="">All departments</ion-select-option>
+        @for (dept of departments(); track dept._id) {
+          <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  }
+
+  <!-- Employees list -->
+  <div class="section-title">
+    <ion-icon name="people-outline"></ion-icon>
+    <span>Employees with Salary Setup</span>
+  </div>
+
+  @if (employees().length === 0) {
+    <p class="empty-hint">No employees with salary configuration found.</p>
+  }
+
+  <ion-list lines="none" class="staff-list">
+    @for (emp of employees(); track emp._id) {
+      <ion-item [button]="true" (click)="toggleEmployee(emp)">
+        <ion-checkbox
+          slot="start"
+          [checked]="emp.checked"
+          (ionChange)="onEmployeeChange(emp, $any($event).detail.checked)"
+          (click)="$event.stopPropagation()"
+        ></ion-checkbox>
+        <ion-avatar slot="start" class="staff-avatar">
+          @if (emp.avatar?.url) {
+            <img [src]="emp.avatar!.url" [alt]="emp.fullName" />
+          } @else {
+            <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+          }
+        </ion-avatar>
+        <ion-label>{{ emp.fullName }}</ion-label>
+      </ion-item>
+    }
+  </ion-list>
+  <ion-infinite-scroll (ionInfinite)="onEmployeesScrollEnd($event)">
+    <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <!-- Managers list (hidden in solo plan) -->
+  @if (!isSoloPlan) {
+    <div class="section-title">
+      <ion-icon name="shield-outline"></ion-icon>
+      <span>Managers with Salary Setup</span>
+    </div>
+
+    @if (managers().length === 0) {
+      <p class="empty-hint">No managers with salary configuration found.</p>
+    }
+
+    <ion-list lines="none" class="staff-list">
+      @for (mgr of managers(); track mgr._id) {
+        <ion-item [button]="true" (click)="toggleManager(mgr)">
+          <ion-checkbox
+            slot="start"
+            [checked]="mgr.checked"
+            (ionChange)="onManagerChange(mgr, $any($event).detail.checked)"
+            (click)="$event.stopPropagation()"
+          ></ion-checkbox>
+          <ion-avatar slot="start" class="staff-avatar">
+            @if (mgr.avatar?.url) {
+              <img [src]="mgr.avatar!.url" [alt]="mgr.fullName" />
+            } @else {
+              <ion-icon name="person-circle-outline" class="avatar-icon"></ion-icon>
+            }
+          </ion-avatar>
+          <ion-label>{{ mgr.fullName }}</ion-label>
+        </ion-item>
+      }
+    </ion-list>
+    <ion-infinite-scroll (ionInfinite)="onManagersScrollEnd($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+  }
+
+</ion-content>
+
+<div class="modal-footer">
+  <ion-button expand="block" fill="outline" color="medium" (click)="dismiss()">Cancel</ion-button>
+  <ion-button
+    expand="block"
+    color="primary"
+    [disabled]="!hasSelection || isLoading()"
+    (click)="submit()"
+  >
+    @if (isLoading()) {
+      <ion-spinner name="crescent" slot="start"></ion-spinner>
+    }
+    Create Periods
+  </ion-button>
+</div>
+
