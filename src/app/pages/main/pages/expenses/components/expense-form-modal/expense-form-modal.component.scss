@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+ion-content {
+  flex: 1;
+}
+
+.modal-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--ion-background-color, #fff);
+  border-top: 1px solid var(--ion-color-light-shade);
+}
+
+.load-more-hint {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+

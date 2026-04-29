@@ -4,8 +4,235 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Expenses</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterSheet()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge class="filter-badge" color="primary">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Search expenses..."
+      [debounce]="0"
+      (ionInput)="onSearchChange($event)"
+    ></ion-searchbar>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Expenses page (coming soon)</p>
+
+<!-- ── Filter bottom sheet ──────────────────────────────────────────────── -->
+<ion-modal
+  [isOpen]="showFilterSheet()"
+  [breakpoints]="[0, 0.75]"
+  [initialBreakpoint]="0.75"
+  (didDismiss)="showFilterSheet.set(false)"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" color="medium" (click)="showFilterSheet.set(false)">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="filter-modal-content ion-padding">
+
+      <!-- Category -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Category</ion-label>
+        <ion-select
+          [value]="tempCategory()"
+          (ionChange)="tempCategory.set($any($event.detail.value))"
+          interface="action-sheet"
+          placeholder="All categories"
+        >
+          <ion-select-option value="">All categories</ion-select-option>
+          @for (opt of categoryOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Status -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Status</ion-label>
+        <ion-select
+          [value]="tempStatus()"
+          (ionChange)="tempStatus.set($any($event.detail.value))"
+          interface="action-sheet"
+          placeholder="All statuses"
+        >
+          <ion-select-option value="">All statuses</ion-select-option>
+          @for (opt of statusOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Recurrence -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Recurrence</ion-label>
+        <ion-select
+          [value]="tempRecurrence()"
+          (ionChange)="tempRecurrence.set($any($event.detail.value))"
+          interface="action-sheet"
+          placeholder="All types"
+        >
+          <ion-select-option value="">All types</ion-select-option>
+          @for (opt of recurrenceOptions; track opt.value) {
+            <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
+          }
+        </ion-select>
+      </ion-item>
+
+      <!-- Department (multi-location only) -->
+      @if (!singleDepartmentMode()) {
+        <ion-item lines="full">
+          <ion-label position="stacked" class="filter-label">Department</ion-label>
+          <ion-select
+            [value]="tempDepartmentId()"
+            (ionChange)="tempDepartmentId.set($any($event.detail.value))"
+            interface="action-sheet"
+            placeholder="All departments"
+          >
+            <ion-select-option value="">All departments</ion-select-option>
+            @for (dept of departments(); track dept._id) {
+              <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      }
+
+      <!-- Date range -->
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Date From</ion-label>
+        <input type="date" class="filter-date-input" [value]="tempDateFrom()" (change)="tempDateFrom.set($any($event.target).value)" />
+      </ion-item>
+      <ion-item lines="full">
+        <ion-label position="stacked" class="filter-label">Date To</ion-label>
+        <input type="date" class="filter-date-input" [value]="tempDateTo()" (change)="tempDateTo.set($any($event.target).value)" />
+      </ion-item>
+
+    </ion-content>
+    <div class="filter-modal-footer">
+      <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
+      <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<ion-content>
+
+  <!-- ── Feature gate ────────────────────────────────────────────────────── -->
+  @if (!hasExpensesFeature()) {
+    <div class="expenses-locked">
+      <ion-icon name="lock-closed-outline" class="expenses-locked__icon"></ion-icon>
+      <h3>Expenses & Payroll</h3>
+      <p>This feature is available on Starter plan and above. Upgrade your subscription to track expenses.</p>
+      <ion-badge color="warning">Upgrade Required</ion-badge>
+    </div>
+  } @else {
+
+    <!-- ── Loading (first load) ──────────────────────────────────────────── -->
+    @if (isLoading() && expenses().length === 0) {
+      <div class="expenses-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    }
+
+    <!-- ── Empty state ───────────────────────────────────────────────────── -->
+    @if (!isLoading() && expenses().length === 0) {
+      <div class="expenses-empty">
+        <ion-icon name="receipt-outline" class="expenses-empty__icon"></ion-icon>
+        <h3>No expenses yet</h3>
+        <p>Track your business expenses by adding the first record.</p>
+      </div>
+    }
+
+    <!-- ── List ──────────────────────────────────────────────────────────── -->
+    @if (expenses().length > 0) {
+      <div class="swipe-hint">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Swipe left on a card for options</span>
+      </div>
+
+      <ion-list lines="none">
+        @for (exp of expenses(); track exp._id) {
+          <ion-item-sliding>
+            <ion-item>
+              <ion-icon
+                name="receipt-outline"
+                slot="start"
+                class="expense-icon"
+              ></ion-icon>
+              <ion-label>
+                <h2>{{ exp.title }}</h2>
+                <p>
+                  <ion-icon name="pricetag-outline"></ion-icon>
+                  {{ categoryLabel(exp.category) }}
+                  @if (exp.recurrence && exp.recurrence !== 'one_time') {
+                    &nbsp;· {{ recurrenceLabel(exp.recurrence) }}
+                  }
+                </p>
+                <p>
+                  <ion-icon name="business-outline"></ion-icon>
+                  {{ getDeptName(exp) }}
+                </p>
+                @if (exp.date) {
+                  <p>
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    {{ exp.date | date: 'dd/MM/yyyy' }}
+                  </p>
+                }
+              </ion-label>
+              <div slot="end" class="expense-end">
+                <p class="expense-amount">{{ exp.amount | currency: 'USD' }}</p>
+                <ion-badge [color]="statusColor(exp.status)" class="status-badge">
+                  {{ statusLabel(exp.status) }}
+                </ion-badge>
+                <ion-icon name="chevron-back-outline" class="swipe-indicator"></ion-icon>
+              </div>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="primary" (click)="openEditExpense(exp, $event)">
+                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+              <ion-item-option color="danger" (click)="confirmDeleteExpense(exp, $event)">
+                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+
+          </ion-item-sliding>
+        }
+      </ion-list>
+
+      <!-- Meta info -->
+      <div class="expenses-meta ion-padding-horizontal">
+        <p class="expenses-count">{{ totalCount() }} expense(s)</p>
+      </div>
+    }
+
+    <!-- ── Infinite scroll ────────────────────────────────────────────────── -->
+    <ion-infinite-scroll
+      [disabled]="!hasMore()"
+      (ionInfinite)="onInfiniteScroll($event)"
+    >
+      <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+    </ion-infinite-scroll>
+
+    <!-- ── FAB ───────────────────────────────────────────────────────────── -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button color="primary" (click)="openAddExpense()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
+
+  }
 </ion-content>

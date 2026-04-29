@@ -17,6 +17,7 @@
 | `/main/departments/:id` | `src/app/pages/main/pages/departments/pages/department/department.page.ts` | Детальная страница департамента (Overview + Branding + Schedule вкладки) | ✅ реализована |
 | `/main/clients` | `src/app/pages/main/pages/clients/clients.page.ts` | Список клиентов (search + dateRange filter + infinite scroll, create/edit/delete, swipe actions, history modal, new appointment) | ✅ реализована |
 | `/main/clients → modal(clientId)` | `src/app/pages/main/pages/clients/pages/client-detail/client-detail.page.ts` | Детали клиента + история визитов (standalone, открывается как Ionic modal) | ✅ реализована |
+| `/main/expenses` | `src/app/pages/main/pages/expenses/expenses.page.ts` | Список расходов (search + фильтры: category/status/recurrence/dept/dateRange, infinite scroll, create/edit/delete swipe) | ✅ реализована |
 | `/main/profile` | `src/app/pages/profile/...` | Профиль пользователя | 🧭 план |
 
 ## Core сервисы (`src/app/core/services/`)
@@ -29,6 +30,7 @@
 | `DepartmentService` | CRUD департаментов, список, детали, signals | `api/department/*` | ✅ реализован |
 | `FilesService` | Загрузка файлов (изображений) на сервер | `api/files/` | ✅ реализован |
 | `SubscriptionService` | Загрузка подписки, hasFeature(), meetsTier(), isActive() | `api/subscription/self/` | ✅ реализован |
+| `ExpensesService` | CRUD расходов, paginated list | `api/expense/*` | ✅ реализован |
 | `NotificationsService` | Push + in-app уведомления | `api/notification/*` | 🧭 |
 | `WebsocketService` | Socket.io singleton | — | 🧭 |
 
