@@ -62,6 +62,16 @@ export class SubscriptionService extends HttpHelper {
     () => this.getLimit('locations') === 1,
   );
 
+  /**
+   * `true` если для тенанта доступны ТОЛЬКО appointment-related нотификации
+   * (NewBookings, Cancellations) — тариф Individual.
+   * Используется для скрытия категорий/настроек в UI и фильтрации realtime
+   * WebSocket-событий (defense-in-depth).
+   */
+  public readonly isNotificationsAppointmentsOnly: Signal<boolean> = computed(
+    () => this.features()?.notificationsScope === 'appointments-only',
+  );
+
   /** Дедупликация параллельных вызовов loadSubscription(). */
   private subscriptionRequest$: Observable<ISubscription> | null = null;
 

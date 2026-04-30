@@ -607,8 +607,17 @@ export class AppointmentModalComponent implements OnInit {
 
   private buildPayload(): Record<string, unknown> {
     const v = this.form.getRawValue();
-    const startISO = new Date(`${v.startDate}T${v.fromTime}`).toISOString();
-    const endISO = new Date(`${v.startDate}T${v.toTime}`).toISOString();
+
+    // Строим ISO через явное задание компонентов, чтобы избежать
+    // нестабильного поведения new Date('YYYY-MM-DDTHH:mm') в старых WebView
+    const buildISO = (dateStr: string, timeStr: string): string => {
+      const [y, mo, day] = dateStr.split('-').map(Number);
+      const [h, m] = timeStr.split(':').map(Number);
+      return new Date(y, mo - 1, day, h, m, 0, 0).toISOString();
+    };
+
+    const startISO = buildISO(v.startDate, v.fromTime);
+    const endISO   = buildISO(v.startDate, v.toTime);
     const durationMin = this.calcTotalDuration(v.serviceIds) ||
       (() => {
         const [fh, fm] = v.fromTime.split(':').map(Number);

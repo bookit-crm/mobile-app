@@ -1,1 +1,102 @@
-﻿
+﻿// Dashboard page - presets & tabs sticky header
+
+.presets-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 6px 12px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ion-chip {
+    flex-shrink: 0;
+    font-size: 13px;
+    height: 30px;
+    padding: 0 12px;
+    --background: var(--ion-color-light);
+    --color: var(--ion-color-medium);
+    transition: all 0.15s ease;
+
+    &.preset-active {
+      --background: var(--ion-color-primary);
+      --color: #fff;
+    }
+  }
+}
+
+.tabs-scroll {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px 12px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease;
+
+  ion-icon {
+    font-size: 18px;
+    color: var(--ion-color-medium);
+    transition: color 0.15s ease;
+  }
+
+  span {
+    font-size: 11px;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    white-space: nowrap;
+    transition: color 0.15s ease;
+  }
+
+  &--active {
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+
+    ion-icon,
+    span {
+      color: var(--ion-color-primary);
+    }
+  }
+}
+
+// Custom range section in modal
+.custom-range-section {
+  margin-top: 16px;
+}
+
+// Filter button badge
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+

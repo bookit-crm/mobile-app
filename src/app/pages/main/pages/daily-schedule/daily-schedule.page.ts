@@ -18,6 +18,7 @@ import {
   IDayModel,
 } from '@core/models/schedule.interface';
 import { EUserRole } from '@core/enums/e-user-role';
+import { format, parse, parseISO } from 'date-fns';
 import { DepartmentService } from '@core/services/department.service';
 import { SchedulesService } from '@core/services/schedules.service';
 import { SupervisorService } from '@core/services/supervisor.service';
@@ -242,7 +243,12 @@ export class DailySchedulePage implements OnInit, OnDestroy {
   public onDatePickerChange(value: string | string[] | null | undefined): void {
     const strVal = Array.isArray(value) ? value[0] : value;
     if (!strVal) return;
-    const parsed = new Date(strVal);
+    // ion-datetime может вернуть "2026-04-28" (date-only = UTC midnight в JS)
+    // или "2026-04-28T00:00:00Z". Используем parse для date-only, parseISO для ISO.
+    const dateStr = strVal.slice(0, 10);
+    const parsed = strVal.length <= 10
+      ? parse(dateStr, 'yyyy-MM-dd', new Date())
+      : parseISO(strVal);
     if (isNaN(parsed.getTime())) return;
     this.selectedDate.set(parsed);
     this.datePickerOpen.set(false);
@@ -285,7 +291,7 @@ export class DailySchedulePage implements OnInit, OnDestroy {
   private loadSchedule(): void {
     const dep = this.selectedDepartment();
     if (!dep) return;
-    const isoDate = this.selectedDate().toISOString().split('T')[0];
+    const isoDate = format(this.selectedDate(), 'yyyy-MM-dd');
     this.loading.set(true);
     this.schedulesService
       .getDailySchedule(dep._id, isoDate)

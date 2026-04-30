@@ -14,6 +14,8 @@ import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { SupportChatWebsocketService } from '@core/services/support-chat-websocket.service';
 import { AccountSettingsModalComponent } from '@core/components/account-settings-modal/account-settings-modal.component';
+import { NotificationsService } from '@core/services/notifications.service';
+import { WebsocketService } from '@core/services/websocket.service';
 import { ISideMenuItem } from './models/side-menu-item.interface';
 import { ADMIN_MENU_CONFIG, MANAGER_MENU_CONFIG } from './constants/side-menu-config';
 import { take } from 'rxjs';
@@ -30,6 +32,8 @@ import { CommonModule } from '@angular/common';
 export class SideMenuComponent implements OnInit {
   private supervisorService    = inject(SupervisorService);
   private subscriptionService  = inject(SubscriptionService);
+  private notificationsService = inject(NotificationsService);
+  private websocketService     = inject(WebsocketService);
   private authService          = inject(AuthService);
   private menuController       = inject(MenuController);
   private modalController      = inject(ModalController);
@@ -52,6 +56,12 @@ export class SideMenuComponent implements OnInit {
 
     const withBadge = base.map((item) =>
       item.url === '/main/support' ? { ...item, badgeSignal: unread } : item,
+    );
+
+    const withBadges = base.map((item) =>
+      item.title === 'NOTIFICATION'
+        ? { ...item, badgeSignal: this.notificationsService.unreadCountSignal }
+        : item,
     );
 
     // Подписка ещё не загружена — показываем все пункты без feature-gate
@@ -89,14 +99,15 @@ export class SideMenuComponent implements OnInit {
   public logout(): void {
     this.authService.logout().pipe(take(1)).subscribe({
       complete: () => {
+        this.websocketService.disconnectSocket();
         localStorage.clear();
         this.router.navigate(['/login']);
       },
       error: () => {
+        this.websocketService.disconnectSocket();
         localStorage.clear();
         this.router.navigate(['/login']);
       },
     });
   }
 }
-

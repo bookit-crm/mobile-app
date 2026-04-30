@@ -1,11 +1,172 @@
-﻿<ion-header>
+<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Notification</ion-title>
+    <ion-title>Notifications</ion-title>
+    <ion-buttons slot="end">
+      @if (activeTab() === 'inbox') {
+        <ion-button
+          [disabled]="unreadCount() === 0"
+          (click)="markAllAsRead()"
+          fill="clear"
+        >
+          <ion-icon name="checkmark-done-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment
+      [value]="activeTab()"
+      (ionChange)="onTabChange($event.detail.value?.toString())"
+    >
+      <ion-segment-button value="inbox">
+        <ion-icon name="mail-outline"></ion-icon>
+        <ion-label>Inbox</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="settings">
+        <ion-icon name="options-outline"></ion-icon>
+        <ion-label>Settings</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
-<ion-content class="ion-padding">
-  <p>Notification page (coming soon)</p>
+
+<ion-content>
+  <!-- ── INBOX TAB ──────────────────────────────────────────────────── -->
+  @if (activeTab() === 'inbox') {
+    <!-- Category chips (horizontal scroll) -->
+    <div class="cat-scroll">
+      @for (cat of categories(); track cat.key) {
+        <button
+          class="cat-chip"
+          [class.cat-chip--active]="activeCategory() === cat.key"
+          (click)="selectCategory(cat.key)"
+        >
+          <ion-icon [name]="cat.icon" class="cat-chip__icon"></ion-icon>
+          <span class="cat-chip__label">{{ cat.label }}</span>
+          @if (cat.key === ENotificationCategory.All && unreadCount() > 0) {
+            <ion-badge color="warning" class="cat-chip__badge">
+              {{ unreadCount() }}
+            </ion-badge>
+          }
+          @if (
+            cat.key !== ENotificationCategory.All &&
+            categoryUnreadCounts()[cat.key] > 0
+          ) {
+            <ion-badge color="warning" class="cat-chip__badge">
+              {{ categoryUnreadCounts()[cat.key] }}
+            </ion-badge>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Filter chips -->
+    <div class="filter-row">
+      @for (f of filters(); track f.key) {
+        <button
+          class="filter-chip"
+          [class.filter-chip--active]="activeFilter() === f.key"
+          (click)="selectFilter(f.key)"
+        >
+          {{ f.label }}
+          @if (f.key === ENotificationFilter.Unread && unreadCount() > 0) {
+            <span class="filter-chip__count">{{ unreadCount() }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <!-- Search -->
+    <ion-searchbar
+      placeholder="Search notifications"
+      [debounce]="0"
+      [formControl]="searchControl"
+    ></ion-searchbar>
+
+    <!-- Notification list -->
+    @if (notifications()?.results?.length) {
+      @let data = notifications()!;
+      <ion-list lines="none" class="notif-list">
+        @for (item of data.results; track item._id) {
+          <ion-item
+            class="notif-card"
+            [class.notif-card--unread]="!item.isRead"
+            [button]="true"
+            [detail]="false"
+            (click)="markAsRead(item)"
+          >
+            <div
+              class="notif-card__icon"
+              slot="start"
+              [attr.data-color]="getCategoryColor(item.category)"
+            >
+              <ion-icon [name]="getCategoryIcon(item.category)"></ion-icon>
+            </div>
+            <ion-label class="ion-text-wrap">
+              <div class="notif-card__title-row">
+                <span class="notif-card__title">{{ item.title }}</span>
+                @if (!item.isRead) {
+                  <ion-badge color="warning" class="notif-card__pill">
+                    Unread
+                  </ion-badge>
+                }
+              </div>
+              <p class="notif-card__msg">{{ item.message }}</p>
+              <span class="notif-card__time">
+                {{ getTimeAgo(item.createdAt) }}
+              </span>
+            </ion-label>
+            @if (!item.isRead) {
+              <span class="notif-card__dot" slot="end"></span>
+            }
+          </ion-item>
+        }
+      </ion-list>
+    } @else {
+      <div class="notif-empty">
+        <ion-icon
+          name="notifications-off-outline"
+          class="notif-empty__icon"
+        ></ion-icon>
+        <p class="notif-empty__text">No notifications yet</p>
+      </div>
+    }
+  }
+
+  <!-- ── SETTINGS TAB ───────────────────────────────────────────────── -->
+  @if (activeTab() === 'settings') {
+    <div class="settings-header">
+      <h2>Notification preferences</h2>
+      <p>Choose which categories you want to receive notifications for.</p>
+    </div>
+
+    @if (settings().length === 0) {
+      <div class="notif-empty">
+        <ion-icon
+          name="hourglass-outline"
+          class="notif-empty__icon"
+        ></ion-icon>
+        <p class="notif-empty__text">Loading your plan…</p>
+      </div>
+    } @else {
+      <ion-list lines="full">
+        @for (setting of settings(); track setting.key) {
+          <ion-item>
+            <ion-label class="ion-text-wrap">
+              <h3 class="setting-label">{{ setting.label }}</h3>
+              <p class="setting-desc">{{ setting.description }}</p>
+            </ion-label>
+            <ion-toggle
+              slot="end"
+              [checked]="setting.enabled"
+              (ionChange)="toggleSetting(setting, $event.detail.checked)"
+            ></ion-toggle>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
 </ion-content>

@@ -13,3 +13,8 @@ export interface INotification {
   updatedAt: string;
 }
 
+export interface INotificationCategoryItem {
+  key: ENotificationCategory;
+  label: string;
+  icon: string;
+}

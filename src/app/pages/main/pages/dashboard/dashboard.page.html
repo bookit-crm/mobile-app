@@ -4,8 +4,184 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>Dashboard</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openFilterModal()" class="filter-btn">
+        <ion-icon name="options-outline" slot="icon-only"></ion-icon>
+        @if (activeFiltersCount() > 0) {
+          <ion-badge color="primary" class="filter-badge">{{ activeFiltersCount() }}</ion-badge>
+        }
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Date Presets Bar -->
+  <ion-toolbar>
+    <div class="presets-scroll">
+      @for (preset of state.datePresets; track preset.value) {
+        <ion-chip
+          [class.preset-active]="state.selectedDatePreset() === preset.value"
+          (click)="onDatePresetChange(preset.value)"
+        >
+          {{ preset.display }}
+        </ion-chip>
+      }
+    </div>
+  </ion-toolbar>
+
+  <!-- Tab Navigation -->
+  <ion-toolbar>
+    <div class="tabs-scroll">
+      @for (tab of availableTabs(); track tab.value) {
+        <button
+          class="tab-btn"
+          [class.tab-btn--active]="activeTab() === tab.value"
+          (click)="onTabChange(tab.value)"
+        >
+          <ion-icon [name]="tab.icon"></ion-icon>
+          <span>{{ tab.display }}</span>
+        </button>
+      }
+    </div>
   </ion-toolbar>
 </ion-header>
+
 <ion-content class="ion-padding">
-  <p>Dashboard page (coming soon)</p>
+  @if (activeTab() === 'revenue') {
+    <app-revenue-tab></app-revenue-tab>
+  }
+  @if (activeTab() === 'clients') {
+    <app-clients-tab></app-clients-tab>
+  }
+  @if (activeTab() === 'employees') {
+    <app-employees-tab></app-employees-tab>
+  }
+  @if (activeTab() === 'schedule') {
+    <app-schedule-tab></app-schedule-tab>
+  }
+  @if (activeTab() === 'inventory') {
+    <app-inventory-tab></app-inventory-tab>
+  }
+  @if (activeTab() === 'expenses') {
+    <app-expenses-tab></app-expenses-tab>
+  }
+  @if (activeTab() === 'promo-codes') {
+    <app-promo-codes-tab></app-promo-codes-tab>
+  }
 </ion-content>
+
+<!-- Filter Modal -->
+<ion-modal [isOpen]="showFilterModal()" (willDismiss)="closeFilterModal()">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Filters</ion-title>
+        <ion-buttons slot="start">
+          @if (activeFiltersCount() > 0) {
+            <ion-button (click)="selectAllDepartments(); selectAllEmployees()" color="medium">
+              Reset
+            </ion-button>
+          }
+        </ion-buttons>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeFilterModal()">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+
+      <!-- Departments -->
+      @if (!state.singleDepartmentMode() && state.departments()) {
+        <ion-list>
+          <ion-list-header>
+            <ion-label>Departments</ion-label>
+          </ion-list-header>
+
+          <!-- All Departments option -->
+          <ion-item button detail="false" (click)="selectAllDepartments()">
+            <ion-checkbox
+              slot="start"
+              [checked]="state.selectedDepartments().length === 0"
+              (click)="$event.stopPropagation()"
+              (ionChange)="selectAllDepartments()"
+            ></ion-checkbox>
+            <ion-label><strong>All Departments</strong></ion-label>
+          </ion-item>
+
+          @for (dept of state.departments()!.results; track dept._id) {
+            <ion-item button detail="false" (click)="toggleDepartment(dept, $any({detail:{checked:!isDeptSelected(dept._id)}})  )">
+              <ion-checkbox
+                slot="start"
+                [checked]="isDeptSelected(dept._id)"
+                (click)="$event.stopPropagation()"
+                (ionChange)="toggleDepartment(dept, $event)"
+              ></ion-checkbox>
+              <ion-label>{{ dept.name }}</ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      <!-- Employees -->
+      @if (state.employeeOptions() && state.employeeOptions()!.results.length) {
+        <ion-list>
+          <ion-list-header>
+            <ion-label>Employees</ion-label>
+          </ion-list-header>
+
+          <!-- All Employees option -->
+          <ion-item button detail="false" (click)="selectAllEmployees()">
+            <ion-checkbox
+              slot="start"
+              [checked]="state.selectedEmployees().length === 0"
+              (click)="$event.stopPropagation()"
+              (ionChange)="selectAllEmployees()"
+            ></ion-checkbox>
+            <ion-label><strong>All Employees</strong></ion-label>
+          </ion-item>
+
+          @for (emp of state.employeeOptions()!.results; track emp._id) {
+            <ion-item button detail="false" (click)="toggleEmployee(emp, $any({detail:{checked:!isEmpSelected(emp._id)}}))">
+              <ion-checkbox
+                slot="start"
+                [checked]="isEmpSelected(emp._id)"
+                (click)="$event.stopPropagation()"
+                (ionChange)="toggleEmployee(emp, $event)"
+              ></ion-checkbox>
+              <ion-label>{{ emp.firstName }} {{ emp.lastName }}</ion-label>
+            </ion-item>
+          }
+        </ion-list>
+      }
+
+      <!-- Custom Date Range -->
+      @if (state.isCustomDateSelected) {
+        <div class="custom-range-section">
+          <ion-list-header>
+            <ion-label>Custom Date Range</ion-label>
+          </ion-list-header>
+          <ion-item>
+            <ion-label>From</ion-label>
+            <ion-input
+              type="date"
+              [value]="state.customFrom() || ''"
+              (ionChange)="onCustomFromChange($event)"
+            ></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label>To</ion-label>
+            <ion-input
+              type="date"
+              [value]="state.customTo() || ''"
+              (ionChange)="onCustomToChange($event)"
+            ></ion-input>
+          </ion-item>
+          <div class="ion-padding-top">
+            <ion-button expand="block" (click)="applyCustomRange()">Apply Range</ion-button>
+          </div>
+        </div>
+      }
+    </ion-content>
+  </ng-template>
+</ion-modal>

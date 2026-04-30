@@ -4,7 +4,7 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
-  addDays, isSameMonth, isSameDay, isToday,
+  addDays, isSameMonth, isSameDay, isToday, parse, parseISO,
 } from 'date-fns';
 import { IAppointment } from '@core/models/appointment.interface';
 
@@ -41,7 +41,7 @@ export class MonthViewComponent {
     effect(() => {
       this.date();
       this.appointments();
-      this.viewDate = new Date(this.date());
+      this.viewDate = this.date() ? parse(this.date(), 'yyyy-MM-dd', new Date()) : new Date();
       this.buildCalendar();
     });
   }
@@ -82,7 +82,7 @@ export class MonthViewComponent {
     while (current <= calEnd) {
       const dayDate = new Date(current);
       const dayStr = format(dayDate, 'yyyy-MM-dd');
-      const dayAppts = allAppts.filter(apt => isSameDay(new Date(apt.startDate), dayDate));
+      const dayAppts = allAppts.filter(apt => isSameDay(parseISO(apt.startDate), dayDate));
 
       week.push({
         date: dayDate, dateStr: dayStr,

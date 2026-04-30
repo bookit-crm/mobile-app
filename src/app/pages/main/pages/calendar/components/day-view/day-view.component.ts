@@ -282,8 +282,16 @@ export class DayViewComponent {
 
     const snappedMin = Math.round(pos.minutesFromStart / 15) * 15;
     const totalMin = DAY_START_HOUR * 60 + snappedMin;
-    const newStart = new Date(this.viewDate);
-    newStart.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
+    // Строим DateTime явно через конструктор Date с компонентами — надёжно в любом timezone
+    const newStart = new Date(
+      this.viewDate.getFullYear(),
+      this.viewDate.getMonth(),
+      this.viewDate.getDate(),
+      Math.floor(totalMin / 60),
+      totalMin % 60,
+      0,
+      0,
+    );
     const newEnd = new Date(newStart.getTime() + this.dragDurationMin * 60000);
 
     return {

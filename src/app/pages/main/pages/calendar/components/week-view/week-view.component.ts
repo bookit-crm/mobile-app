@@ -3,7 +3,7 @@ import {
   DestroyRef, effect, ElementRef, inject, input, output, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { addDays, format, isSameDay, startOfWeek } from 'date-fns';
+import { addDays, format, isSameDay, parse, startOfWeek } from 'date-fns';
 import { IAppointment, INewAppointmentPayload } from '@core/models/appointment.interface';
 import { ISchedule } from '@core/models/schedule.interface';
 import {
@@ -85,7 +85,7 @@ export class WeekViewComponent {
       this.appointments();
       this.schedules();
       this.selectedEmployeeId();
-      this.viewDate = new Date(date);
+      this.viewDate = date ? parse(date, 'yyyy-MM-dd', new Date()) : new Date();
       this.buildGrid();
     });
 
@@ -288,8 +288,8 @@ export class WeekViewComponent {
 
     const snappedMin = Math.round(pos.minutesFromStart / 15) * 15;
     const totalMin = DAY_START_HOUR * 60 + snappedMin;
-    const newStart = new Date(day.date);
-    newStart.setHours(Math.floor(totalMin / 60), totalMin % 60, 0, 0);
+    const d = day.date;
+    const newStart = new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(totalMin / 60), totalMin % 60, 0, 0);
     const newEnd = new Date(newStart.getTime() + this.dragDurationMin * 60000);
 
     const empId = typeof this.dragAppt.employee === 'string'

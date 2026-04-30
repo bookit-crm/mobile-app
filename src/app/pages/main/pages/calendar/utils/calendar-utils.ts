@@ -100,7 +100,9 @@ export function isOutsideWorkingHours(
   const applyTime = (timeStr: string, target: Date): Date => {
     const t = new Date(timeStr);
     const res = new Date(target);
-    res.setUTCHours(t.getUTCHours(), t.getUTCMinutes(), 0, 0);
+    // Используем локальные часы (getHours/getMinutes), чтобы сопоставить
+    // время из расписания с локальным временем слота на сетке
+    res.setHours(t.getHours(), t.getMinutes(), 0, 0);
     return res;
   };
 
