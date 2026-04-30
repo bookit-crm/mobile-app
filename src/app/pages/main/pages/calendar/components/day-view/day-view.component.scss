@@ -2,7 +2,7 @@
 .day-view {
   display: flex; min-width: fit-content; min-height: 100%; background: #fff;
   &__time-col { min-width: 52px; position: sticky; left: 0; z-index: 2; border-right: 1px solid #e9e9e9; background: #fff; }
-  &__header-spacer { position: sticky; top: 0; z-index: 3; height: 57px; background: #fff; }
+  &__header-spacer { position: sticky; top: 0; z-index: 5; height: 57px; background: #fff; }
   &__time-label { display: flex; align-items: flex-start; justify-content: flex-end; padding-right: 6px;
     span { font-size: 11px; color: #6d6c6c; font-weight: 500; transform: translateY(-7px); }
     &--half span { font-size: 10px; color: #9b9a9a; font-weight: 400; }
@@ -12,7 +12,7 @@
   &__current-time-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bk-red-500, #f04438); flex-shrink: 0; margin-left: -5px; }
   &__current-time-line { flex: 1; height: 2px; background: var(--bk-red-500, #f04438); }
   &__column { flex: 1 0 140px; min-width: 140px; border-right: 1px solid #e9e9e9; &:last-child { border-right: none; } }
-  &__column-header { height: 57px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #e9e9e9; background: #fff; position: sticky; top: 0; z-index: 3; padding: 0 6px; }
+  &__column-header { height: 57px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #e9e9e9; background: #fff; position: sticky; top: 0; z-index: 5; padding: 0 6px; }
   &__avatar { width: 28px; min-width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
     img { width: 100%; height: 100%; object-fit: cover; }
   }

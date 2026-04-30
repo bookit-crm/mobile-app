@@ -6,6 +6,14 @@
       </ion-button>
     </ion-buttons>
     <ion-title>Create Payroll Periods</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" [disabled]="!hasSelection || isLoading()" (click)="submit()">
+        @if (isLoading()) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        Create
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -102,18 +110,4 @@
 
 </ion-content>
 
-<div class="modal-footer">
-  <ion-button expand="block" fill="outline" color="medium" (click)="dismiss()">Cancel</ion-button>
-  <ion-button
-    expand="block"
-    color="primary"
-    [disabled]="!hasSelection || isLoading()"
-    (click)="submit()"
-  >
-    @if (isLoading()) {
-      <ion-spinner name="crescent" slot="start"></ion-spinner>
-    }
-    Create Periods
-  </ion-button>
-</div>
 

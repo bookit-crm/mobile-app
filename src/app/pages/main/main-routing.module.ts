@@ -7,7 +7,7 @@ const routes: Routes = [
     path: '',
     component: MainPage,
     children: [
-      { path: '', redirectTo: 'appointments', pathMatch: 'full' },
+      { path: '', redirectTo: 'calendar', pathMatch: 'full' },
       {
         path: 'appointments',
         loadChildren: () =>

@@ -1,19 +1,22 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="close()">
+      <ion-button fill="clear" (click)="close()">
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title>{{ isEditMode ? 'Edit Appointment' : 'New Appointment' }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
+        fill="solid"
         color="primary"
         [disabled]="!form || form.invalid || isSaving()"
         (click)="save()"
       >
-        <ion-spinner *ngIf="isSaving()" name="crescent" style="width:18px;height:18px"></ion-spinner>
-        <span *ngIf="!isSaving()">{{ isEditMode ? 'Save' : 'Create' }}</span>
+        @if (isSaving()) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ isEditMode ? 'Save' : 'Create' }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

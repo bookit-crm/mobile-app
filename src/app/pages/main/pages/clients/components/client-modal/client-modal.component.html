@@ -1,9 +1,17 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{ modalTitle }}</ion-title>
-    <ion-buttons slot="end">
+    <ion-buttons slot="start">
       <ion-button fill="clear" (click)="dismiss()">
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ modalTitle }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="solid" color="primary" [disabled]="isSaving || form.invalid" (click)="submit()">
+        @if (isSaving) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ isEditMode ? 'Save' : 'Add Client' }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -100,17 +108,4 @@
   </form>
 </ion-content>
 
-<div class="modal-footer">
-  <ion-button expand="block" fill="outline" color="medium" (click)="dismiss()">
-    Cancel
-  </ion-button>
-  <ion-button expand="block" color="primary" [disabled]="isSaving" (click)="submit()">
-    @if (isSaving) {
-      <ion-spinner name="crescent" slot="start"></ion-spinner>
-    } @else {
-      <ion-icon [name]="isEditMode ? 'checkmark-outline' : 'add-outline'" slot="start"></ion-icon>
-    }
-    {{ isEditMode ? 'Save Changes' : 'Add Client' }}
-  </ion-button>
-</div>
 

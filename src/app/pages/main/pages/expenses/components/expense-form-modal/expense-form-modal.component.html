@@ -1,9 +1,17 @@
 <ion-header>
   <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>{{ isEditMode ? 'Edit Expense' : 'Add Expense' }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()">
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+      <ion-button fill="solid" color="primary" [disabled]="form.invalid || isSubmitting" (click)="submit()">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ isEditMode ? 'Save' : 'Add' }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -151,18 +159,4 @@
   </form>
 </ion-content>
 
-<div class="modal-footer">
-  <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">Cancel</ion-button>
-  <ion-button
-    color="primary"
-    expand="block"
-    [disabled]="form.invalid || isSubmitting"
-    (click)="submit()"
-  >
-    @if (isSubmitting) {
-      <ion-spinner name="crescent" slot="start"></ion-spinner>
-    }
-    {{ isEditMode ? 'Save Changes' : 'Add Expense' }}
-  </ion-button>
-</div>
 

@@ -7,7 +7,7 @@
     </ion-buttons>
     <ion-title>{{ isEditMode ? 'Edit Promo Code' : 'New Promo Code' }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" color="primary" [disabled]="isSubmitting" (click)="submit()">
+      <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
         <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
         {{ isEditMode ? 'Save' : 'Create' }}
       </ion-button>

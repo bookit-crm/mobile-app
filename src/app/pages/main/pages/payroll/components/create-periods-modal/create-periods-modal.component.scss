@@ -64,13 +64,4 @@
   height: 100%;
 }
 
-.modal-footer {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px 16px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  border-top: 1px solid var(--ion-color-light-shade);
-  background: var(--ion-background-color, #fff);
-}
 
