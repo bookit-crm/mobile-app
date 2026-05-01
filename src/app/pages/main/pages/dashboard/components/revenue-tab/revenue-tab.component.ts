@@ -405,6 +405,7 @@ export class RevenueTabComponent implements OnInit {
   private buildChartOptions(data: IRevenueTrendResponse, granularity: 'daily' | 'monthly'): ChartOptions {
     const isMonthly = granularity === 'monthly';
     const categories = data.current.map((p) => isMonthly ? this.state.formatMonthLabel(p.label) : this.state.formatDayLabel(p.label));
+    const tickAmount = !isMonthly && categories.length > 10 ? Math.min(8, Math.ceil(categories.length / 5)) : undefined;
     return {
       series: [
         { name: 'Current Period', data: data.current.map((p) => p.value) },
@@ -415,7 +416,7 @@ export class RevenueTabComponent implements OnInit {
       stroke: { curve: 'smooth', width: [2.5, 2], dashArray: [0, 5] },
       fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.25, opacityTo: 0.05, stops: [0, 90, 100] } },
       dataLabels: { enabled: false },
-      xaxis: { categories, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45, rotateAlways: !isMonthly && categories.length > 15 }, axisBorder: { show: false }, axisTicks: { show: false } },
+      xaxis: { categories, tickAmount, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45, rotateAlways: false, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#94a3b8' }, formatter: (val: number) => this.state.formatCurrency(val) } },
       tooltip: { shared: true, y: { formatter: (val: number) => this.state.formatCurrency(val) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
@@ -458,6 +459,7 @@ export class RevenueTabComponent implements OnInit {
     while (revenueValues.length < expenseValues.length) revenueValues.push(0);
     const pointCount = expenseValues.length;
     const fewPoints = pointCount <= 2;
+    const tickAmount = isDaily && pointCount > 10 ? Math.min(8, Math.ceil(pointCount / 5)) : undefined;
     return {
       series: [
         { name: 'Revenue', data: revenueValues.slice(0, pointCount) },
@@ -470,7 +472,7 @@ export class RevenueTabComponent implements OnInit {
       markers: { size: fewPoints ? 8 : 5, strokeWidth: 2, strokeColors: '#fff', hover: { sizeOffset: 3 } },
       legend: { show: true, position: 'bottom', fontSize: '13px', markers: { shape: 'circle' } },
       dataLabels: fewPoints ? { enabled: true, formatter: (val: number): string => this.state.formatCurrency(val), style: { fontSize: '12px', fontWeight: 600 }, offsetY: -10 } : { enabled: false },
-      xaxis: { categories: expenseLabels, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45 }, axisBorder: { show: false }, axisTicks: { show: false } },
+      xaxis: { categories: expenseLabels, tickAmount, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45, rotateAlways: false, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#94a3b8' }, formatter: (val: number): string => this.state.formatCurrency(val) } },
       tooltip: { shared: true, y: { formatter: (val: number): string => this.state.formatCurrency(val) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },

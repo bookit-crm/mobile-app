@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DepartmentService } from '@core/services/department.service';
-import { EmployeeService, IEmployeeList } from '@core/services/employee.service';
+import { EmployeeService } from '@core/services/employee.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { WebsocketService } from '@core/services/websocket.service';
 import { IBaseQueries, IKeyValuePair } from '@core/models/application.interface';
 import { IDepartment, IDepartmentList } from '@core/models/department.interface';
-import { IEmployee } from '@core/models/employee.interface';
+import { IEmployee, IEmployeeList } from '@core/models/employee.interface';
 import { EUserRole } from '@core/enums/e-user-role';
 import { BehaviorSubject, take } from 'rxjs';
 
@@ -90,7 +90,7 @@ export class DashboardStateService {
     return list
       ? {
           ...list,
-          results: list.results.map((el) => ({
+          results: list.results.map((el: IEmployee) => ({
             ...el,
             fullName: `${el.firstName} ${el.lastName}`,
           })),

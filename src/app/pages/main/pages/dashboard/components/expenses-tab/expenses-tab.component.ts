@@ -256,6 +256,7 @@ export class ExpensesTabComponent implements OnInit {
     while (revenueValues.length < expenseValues.length) revenueValues.push(0);
     const pointCount = expenseValues.length;
     const fewPoints = pointCount <= 2;
+    const tickAmount = isDaily && pointCount > 10 ? Math.min(8, Math.ceil(pointCount / 5)) : undefined;
     return {
       series: [{ name: 'Revenue', data: revenueValues.slice(0, pointCount) }, { name: 'Expenses', data: expenseValues }],
       chart: { type: 'area', height: 260, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
@@ -265,7 +266,7 @@ export class ExpensesTabComponent implements OnInit {
       markers: { size: fewPoints ? 8 : 5, strokeWidth: 2, strokeColors: '#fff', hover: { sizeOffset: 3 } },
       legend: { show: true, position: 'bottom', fontSize: '13px', markers: { shape: 'circle' } },
       dataLabels: fewPoints ? { enabled: true, formatter: (val: number): string => this.state.formatCurrency(val), style: { fontSize: '12px', fontWeight: 600 }, offsetY: -10 } : { enabled: false },
-      xaxis: { categories: expenseLabels, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45 }, axisBorder: { show: false }, axisTicks: { show: false } },
+      xaxis: { categories: expenseLabels, tickAmount, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45, rotateAlways: false, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#94a3b8' }, formatter: (val: number): string => this.state.formatCurrency(val) } },
       tooltip: { shared: true, y: { formatter: (val: number): string => this.state.formatCurrency(val) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },

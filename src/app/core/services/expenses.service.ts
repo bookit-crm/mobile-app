@@ -1,7 +1,7 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { HttpHelper } from '@core/helpers/http-helper';
-import { IExpense } from '@core/models/expense.interface';
+import { IExpense, IExpenseSummary } from '@core/models/expense.interface';
 import { PaginatedResponseModel } from '@core/models/paginated-response.model';
 
 export interface IExpenseFilters {
@@ -41,6 +41,10 @@ export class ExpensesService extends HttpHelper {
 
   deleteExpense(id: string): Observable<void> {
     return this.httpDeleteRequest<void>(`api/expense/${id}/`);
+  }
+
+  getExpenseSummary(filters?: Record<string, unknown>): Observable<IExpenseSummary> {
+    return this.httpGetRequest<IExpenseSummary>('api/expense/summary/', filters);
   }
 }
 
