@@ -1,6 +1,6 @@
 ﻿import {
   ChangeDetectionStrategy, ChangeDetectorRef, Component, computed,
-  DestroyRef, inject, NgZone, OnInit, signal,
+  DestroyRef, effect, inject, NgZone, OnInit, signal, untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ModalController } from '@ionic/angular';
@@ -19,6 +19,7 @@ import { EmployeeService } from '@core/services/employee.service';
 import { SchedulesService } from '@core/services/schedules.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SupervisorService } from '@core/services/supervisor.service';
+import { WebsocketService } from '@core/services/websocket.service';
 import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 import {
   CalendarFiltersModalComponent,
@@ -47,6 +48,56 @@ export class CalendarPage implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   private readonly supervisorService = inject(SupervisorService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly websocketService = inject(WebsocketService);
+
+  constructor() {
+    // Real-time: новый appointment пришёл по WebSocket → добавляем в список,
+    // если попадает в текущий range / департамент. Аналог desktop-логики.
+    effect(() => {
+      const appt = this.websocketService.newAppointmentSignal();
+      if (!appt) return;
+      untracked(() => this.handleRealtimeAppointment(appt));
+    });
+
+    // Real-time: backend эмитит DashboardUpdate на любой create/patch/delete
+    // приёма (в т.ч. с другого устройства). Дебаунсим и перезагружаем
+    // текущий диапазон — это покрывает move/edit/cancel/delete.
+    effect(() => {
+      const update = this.websocketService.dashboardUpdateSignal();
+      if (!update) return;
+      untracked(() => this.scheduleRealtimeReload());
+    });
+  }
+
+  private realtimeReloadTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private scheduleRealtimeReload(): void {
+    if (this.realtimeReloadTimer) clearTimeout(this.realtimeReloadTimer);
+    this.realtimeReloadTimer = setTimeout(() => {
+      this.realtimeReloadTimer = null;
+      this.ngZone.run(() => this.silentReloadAppointments());
+    }, 800);
+  }
+
+  /** Тихий fetch без очистки списка и без isLoading — чтобы UI не моргал
+   *  скелетонами при real-time апдейтах с другого устройства. */
+  private silentReloadAppointments(): void {
+    const deptId = this.effectiveDepartmentId;
+    const filters = {
+      ...this.filters$.value,
+      ...(deptId ? { departmentId: deptId } : {}),
+    };
+    this.appointmentsService
+      .getAppointmentsRaw(filters)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (apts) => {
+          this.appointments.set(apts);
+          this.applyClientFilters();
+          this.cdr.markForCheck();
+        },
+      });
+  }
 
   public readonly SchedulerViewType = SchedulerViewType;
 
@@ -375,5 +426,46 @@ export class CalendarPage implements OnInit {
       result = result.filter((a) => statuses.includes(a.status));
     }
     this.filteredAppointments.set(result);
+  }
+
+  /** Real-time: добавляем appointment, если он валиден для текущих фильтров. */
+  private handleRealtimeAppointment(appt: IAppointment): void {
+    // Дедупликация — событие может прилететь дважды
+    if (this.appointments().some((a) => a._id === appt._id)) return;
+
+    // Фильтр по департаменту
+    const deptId = this.effectiveDepartmentId;
+    if (deptId) {
+      const apptDeptId =
+        typeof appt.department === 'string'
+          ? appt.department
+          : appt.department?._id;
+      if (apptDeptId && apptDeptId !== deptId) return;
+    }
+
+    // Фильтр по сотрудникам
+    const empIds = this.selectedEmployeeIds();
+    if (empIds.length) {
+      const apptEmpId =
+        typeof appt.employee === 'string'
+          ? appt.employee
+          : (appt.employee as { _id?: string } | undefined)?._id;
+      if (!apptEmpId || !empIds.includes(apptEmpId)) return;
+    }
+
+    // Фильтр по диапазону дат текущего вида (day / week / month)
+    const filters = this.filters$.value as { from?: string; to?: string };
+    if (appt.startDate && filters.from && filters.to) {
+      const start = new Date(appt.startDate).getTime();
+      const fromTs = new Date(filters.from).getTime();
+      const toTs = new Date(filters.to).getTime();
+      if (start < fromTs || start > toTs) return;
+    }
+
+    this.ngZone.run(() => {
+      this.appointments.set([...this.appointments(), appt]);
+      this.applyClientFilters();
+      this.cdr.markForCheck();
+    });
   }
 }

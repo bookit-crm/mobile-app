@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, finalize, switchMap, take } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth.service';
+import { WebsocketService } from '@core/services/websocket.service';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { IAuthTokens } from '@core/models/auth.interface';
 
@@ -20,6 +21,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
   constructor(
     private authService: AuthService,
+    private websocketService: WebsocketService,
     private router: Router,
     private ngZone: NgZone,
   ) {}
@@ -51,6 +53,8 @@ export class ErrorInterceptor implements HttpInterceptor {
               localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);
               localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, res.refresh_token);
               this.refreshTokenSubject.next(res.auth_token);
+              // Перепоключаем WebSocket с новым JWT (как в desktop).
+              this.websocketService.connectSocket();
               return next.handle(this.attachToken(req, res.auth_token));
             }),
             catchError((refreshError) => {

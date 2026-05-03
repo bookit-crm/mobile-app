@@ -4,9 +4,11 @@
   Component,
   computed,
   DestroyRef,
+  effect,
   inject,
   QueryList,
   signal,
+  untracked,
   ViewChildren,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -24,6 +26,7 @@ import { EmployeeService } from '@core/services/employee.service';
 import { ClientsService } from '@core/services/clients.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { WebsocketService } from '@core/services/websocket.service';
 import { EUserRole } from '@core/enums/e-user-role';
 import { AppointmentModalComponent } from '../calendar/components/appointment-modal/appointment-modal.component';
 
@@ -50,6 +53,60 @@ export class AppointmentsPage {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly websocketService = inject(WebsocketService);
+
+  /** Помечаем страницу активной только между ionViewWillEnter / WillLeave,
+   *  чтобы real-time refresh не дёргал API когда юзер на другом табе. */
+  private isActive = false;
+
+  constructor() {
+    // Real-time: новый appointment пришёл по WebSocket → обновляем список,
+    // если страница в данный момент видна.
+    effect(() => {
+      const appt = this.websocketService.newAppointmentSignal();
+      if (!appt || !this.isActive) return;
+      untracked(() => this.scheduleRealtimeRefresh());
+    });
+
+    // Real-time: backend эмитит DashboardUpdate на любой create/patch/delete
+    // приёма — обновляем список, чтобы видеть изменения с других устройств.
+    effect(() => {
+      const update = this.websocketService.dashboardUpdateSignal();
+      if (!update || !this.isActive) return;
+      untracked(() => this.scheduleRealtimeRefresh());
+    });
+  }
+
+  private realtimeRefreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private scheduleRealtimeRefresh(): void {
+    if (this.realtimeRefreshTimer) clearTimeout(this.realtimeRefreshTimer);
+    this.realtimeRefreshTimer = setTimeout(() => {
+      this.realtimeRefreshTimer = null;
+      this.silentReload();
+    }, 800);
+  }
+
+  /** Тихий refresh — повторно загружает первую страницу без isLoading/скелетона
+   *  и не сбрасывает offset/hasMore агрессивно (только если данные пришли). */
+  private silentReload(): void {
+    const filters: Record<string, unknown> = {
+      ...this.buildFilters(),
+      offset: 0,
+    };
+    this.appointmentsService
+      .getAppointmentsPaginated(filters)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          this.appointments.set(res.results);
+          this.totalCount.set(res.count);
+          this.offset.set(res.results.length);
+          this.hasMore.set(res.results.length < res.count);
+          this.cdr.markForCheck();
+        },
+      });
+  }
 
   // ── List state ────────────────────────────────────────────────────────────
   public appointments = signal<IAppointment[]>([]);
@@ -124,6 +181,7 @@ export class AppointmentsPage {
   private readonly search$ = new Subject<string>();
 
   ionViewWillEnter(): void {
+    this.isActive = true;
     this.loadFilterOptions();
     this.offset.set(0);
     this.hasMore.set(true);
@@ -137,6 +195,10 @@ export class AppointmentsPage {
         this.hasMore.set(true);
         this.loadAppointments(true);
       });
+  }
+
+  ionViewWillLeave(): void {
+    this.isActive = false;
   }
 
   // ── Search & Status ───────────────────────────────────────────────────────
