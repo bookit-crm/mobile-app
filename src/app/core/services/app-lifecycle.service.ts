@@ -6,9 +6,8 @@ import { WebsocketService } from './websocket.service';
 
 /**
  * Слушает события жизненного цикла приложения (Capacitor):
- *  - appStateChange  → при возврате в foreground пере-подключаем WebSocket,
- *    т.к. iOS / Android могут разорвать соединение во время фона.
- *  - resume          → запасной триггер для Android.
+ *  - appStateChange  → при возврате в foreground пере-подключаем WebSocket
+ *    (iOS/Android часто рвут сокет в фоне через ~30 сек).
  *
  * Должен быть инициализирован один раз в `AppComponent`.
  */
@@ -21,8 +20,6 @@ export class AppLifecycleService {
     if (this.initialized) return;
     this.initialized = true;
 
-    // На web (PWA / dev preview) Capacitor-плагин также корректно работает,
-    // но дублируем visibilitychange как fallback.
     void App.addListener('appStateChange', (state: AppState) => {
       if (state.isActive) {
         this.handleResume();
@@ -44,4 +41,3 @@ export class AppLifecycleService {
     this.websocketService.reconnectIfNeeded();
   }
 }
-

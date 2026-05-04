@@ -1,5 +1,6 @@
 import { Component, effect, inject, untracked } from '@angular/core';
 import { AppLifecycleService } from '@core/services/app-lifecycle.service';
+import { PushNotificationService } from '@core/services/push-notification.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { WebsocketService } from '@core/services/websocket.service';
 
@@ -13,17 +14,19 @@ export class AppComponent {
   private readonly supervisorService = inject(SupervisorService);
   private readonly websocketService = inject(WebsocketService);
   private readonly appLifecycle = inject(AppLifecycleService);
+  private readonly pushNotificationService = inject(PushNotificationService);
 
   constructor() {
-    // Инициализируем слушатель Capacitor App lifecycle (один раз).
     this.appLifecycle.init();
 
-    // При логине / повторной авторизации без перезагрузки приложения
-    // (commit authUserSignal) — переподключаем WebSocket с актуальным JWT.
     effect(() => {
       const user = this.supervisorService.authUserSignal();
       if (!user) return;
-      untracked(() => this.websocketService.connectSocket());
+      untracked(() => {
+        this.websocketService.connectSocket();
+        // Запрашиваем разрешение на нотификации и подписываемся на WS-события
+        void this.pushNotificationService.init();
+      });
     });
   }
 }
