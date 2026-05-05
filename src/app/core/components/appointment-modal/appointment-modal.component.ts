@@ -27,6 +27,7 @@ import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { ProductsService } from '@core/services/products.service';
 import { PromoCodesService } from '@core/services/promo-codes.service';
+import { SlotsService } from '@core/services/slots.service';
 import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 import { AppointmentDayScrollerComponent } from '@core/components/appointment-day-scroller/appointment-day-scroller.component';
 import { AppointmentSlotGridComponent, ISlotSelection } from '@core/components/appointment-slot-grid/appointment-slot-grid.component';
@@ -66,6 +67,7 @@ export class AppointmentModalComponent implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly productsService = inject(ProductsService);
   private readonly promoCodesService = inject(PromoCodesService);
+  private readonly slotsService = inject(SlotsService);
 
   public readonly AppointmentStatus = AppointmentStatus;
 
@@ -351,7 +353,7 @@ export class AppointmentModalComponent implements OnInit {
     }
     this.form.get('serviceIds')?.setValue(current);
     this.selectedServiceIds.set(current); // обновляем signal → slotDuration пересчитается
-    this.selectedSlot.set(null);          // сбрасываем слот т.к. изменилась длительность
+    this.validateAndMaybeResetSlot();     // проверяем слот на новую длительность (вместо безусловного сброса)
     this.recalculate();
   }
 
@@ -904,6 +906,64 @@ export class AppointmentModalComponent implements OnInit {
       const svc = allServices.find(s => s._id === id);
       return sum + (svc?.duration ?? 0);
     }, 0);
+  }
+
+  /**
+   * После изменения набора услуг проверяем, остался ли текущий выбранный слот
+   * доступным с новой суммарной длительностью.
+   * — Если да: обновляем endTime и оставляем слот.
+   * — Если нет: сбрасываем слот.
+   * Аналог desktop validateAndMaybeResetSlot().
+   */
+  private validateAndMaybeResetSlot(): void {
+    const slot = this.selectedSlot();
+    if (!slot) return;
+
+    const deptId = this.currentDepartmentId();
+    const date = this.selectedDate();
+    const duration = this.slotDuration(); // computed из selectedServiceIds
+
+    if (!deptId || !date) {
+      this.selectedSlot.set(null);
+      this.form.get('fromTime')?.setValue('');
+      this.form.get('toTime')?.setValue('');
+      this.form.get('employeeId')?.setValue('');
+      return;
+    }
+
+    this.slotsService
+      .getSlots({ departmentId: deptId, startDate: date, duration })
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((slotsResponse) => {
+        const empSlots = slotsResponse?.slots?.[slot.employeeId] ?? [];
+        const isStillAvailable = empSlots.some(
+          (s) =>
+            this.isoToHHmm(s.time) === slot.startTime &&
+            s.maxAvailableMinutes >= duration,
+        );
+        if (!isStillAvailable) {
+          this.selectedSlot.set(null);
+          this.form.get('fromTime')?.setValue('');
+          this.form.get('toTime')?.setValue('');
+          this.form.get('employeeId')?.setValue('');
+        } else {
+          const newEndTime = this.addMinutesToTime(slot.startTime, duration);
+          this.selectedSlot.set({ ...slot, endTime: newEndTime });
+          this.form.get('toTime')?.setValue(newEndTime, { emitEvent: false });
+        }
+        this.cdr.markForCheck();
+      });
+  }
+
+  private isoToHHmm(iso: string): string {
+    const d = new Date(iso);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  }
+
+  private addMinutesToTime(time: string, minutes: number): string {
+    const [h, m] = time.split(':').map(Number);
+    const total = h * 60 + m + minutes;
+    return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`;
   }
 
   private buildPayload(): Record<string, unknown> {

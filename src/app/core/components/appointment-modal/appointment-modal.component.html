@@ -227,6 +227,8 @@
               [date]="selectedDate()"
               [slotDuration]="slotDuration()"
               [selectedSlot]="selectedSlot()"
+              [preSelectedTime]="payload.from ?? null"
+              [preSelectedEmployeeId]="payload.employee ?? null"
               (slotSelected)="onSlotSelected($event)"
             ></app-appointment-slot-grid>
           </div>

@@ -22,6 +22,7 @@ import { SlotsService, ISlotItem } from '@core/services/slots.service';
 
 const SLOT_STEP_MINUTES = 15;
 
+
 export interface ISlotSelection {
   employeeId: string;
   employee: IDailyEmployeeSchedule['employee'];
@@ -50,6 +51,10 @@ export class AppointmentSlotGridComponent implements OnChanges {
   /** Required duration in minutes */
   readonly slotDuration = input<number>(30);
   readonly selectedSlot = input<ISlotSelection | null>(null);
+  /** HH:mm — if set, auto-select the first matching slot after load (passed from calendar click) */
+  readonly preSelectedTime = input<string | null>(null);
+  /** Employee ID to auto-select alongside preSelectedTime */
+  readonly preSelectedEmployeeId = input<string | null>(null);
 
   readonly slotSelected = output<ISlotSelection>();
 
@@ -117,6 +122,9 @@ export class AppointmentSlotGridComponent implements OnChanges {
           this.rows.set(computed);
           this.isLoading.set(false);
           this.cdr.markForCheck();
+
+          // Auto-select slot from calendar click (preSelectedTime + preSelectedEmployeeId)
+          this.tryAutoSelect(computed);
         },
         error: () => {
           this.isLoading.set(false);
@@ -134,6 +142,22 @@ export class AppointmentSlotGridComponent implements OnChanges {
     const [h, m] = time.split(':').map(Number);
     const total = h * 60 + m + minutes;
     return `${Math.floor(total / 60).toString().padStart(2, '0')}:${(total % 60).toString().padStart(2, '0')}`;
+  }
+
+  /** After slots are loaded, auto-select the slot matching preSelectedTime + preSelectedEmployeeId */
+  private tryAutoSelect(rows: IEmployeeSlotRow[]): void {
+    const preTime = this.preSelectedTime();
+    const preEmpId = this.preSelectedEmployeeId();
+    if (!preTime) return;
+
+    // If employeeId is specified — look for that employee's row first, else find any row with the slot
+    const targetRow = preEmpId
+      ? rows.find((r) => r.info.employee._id === preEmpId && r.freeSlots.includes(preTime))
+      : rows.find((r) => r.freeSlots.includes(preTime));
+
+    if (targetRow) {
+      this.selectSlot(targetRow, preTime);
+    }
   }
 }
 
