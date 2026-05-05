@@ -52,6 +52,7 @@ export class DashboardPage implements OnInit {
     { value: 'inventory',   display: 'Inventory',   icon: 'cube-outline',         feature: 'warehouse',       minLevel: EFeatureLevel.BASIC },
     { value: 'expenses',    display: 'Expenses',    icon: 'cash-outline',         feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
     { value: 'promo-codes', display: 'Promos',      icon: 'pricetag-outline',     feature: 'promoCodes' },
+    { value: 'reports',     display: 'Reports',     icon: 'bar-chart-outline',    feature: 'analytics',       minLevel: EFeatureLevel.ADVANCED },
   ];
 
   public availableTabs = computed<IDashboardTab[]>(() => {

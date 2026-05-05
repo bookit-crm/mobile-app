@@ -12,6 +12,7 @@ import { ScheduleTabComponent } from './components/schedule-tab/schedule-tab.com
 import { InventoryTabComponent } from './components/inventory-tab/inventory-tab.component';
 import { ExpensesTabComponent } from './components/expenses-tab/expenses-tab.component';
 import { PromoCodesTabComponent } from './components/promo-codes-tab/promo-codes-tab.component';
+import { ReportsTabComponent } from './components/reports-tab/reports-tab.component';
 
 const routes: Routes = [{ path: '', component: DashboardPage }];
 
@@ -30,6 +31,7 @@ const routes: Routes = [{ path: '', component: DashboardPage }];
     InventoryTabComponent,
     ExpensesTabComponent,
     PromoCodesTabComponent,
+    ReportsTabComponent,
   ],
 })
 export class DashboardPageModule {}

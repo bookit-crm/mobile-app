@@ -29,43 +29,6 @@
 
 <ion-content>
 
-  <!-- ── Priority Support Banner (для пользователей без prioritySupport) ── -->
-  @if (!hasPrioritySupport()) {
-    <ion-card class="support-banner" color="light">
-      <ion-card-content>
-        <div class="support-banner__row">
-          <ion-icon name="headset-outline" class="support-banner__icon" color="primary"></ion-icon>
-          <div class="support-banner__text">
-            <p class="support-banner__title">Need help faster?</p>
-            <p class="support-banner__sub">Upgrade to get Priority Support with direct access to our team.</p>
-          </div>
-        </div>
-        <ion-button expand="block" fill="outline" color="primary" size="small" (click)="onContactSupport()">
-          <ion-icon name="rocket-outline" slot="start"></ion-icon>
-          Upgrade Plan
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
-  }
-
-  <!-- ── Priority Support Card (для пользователей с prioritySupport) ── -->
-  @if (hasPrioritySupport()) {
-    <ion-card class="support-priority" color="light">
-      <ion-card-content>
-        <div class="support-banner__row">
-          <ion-icon name="shield-checkmark-outline" class="support-banner__icon" color="success"></ion-icon>
-          <div class="support-banner__text">
-            <p class="support-banner__title">Priority Support Active</p>
-            <p class="support-banner__sub">You have direct access to our support team.</p>
-          </div>
-        </div>
-        <ion-button expand="block" fill="outline" color="success" size="small" (click)="onContactSupport()">
-          <ion-icon name="chatbubble-ellipses-outline" slot="start"></ion-icon>
-          Contact Support
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
-  }
 
   <!-- ── TUTORIALS LIST ─────────────────────────────── -->
   @if (activeTab() === 'tutorials') {
