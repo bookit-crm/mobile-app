@@ -7,6 +7,7 @@ export interface IClient {
   city?: string;
   description?: string;
   lastVisitDate?: string;
+  lastVisitEmployee?: { firstName: string; lastName: string };
   created?: string;
 }
 

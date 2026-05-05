@@ -28,7 +28,8 @@ import {
 import {
   AppointmentModalComponent,
   IAppointmentModalPayload,
-} from './components/appointment-modal/appointment-modal.component';
+} from '@core/components/appointment-modal/appointment-modal.component';
+import { AppointmentViewModalComponent } from '@core/components/appointment-view-modal/appointment-view-modal.component';
 
 @Component({
   selector: 'app-calendar',
@@ -206,7 +207,11 @@ export class CalendarPage implements OnInit {
   }
 
   public onEventClicked(payload: INewAppointmentPayload): void {
-    this.openAppointmentModal({ _id: payload._id });
+    if (payload._id) {
+      void this.openViewModal(payload._id);
+    } else {
+      this.openAppointmentModal({ _id: payload._id });
+    }
   }
 
   /** Drag-and-drop: обновляем время/сотрудника через API и обновляем календарь */
@@ -224,6 +229,18 @@ export class CalendarPage implements OnInit {
       .subscribe({
         next: () => this.ngZone.run(() => this.filters$.next(this.filters$.value)),
       });
+  }
+
+  public async openViewModal(appointmentId: string): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: AppointmentViewModalComponent,
+      componentProps: { appointmentId },
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
+    if (data?.saved) {
+      this.ngZone.run(() => this.filters$.next(this.filters$.value));
+    }
   }
 
   public async openAppointmentModal(payload: IAppointmentModalPayload = {}): Promise<void> {

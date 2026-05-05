@@ -16,7 +16,7 @@ import { debounceTime, Subject, take } from 'rxjs';
 import { IClient } from '@core/models/client.interface';
 import { ClientsService } from '@core/services/clients.service';
 import { SubscriptionService } from '@core/services/subscription.service';
-import { AppointmentModalComponent } from '../calendar/components/appointment-modal/appointment-modal.component';
+import { AppointmentModalComponent } from '@core/components/appointment-modal/appointment-modal.component';
 import { ClientModalComponent } from './components/client-modal/client-modal.component';
 import { ClientDetailPage } from './pages/client-detail/client-detail.page';
 
@@ -179,6 +179,14 @@ export class ClientsPage {
     }
   }
 
+  public async viewProfile(client: IClient): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: ClientDetailPage,
+      componentProps: { clientId: client._id },
+    });
+    await modal.present();
+  }
+
   public async viewHistory(client: IClient, event: Event): Promise<void> {
     event.stopPropagation();
     if (!this.canViewHistory()) {
@@ -195,8 +203,6 @@ export class ClientsPage {
     const modal = await this.modalCtrl.create({
       component: ClientDetailPage,
       componentProps: { clientId: client._id },
-      breakpoints: [0, 1],
-      initialBreakpoint: 1,
     });
     await modal.present();
   }

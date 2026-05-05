@@ -99,7 +99,7 @@
     <ion-list lines="none">
       @for (client of clients(); track client._id) {
         <ion-item-sliding>
-          <ion-item [button]="true" [detail]="false">
+          <ion-item [button]="true" [detail]="false" (click)="viewProfile(client)"  >
             <div class="client-avatar" slot="start">
               {{ getInitials(client.fullName) }}
             </div>

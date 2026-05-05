@@ -1,0 +1,180 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="view-toolbar">
+    @if (appointment()) {
+      <div class="view-status-row" slot="start">
+        <span
+          class="view-status-dot"
+          [class.view-status-dot--new]="appointment()!.status === AppointmentStatus.New"
+          [class.view-status-dot--completed]="appointment()!.status === AppointmentStatus.Completed"
+          [class.view-status-dot--canceled]="appointment()!.status === AppointmentStatus.Canceled"
+        ></span>
+        <div class="view-status-text">
+          <p class="view-status-title">
+            @switch (appointment()!.status) {
+              @case (AppointmentStatus.New) { New }
+              @case (AppointmentStatus.Completed) { Completed }
+              @case (AppointmentStatus.Canceled) { Canceled }
+            }
+          </p>
+          <p class="view-status-sub">
+            {{ appointment()!.startDate | date: 'd MMM yyyy, HH:mm' }}
+          </p>
+        </div>
+      </div>
+    }
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="closeModal()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="view-content">
+  @if (isLoading()) {
+    <div class="view-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (appointment()) {
+    @let appt = appointment()!;
+
+    <!-- Client row -->
+    <div class="view-client">
+      <div
+        class="view-client__avatar"
+        [style.background-color]="getClientAvatarColor(appt.client?.fullName || appt.clientName || '')"
+      >
+        {{ getClientInitials(appt.client?.fullName || appt.clientName || '') }}
+      </div>
+      <div class="view-client__info">
+        <span class="view-client__name">
+          {{ appt.client?.fullName || appt.clientName || 'Unknown client' }}
+        </span>
+        @if (appt.client?.phone || appt.clientPhone) {
+          <span class="view-client__phone">{{ appt.client?.phone || appt.clientPhone }}</span>
+        }
+      </div>
+      @if (appt.client?._id) {
+        <ion-button
+          class="view-client__profile-btn"
+          fill="outline"
+          size="small"
+          color="medium"
+          (click)="openClientProfile(appt.client!._id)"
+        >
+          <ion-icon slot="start" name="person-outline"></ion-icon>
+          Profile
+        </ion-button>
+      }
+    </div>
+
+    <!-- Details grid -->
+    <div class="view-details">
+      <div class="view-details__row">
+        <span class="view-details__label">Date</span>
+        <span class="view-details__value view-details__value--bold">
+          {{ appt.startDate | date: 'EEE, d MMM' }}&nbsp;&middot;&nbsp;
+          {{ appt.startDate | date: 'HH:mm' }}&ndash;{{ appt.endDate | date: 'HH:mm' }}
+        </span>
+      </div>
+      @if (servicesText()) {
+        <div class="view-details__row">
+          <span class="view-details__label">Services</span>
+          <span class="view-details__value">
+            {{ servicesText() }}
+            @if (servicesDuration()) {
+              &nbsp;&middot;&nbsp;{{ servicesDuration() }}
+            }
+          </span>
+        </div>
+      }
+      @if (appt.employee) {
+        <div class="view-details__row">
+          <span class="view-details__label">Employee</span>
+          <span class="view-details__value">{{ appt.employee.firstName + ' ' + appt.employee.lastName }}</span>
+        </div>
+      }
+      @if (departmentName()) {
+        <div class="view-details__row">
+          <span class="view-details__label">Department</span>
+          <span class="view-details__value">{{ departmentName() }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Pricing card -->
+    @if (appt.totalPrice !== null && appt.totalPrice !== undefined) {
+      <div class="view-pricing">
+        <div class="view-pricing__left">
+          <span class="view-pricing__label">Payment</span>
+          @if (appt.promoCode) {
+            <span class="view-pricing__promo">
+              @if (typeof appt.promoCode === 'object') {
+                {{ appt.promoCode.name }}
+              } @else {
+                Promo code
+              }
+              @if (appt.discountAmount) {
+                &nbsp;&middot;&nbsp;-{{ appt.discountAmount | currency: 'USD' }}
+              }
+            </span>
+          }
+        </div>
+        <span class="view-pricing__total">{{ appt.totalPrice | currency: 'USD' }}</span>
+      </div>
+    }
+
+    <!-- Notes -->
+    @if (appt.comment) {
+      <div class="view-notes">
+        <span class="view-notes__label">Notes</span>
+        <p class="view-notes__text">{{ appt.comment }}</p>
+      </div>
+    }
+
+    <!-- Action buttons grid -->
+    <div class="view-actions">
+      @if (appt.client?.phone || appt.clientPhone) {
+        <a class="view-actions__btn" [href]="'tel:' + (appt.client?.phone || appt.clientPhone)">
+          <ion-icon name="call-outline" class="view-actions__icon"></ion-icon>
+          <span>Call</span>
+        </a>
+        <a class="view-actions__btn" [href]="'sms:' + (appt.client?.phone || appt.clientPhone)">
+          <ion-icon name="chatbubble-outline" class="view-actions__icon"></ion-icon>
+          <span>SMS</span>
+        </a>
+      }
+      @if (!isCanceled()) {
+        <button class="view-actions__btn" (click)="openEdit()">
+          <ion-icon name="pencil-outline" class="view-actions__icon"></ion-icon>
+          <span>Edit</span>
+        </button>
+      }
+    </div>
+  }
+</ion-content>
+
+<ion-footer class="ion-no-border">
+  <div class="view-footer">
+    @if (!isCanceled() && !isCompleted()) {
+      <button class="view-footer__cancel" (click)="cancelAppointment()">
+        Cancel appointment
+      </button>
+      <div class="view-footer__actions">
+        <ion-button fill="outline" color="medium" (click)="markNoShow()">
+          No-show
+        </ion-button>
+        <ion-button fill="solid" color="dark" (click)="completeVisit()">
+          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+          Complete
+        </ion-button>
+      </div>
+    } @else {
+      <span></span>
+      <ion-button fill="outline" color="medium" (click)="closeModal()">
+        Close
+      </ion-button>
+    }
+  </div>
+</ion-footer>
+

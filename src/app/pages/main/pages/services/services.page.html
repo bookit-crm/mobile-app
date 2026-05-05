@@ -68,7 +68,7 @@
             <ion-label>
               <h2 class="service-item__name">{{ service.name }}</h2>
               @if (service.category) {
-                <p class="service-item__category">{{ service.category }}</p>
+                <p class="service-item__category">{{ service.category.display }}</p>
               }
               <div class="service-item__meta">
                 <ion-chip color="primary" [outline]="true">

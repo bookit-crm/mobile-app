@@ -71,7 +71,7 @@ export class ServiceModalComponent implements OnInit {
   ngOnInit(): void {
     if (this.service) {
       this.name = this.service.name;
-      this.category = this.service.category ?? '';
+      this.category = this.service.category?.value ?? '';
       this.description = this.service.description ?? '';
       this.duration = this.service.duration;
       this.price = this.service.price;
@@ -118,8 +118,8 @@ export class ServiceModalComponent implements OnInit {
     if (trimmedDescription) payload.description = trimmedDescription;
 
     const request$ = this.isEdit
-      ? this.servicesService.patchServiceById(this.service!._id, payload)
-      : this.servicesService.create(payload);
+      ? this.servicesService.patchServiceById(this.service!._id, payload as any)
+      : this.servicesService.create(payload as any);
 
     request$.pipe(take(1)).subscribe({
       next: () => {

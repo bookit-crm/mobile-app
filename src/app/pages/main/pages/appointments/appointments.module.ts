@@ -5,7 +5,8 @@ import { IonicModule } from '@ionic/angular';
 import { AppointmentsPage } from './appointments.page';
 import { RouterModule, Routes } from '@angular/router';
 import { AppointmentHistoryPage } from './components/appointment-history/appointment-history.page';
-import { AppointmentModalComponent } from '../calendar/components/appointment-modal/appointment-modal.component';
+import { AppointmentModalComponent } from '@core/components/appointment-modal/appointment-modal.component';
+import { AppointmentViewModalComponent } from '@core/components/appointment-view-modal/appointment-view-modal.component';
 
 const routes: Routes = [
   { path: '', component: AppointmentsPage },
@@ -20,6 +21,7 @@ const routes: Routes = [
     IonicModule,
     RouterModule.forChild(routes),
     AppointmentModalComponent,
+    AppointmentViewModalComponent,
   ],
 })
 export class AppointmentsPageModule {}

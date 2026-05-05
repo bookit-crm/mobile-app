@@ -7,7 +7,8 @@ import { DayViewComponent } from './components/day-view/day-view.component';
 import { WeekViewComponent } from './components/week-view/week-view.component';
 import { MonthViewComponent } from './components/month-view/month-view.component';
 import { CalendarFiltersModalComponent } from './components/calendar-filters-modal/calendar-filters-modal.component';
-import { AppointmentModalComponent } from './components/appointment-modal/appointment-modal.component';
+import { AppointmentModalComponent } from '@core/components/appointment-modal/appointment-modal.component';
+import { AppointmentViewModalComponent } from '@core/components/appointment-view-modal/appointment-view-modal.component';
 
 const routes: Routes = [{ path: '', component: CalendarPage }];
 
@@ -22,6 +23,7 @@ const routes: Routes = [{ path: '', component: CalendarPage }];
     MonthViewComponent,
     CalendarFiltersModalComponent,
     AppointmentModalComponent,
+    AppointmentViewModalComponent,
   ],
 })
 export class CalendarPageModule {}

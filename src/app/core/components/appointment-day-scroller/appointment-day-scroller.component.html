@@ -1,0 +1,32 @@
+<div class="day-scroller">
+  <!-- Date header with native date input -->
+  <div class="day-scroller__header">
+    <span class="day-scroller__label">Date</span>
+    <label class="day-scroller__date-btn">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <input
+        type="date"
+        class="day-scroller__native-date"
+        [value]="selectedDate()"
+        (change)="onNativeDateChange($event)"
+      />
+    </label>
+  </div>
+
+  <!-- Scrollable day chips -->
+  <div class="day-scroller__track" #track>
+    @for (day of days(); track day.date) {
+      <button
+        type="button"
+        class="day-chip"
+        [class.day-chip--today]="day.isToday"
+        [class.day-chip--selected]="day.date === selectedDate()"
+        (click)="selectDay(day.date)"
+      >
+        <span class="day-chip__name">{{ day.dayName }}</span>
+        <span class="day-chip__num">{{ day.dayNum }}</span>
+      </button>
+    }
+  </div>
+</div>
+

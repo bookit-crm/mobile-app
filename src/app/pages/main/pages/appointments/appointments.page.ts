@@ -28,7 +28,8 @@ import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { WebsocketService } from '@core/services/websocket.service';
 import { EUserRole } from '@core/enums/e-user-role';
-import { AppointmentModalComponent } from '../calendar/components/appointment-modal/appointment-modal.component';
+import { AppointmentModalComponent } from '@core/components/appointment-modal/appointment-modal.component';
+import { AppointmentViewModalComponent } from '@core/components/appointment-view-modal/appointment-view-modal.component';
 
 @Component({
   selector: 'app-appointments',
@@ -268,6 +269,16 @@ export class AppointmentsPage {
   }
 
   // ── CRUD actions ──────────────────────────────────────────────────────────
+  public async openViewModal(appt: IAppointment): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: AppointmentViewModalComponent,
+      componentProps: { appointmentId: appt._id },
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
+    if (data?.saved) { this.refresh(); }
+  }
+
   public async openCreateModal(): Promise<void> {
     if (!this.canCreateAppointment()) {
       await this.showSubscriptionAlert();

@@ -1,0 +1,43 @@
+@if (!departmentId()) {
+  <p class="slot-grid__hint">Select a department and services first</p>
+} @else if (isLoading()) {
+  <div class="slot-grid__loading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+  </div>
+} @else if (rows().length === 0) {
+  <p class="slot-grid__hint">No employees found for this department</p>
+} @else {
+  <div class="slot-grid">
+    @for (row of rows(); track row.info.employee._id) {
+      <div class="slot-grid__row" [class.slot-grid__row--dayoff]="row.isDayOff">
+        <!-- Employee -->
+        <div class="slot-grid__emp">
+          <div class="slot-grid__emp-avatar">
+            {{ row.info.employee.firstName[0] }}{{ row.info.employee.lastName[0] }}
+          </div>
+          <span class="slot-grid__emp-name">
+            {{ row.info.employee.firstName }} {{ row.info.employee.lastName }}
+          </span>
+        </div>
+        <!-- Slots -->
+        <div class="slot-grid__slots">
+          @if (row.isDayOff) {
+            <span class="slot-grid__dayoff">Day off</span>
+          } @else if (row.freeSlots.length === 0) {
+            <span class="slot-grid__dayoff">No slots</span>
+          } @else {
+            @for (slot of row.freeSlots; track slot) {
+              <button
+                type="button"
+                class="slot-btn"
+                [class.slot-btn--selected]="isSelected(row, slot)"
+                (click)="selectSlot(row, slot)"
+              >{{ slot }}</button>
+            }
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+

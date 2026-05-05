@@ -1,6 +1,7 @@
 import { IFileDTO } from '@core/models/file.interface';
 import { IProduct } from '@core/models/product.interface';
 import { IDepartment } from '@core/models/department.interface';
+import { IKeyValuePair } from '@core/models/application.interface';
 
 export interface IConsumableProduct {
   product: IProduct | string;
@@ -20,7 +21,7 @@ export interface IService {
   _id: string;
   name: string;
   description: string;
-  category: string;
+  category: IKeyValuePair;
   duration: number;
   price: number;
   department: IDepartment | string;
