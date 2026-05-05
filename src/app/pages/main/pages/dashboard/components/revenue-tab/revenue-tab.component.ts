@@ -42,9 +42,9 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
       <!-- KPI Cards -->
       @if (loading()) {
         <div class="skeleton-cards">
-          <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-          <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-          <ion-skeleton-text animated style="height:80px;border-radius:12px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px"></ion-skeleton-text>
         </div>
       } @else {
         <div class="kpi-grid">
@@ -65,7 +65,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
       <div class="chart-card">
         <h3 class="chart-title">Revenue Trend</h3>
         @if (chartLoading()) {
-          <ion-skeleton-text animated style="height:280px;border-radius:8px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:280px;border-radius:8px"></ion-skeleton-text>
         } @else if (chartOptions()) {
           <apx-chart
             [series]="chartOptions()!.series"
@@ -86,7 +86,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
       <div class="chart-card">
         <h3 class="chart-title">Revenue by Service</h3>
         @if (revenueByServiceLoading()) {
-          <ion-skeleton-text animated style="height:200px;border-radius:8px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:200px;border-radius:8px"></ion-skeleton-text>
         } @else if (serviceBarChart()) {
           <apx-chart
             [series]="serviceBarChart()!.series"
@@ -396,7 +396,7 @@ export class RevenueTabComponent implements OnInit {
       { title: 'Avg Appointment Value', value: this.state.formatCurrency(data.avgTicketValue), subtitle: 'Per appointment', icon: 'fi_tag', colorVar: '--orange-500', bgVar: '--orange-50' },
       { title: 'Completed', value: data.completedAppointments.toString(), subtitle: 'Appointments', icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
       { title: 'New / Returning', value: `${data.newClients} / ${data.returningClients}`, subtitle: 'Clients', icon: 'fi_users', colorVar: '--purple-500', bgVar: '--purple-50' },
-      { title: 'Utilization Rate', value: `${data.utilizationRate}%`, subtitle: 'Staff capacity used', icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
+      { title: 'Utilization Rate', value: `${data.utilizationRate || 0}%`, subtitle: 'Staff capacity used', icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
     );
 
     return cards;

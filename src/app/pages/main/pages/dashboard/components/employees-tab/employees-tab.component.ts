@@ -9,18 +9,23 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { filter } from 'rxjs/operators';
-import { IonicModule } from '@ionic/angular';
+import { filter, take } from 'rxjs/operators';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import { DashboardService } from '@core/services/dashboard.service';
+import { EmployeeService } from '@core/services/employee.service';
 import { IBaseQueries } from '@core/models/application.interface';
+import { IEmployee } from '@core/models/employee.interface';
+import { IDepartment } from '@core/models/department.interface';
 import {
   IEmployeeHeatmapResponse,
   IEmployeePerformanceItem,
   IEmployeePerformanceResponse,
 } from '@core/models/dashboard.interface';
+import { EmployeeAvatarComponent } from '@core/components/employee-avatar/employee-avatar.component';
+import { EmployeeFormModalComponent } from '../../../employees/components/employee-form-modal/employee-form-modal.component';
 
-import { BarChartOptions, HeatmapChartOptions, KpiCard } from '../../models/chart.models';
+import { HeatmapChartOptions, KpiCard } from '../../models/chart.models';
 import { DashboardStateService } from '../../services/dashboard-state.service';
 
 @Component({
@@ -30,8 +35,8 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (employeePerformanceLoading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of employeePerformanceCards(); track card.title) {
@@ -47,21 +52,51 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
         </div>
       }
 
-      <!-- Top Performers Chart -->
-      @if (topPerformersChart()) {
+      <!-- Employee Performance Table -->
+      @if (!employeePerformanceLoading()) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Performers</h3>
-          <apx-chart
-            [series]="topPerformersChart()!.series"
-            [chart]="topPerformersChart()!.chart"
-            [xaxis]="topPerformersChart()!.xaxis"
-            [yaxis]="topPerformersChart()!.yaxis"
-            [plotOptions]="topPerformersChart()!.plotOptions"
-            [dataLabels]="topPerformersChart()!.dataLabels"
-            [tooltip]="topPerformersChart()!.tooltip"
-            [grid]="topPerformersChart()!.grid"
-            [colors]="topPerformersChart()!.colors"
-          ></apx-chart>
+          <h3 class="chart-title">Employee Performance</h3>
+          @if (employeePerformance()?.employees?.length) {
+            <div class="perf-scroll">
+              <table class="perf-table">
+                <thead>
+                  <tr>
+                    <th class="perf-table__rank">#</th>
+                    <th>Employee</th>
+                    <th class="perf-table__num">Revenue</th>
+                    <th class="perf-table__num">Appts</th>
+                    <th class="perf-table__num">Avg</th>
+                    <th class="perf-table__num">Util.</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (emp of employeePerformance()!.employees; track emp.employeeId; let i = $index) {
+                    <tr (click)="openEmployeeDetail(emp)">
+                      <td class="perf-table__rank">{{ i + 1 }}</td>
+                      <td class="perf-table__emp">
+                        <app-employee-avatar
+                          [employee]="makeEmpPreview(emp)"
+                          [isManager]="false"
+                        ></app-employee-avatar>
+                      </td>
+                      <td class="perf-table__num perf-table__num--green">{{ state.formatCurrency(emp.revenue) }}</td>
+                      <td class="perf-table__num">{{ emp.appointments }}</td>
+                      <td class="perf-table__num">{{ state.formatCurrency(emp.avgTicketValue) }}</td>
+                      <td class="perf-table__num">
+                        <span class="util"
+                          [class.util--high]="emp.utilizationRate >= 80"
+                          [class.util--mid]="emp.utilizationRate >= 50 && emp.utilizationRate < 80"
+                          [class.util--low]="emp.utilizationRate < 50"
+                        >{{ emp.utilizationRate }}%</span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="chart-empty">No employee data for this period</p>
+          }
         </div>
       }
 
@@ -94,20 +129,51 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .kpi-card__subtitle { font-size: 11px; color: var(--ion-color-medium); }
     .chart-card { background: var(--ion-card-background, #fff); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
+    .chart-empty { font-size: 13px; color: var(--ion-color-medium); text-align: center; padding: 24px 0; margin: 0; }
+
+    /* Performance table */
+    .perf-scroll { overflow-x: auto; margin: 0 -4px; }
+    .perf-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 460px; }
+    .perf-table th {
+      padding: 6px 8px; text-align: left;
+      font-size: 10px; font-weight: 600;
+      color: var(--ion-color-medium); text-transform: uppercase;
+      letter-spacing: 0.04em; white-space: nowrap;
+      border-bottom: 1px solid var(--ion-color-light, #f4f5f8);
+    }
+    .perf-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--ion-color-light, #f4f5f8);
+      vertical-align: middle;
+    }
+    .perf-table tbody tr:last-child td { border-bottom: none; }
+    .perf-table tbody tr { cursor: pointer; transition: background 0.15s; }
+    .perf-table tbody tr:active { background: var(--ion-color-light, #f4f5f8); }
+    .perf-table__rank { width: 24px; font-size: 11px; font-weight: 600; color: var(--ion-color-medium); }
+    .perf-table__emp { min-width: 130px; }
+    .perf-table__num { text-align: left; white-space: nowrap; }
+    .perf-table__num--green { font-weight: 600; color: #16a34a; }
+
+    /* Utilization badge */
+    .util { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .util--high  { background: #dcfce7; color: #16a34a; }
+    .util--mid   { background: #fef3c7; color: #d97706; }
+    .util--low   { background: #fee2e2; color: #dc2626; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, EmployeeAvatarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesTabComponent implements OnInit {
   private dashboardService = inject(DashboardService);
-  private state = inject(DashboardStateService);
+  private employeeService = inject(EmployeeService);
+  private modalCtrl = inject(ModalController);
+  public state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
 
   public employeePerformanceLoading = signal(true);
   public employeePerformance = signal<IEmployeePerformanceResponse | null>(null);
   public employeePerformanceCards = signal<KpiCard[]>([]);
-  public topPerformersChart = signal<BarChartOptions | null>(null);
 
   public employeeHeatmapLoading = signal(true);
   public employeeHeatmapChart = signal<HeatmapChartOptions | null>(null);
@@ -119,9 +185,9 @@ export class EmployeesTabComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((filters) => {
-      this.loadEmployeePerformance(filters);
-      this.loadEmployeeHeatmap(filters);
-    });
+        this.loadEmployeePerformance(filters);
+        this.loadEmployeeHeatmap(filters);
+      });
   }
 
   public getIonIcon(icon: string): string {
@@ -132,13 +198,40 @@ export class EmployeesTabComponent implements OnInit {
     return map[icon] ?? 'person-outline';
   }
 
+  /** Build minimal IEmployee for avatar display from a performance item. */
+  public makeEmpPreview(item: IEmployeePerformanceItem): IEmployee {
+    const parts = item.name.trim().split(/\s+/);
+    return {
+      _id: item.employeeId,
+      firstName: parts[0] ?? '',
+      lastName: parts.slice(1).join(' '),
+      phone: '',
+      email: '',
+      department: null,
+    };
+  }
+
+  /** Fetch full employee then open EmployeeFormModal. */
+  public openEmployeeDetail(item: IEmployeePerformanceItem): void {
+    this.employeeService
+      .getEmployeeById(item.employeeId)
+      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((employee) => {
+        const dept = employee.department
+          ? ({ _id: employee.department._id, name: employee.department.name } as IDepartment)
+          : ({ _id: '', name: item.department } as IDepartment);
+        void this.modalCtrl
+          .create({ component: EmployeeFormModalComponent, componentProps: { employee, department: dept } })
+          .then((m) => m.present());
+      });
+  }
+
   private loadEmployeePerformance(filters: IBaseQueries): void {
     this.employeePerformanceLoading.set(true);
     this.dashboardService.getEmployeePerformance(filters).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
         this.employeePerformance.set(data);
         this.employeePerformanceCards.set(this.buildPerformanceCards(data.employees));
-        this.topPerformersChart.set(this.buildTopPerformersChart(data.employees));
         this.employeePerformanceLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -174,24 +267,6 @@ export class EmployeesTabComponent implements OnInit {
     ];
   }
 
-  private buildTopPerformersChart(employees: IEmployeePerformanceItem[]): BarChartOptions | null {
-    if (!employees.length) return null;
-    const top = employees.slice(0, 10);
-    return {
-      series: [
-        { name: 'Revenue', data: top.map((e) => e.revenue) },
-        { name: 'Appointments', data: top.map((e) => e.appointments) },
-      ],
-      chart: { type: 'bar', height: Math.max(260, top.length * 50 + 60), fontFamily: 'inherit', toolbar: { show: false } },
-      plotOptions: { bar: { horizontal: true, barHeight: '60%', borderRadius: 4 } },
-      colors: ['#6366f1', '#10b981'],
-      dataLabels: { enabled: false },
-      xaxis: { categories: top.map((e) => e.name), labels: { style: { fontSize: '11px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { fontSize: '12px', colors: '#334155' }, maxWidth: 150 } },
-      tooltip: { shared: true, intersect: false, y: { formatter: (val: number, opts: { seriesIndex: number }) => opts.seriesIndex === 0 ? this.state.formatCurrency(val) : `${val} appts` } },
-      grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
-    };
-  }
 
   private buildHeatmapChart(data: IEmployeeHeatmapResponse): HeatmapChartOptions | null {
     const hasData = data.data.some((cell) => cell.value > 0);
