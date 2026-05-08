@@ -19,8 +19,9 @@ import { FilesService } from '@core/services/files.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { EUserRole } from '@core/enums/e-user-role';
-import { ETier } from '@core/models/subscription.interface';
 import { DepartmentFormModalComponent } from '../../components/department-form-modal/department-form-modal.component';
+import { Share } from '@capacitor/share';
+import { environment } from '@environments/environment';
 
 export type DepartmentTab = 'overview' | 'branding' | 'schedule';
 
@@ -264,6 +265,82 @@ export class DepartmentPage implements OnInit {
       result['bannerImages'] = payload.bannerImages.map((f) => f._id);
     }
     return result as Partial<IDepartment>;
+  }
+
+  // ── Status toggle ────────────────────────────────────────────────────────────
+
+  public isTogglingStatus = signal(false);
+
+  public toggleStatus(): void {
+    const dept = this.department();
+    if (!dept) return;
+
+    const newStatus = dept.status === 'active' ? 'inactive' : 'active';
+
+    this.isTogglingStatus.set(true);
+    this.cdr.markForCheck();
+
+    this.departmentService
+      .patchDepartment(dept._id, { status: newStatus })
+      .pipe(take(1))
+      .subscribe({
+        next: async (updated) => {
+          this.department.set(updated);
+          this.isTogglingStatus.set(false);
+          this.cdr.markForCheck();
+          const toast = await this.toastCtrl.create({
+            message: `Department is now ${newStatus}`,
+            duration: 2000,
+            color: newStatus === 'active' ? 'success' : 'medium',
+          });
+          await toast.present();
+        },
+        error: async () => {
+          this.isTogglingStatus.set(false);
+          this.cdr.markForCheck();
+          const toast = await this.toastCtrl.create({
+            message: 'Failed to update status',
+            duration: 3000,
+            color: 'danger',
+          });
+          await toast.present();
+        },
+      });
+  }
+
+  // ── Client booking link ───────────────────────────────────────────────────────
+
+  public get clientBookingLink(): string {
+    const dept = this.department();
+    if (!dept) return '';
+    return `${environment.client_url}/department?id=${dept._id}&dataBaseId=${environment.dataBaseId}`;
+  }
+
+  public async shareClientLink(): Promise<void> {
+    const link = this.clientBookingLink;
+    if (!link) return;
+
+    try {
+      await Share.share({
+        title: 'Online booking link',
+        text: link,
+        url: link,
+        dialogTitle: 'Share online booking link',
+      });
+    } catch {
+      // fallback to clipboard (web/browser)
+      try {
+        await navigator.clipboard.writeText(link);
+        const toast = await this.toastCtrl.create({
+          message: 'Link copied to clipboard',
+          duration: 2000,
+          color: 'success',
+        });
+        await toast.present();
+      } catch {
+        // silently ignore if both fail
+      }
+    }
   }
 
   // ── Overview helpers ─────────────────────────────────────────────────────────

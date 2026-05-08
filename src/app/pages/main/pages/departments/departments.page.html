@@ -14,7 +14,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
 
   @if (isLoading()) {
     <div class="departments-loading">
@@ -46,10 +46,17 @@
       }
     </div>
 
+    @if (!isManager) {
+      <div class="swipe-hint">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Swipe left on a card for options</span>
+      </div>
+    }
+
     <ion-list lines="none">
       @for (dept of departments(); track dept._id) {
         <ion-item-sliding>
-          <ion-item button [detail]="true" (click)="openDepartment(dept)">
+          <ion-item [button]="true" [detail]="false" (click)="openDepartment(dept)">
             <ion-avatar slot="start" class="dept-avatar">
               @if (dept.logo?.url) {
                 <img [src]="dept.logo!.url" [alt]="dept.name" />
@@ -75,18 +82,38 @@
             <ion-badge
               slot="end"
               [color]="dept.status === 'active' ? 'success' : 'medium'"
+              class="status-badge"
             >
               {{ dept.status ?? 'active' }}
             </ion-badge>
+            @if (!isManager) {
+              <ion-icon
+                name="chevron-back-outline"
+                slot="end"
+                class="swipe-indicator"
+              ></ion-icon>
+            }
           </ion-item>
 
           @if (!isManager) {
             <ion-item-options side="end">
+              <ion-item-option
+                [color]="dept.status === 'active' ? 'medium' : 'success'"
+                (click)="toggleStatus(dept, $event)"
+              >
+                <ion-icon
+                  [name]="dept.status === 'active' ? 'pause-circle-outline' : 'play-circle-outline'"
+                  slot="top"
+                ></ion-icon>
+                <span class="option-label">{{ dept.status === 'active' ? 'Deactivate' : 'Activate' }}</span>
+              </ion-item-option>
               <ion-item-option color="primary" (click)="openEditModal(dept, $event)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="create-outline" slot="top"></ion-icon>
+                <span class="option-label">Edit</span>
               </ion-item-option>
               <ion-item-option color="danger" (click)="confirmDelete(dept, $event)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="trash-outline" slot="top"></ion-icon>
+                <span class="option-label">Delete</span>
               </ion-item-option>
             </ion-item-options>
           }

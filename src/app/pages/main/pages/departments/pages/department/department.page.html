@@ -84,6 +84,46 @@
           }
         </ion-card-content>
       </ion-card>
+
+      <!-- ── Status toggle (only for owners/admins) ── -->
+      @if (!isManager) {
+        <ion-card class="info-card status-card">
+          <ion-card-content>
+            <div class="status-row">
+              <div class="status-row__info">
+                <p class="status-row__label">Department status</p>
+                <p class="status-row__desc">
+                  {{ dept.status === 'active' ? 'Accepting online bookings' : 'Hidden from online booking' }}
+                </p>
+              </div>
+              <ion-toggle
+                [checked]="dept.status === 'active' || dept.status == null"
+                [disabled]="isTogglingStatus()"
+                color="success"
+                (ionChange)="toggleStatus()"
+              ></ion-toggle>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      <!-- ── Client booking link ── -->
+      <ion-card class="info-card booking-link-card">
+        <ion-card-content>
+          <p class="info-row__label">Online booking link</p>
+          <div class="booking-link-row">
+            <p class="booking-link-row__url">{{ clientBookingLink }}</p>
+            <ion-button
+              fill="clear"
+              size="small"
+              color="primary"
+              (click)="shareClientLink()"
+            >
+              <ion-icon name="share-social-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
     }
 
     <!-- ── Branding tab ── -->

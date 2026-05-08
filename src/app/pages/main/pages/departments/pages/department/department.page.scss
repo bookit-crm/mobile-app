@@ -422,3 +422,56 @@
   text-align: center;
   padding: 24px 0;
 }
+
+// ─── Status toggle card ───────────────────────────────────────────────────────
+
+.status-card {
+  margin-top: 12px;
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  &__info {
+    flex: 1;
+  }
+
+  &__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    margin: 0 0 2px;
+  }
+
+  &__desc {
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+// ─── Booking link card ────────────────────────────────────────────────────────
+
+.booking-link-card {
+  margin-top: 12px;
+}
+
+.booking-link-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+
+  &__url {
+    font-size: 0.78rem;
+    color: var(--ion-color-primary);
+    word-break: break-all;
+    flex: 1;
+    margin: 0;
+  }
+}
+

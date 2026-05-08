@@ -105,6 +105,20 @@ export class DepartmentsPage implements OnInit {
     }
   }
 
+  public async toggleStatus(department: IDepartment, event: Event): Promise<void> {
+    event.stopPropagation();
+    const newStatus = department.status === 'active' ? 'inactive' : 'active';
+    this.departmentService
+      .patchDepartment(department._id, { status: newStatus })
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          this.loadDepartments();
+          void this.showToast(`Department is now ${newStatus}`);
+        },
+      });
+  }
+
   public async confirmDelete(department: IDepartment, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
