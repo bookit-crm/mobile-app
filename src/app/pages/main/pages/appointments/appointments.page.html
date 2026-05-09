@@ -3,9 +3,8 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Appointments</ion-title>
+    <ion-title>{{ 'APPOINTMENTS' | translate }}</ion-title>
     <ion-buttons slot="end">
-      <!-- Filter button with active-count badge -->
       <ion-button (click)="openFilterModal()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
         @if (activeFiltersCount() > 0) {
@@ -18,14 +17,14 @@
     <ion-segment [value]="statusFilter()" (ionChange)="onStatusChange($event.detail.value?.toString() ?? 'all')">
       @for (opt of statusOptions; track opt.value) {
         <ion-segment-button [value]="opt.value">
-          <ion-label>{{ opt.label }}</ion-label>
+          <ion-label>{{ opt.label | translate }}</ion-label>
         </ion-segment-button>
       }
     </ion-segment>
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search by client, phone..."
+      [placeholder]="'SEARCH_BY_CLIENT_PHONE' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -42,7 +41,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'FILTERS' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -56,9 +55,9 @@
         <!-- Department (admin only) -->
         @if (!singleDepartmentMode()) {
           <ion-item>
-            <ion-label position="stacked" class="filter-label">Department</ion-label>
-            <ion-select [(ngModel)]="tempDept" placeholder="All departments" interface="action-sheet">
-              <ion-select-option value="">All departments</ion-select-option>
+            <ion-label position="stacked" class="filter-label">{{ 'FILTER_DEPARTMENT' | translate }}</ion-label>
+            <ion-select [(ngModel)]="tempDept" [placeholder]="'ALL_DEPARTMENTS' | translate" interface="action-sheet">
+              <ion-select-option value="">{{ 'ALL_DEPARTMENTS' | translate }}</ion-select-option>
               @for (dept of departments(); track dept._id) {
                 <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
               }
@@ -68,9 +67,9 @@
 
         <!-- Employee -->
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Employee</ion-label>
-          <ion-select [(ngModel)]="tempEmployee" placeholder="All employees" interface="action-sheet">
-            <ion-select-option value="">All employees</ion-select-option>
+          <ion-label position="stacked" class="filter-label">{{ 'FILTER_EMPLOYEE' | translate }}</ion-label>
+          <ion-select [(ngModel)]="tempEmployee" [placeholder]="'ALL_EMPLOYEES' | translate" interface="action-sheet">
+            <ion-select-option value="">{{ 'ALL_EMPLOYEES' | translate }}</ion-select-option>
             @for (emp of employees(); track emp._id) {
               <ion-select-option [value]="emp._id">
                 {{ getEmployeeDisplayName(emp) }}
@@ -81,9 +80,9 @@
 
         <!-- Client -->
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Client</ion-label>
-          <ion-select [(ngModel)]="tempClient" placeholder="All clients" interface="action-sheet">
-            <ion-select-option value="">All clients</ion-select-option>
+          <ion-label position="stacked" class="filter-label">{{ 'FILTER_CLIENT' | translate }}</ion-label>
+          <ion-select [(ngModel)]="tempClient" [placeholder]="'ALL_CLIENTS' | translate" interface="action-sheet">
+            <ion-select-option value="">{{ 'ALL_CLIENTS' | translate }}</ion-select-option>
             @for (client of clientOptions(); track client._id) {
               <ion-select-option [value]="client._id">
                 {{ client.fullName }}
@@ -94,7 +93,7 @@
 
         <!-- Date From -->
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Date From</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'FILTER_DATE_FROM' | translate }}</ion-label>
           <input
             type="date"
             class="filter-date-input"
@@ -104,7 +103,7 @@
 
         <!-- Date To -->
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Date To</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'FILTER_DATE_TO' | translate }}</ion-label>
           <input
             type="date"
             class="filter-date-input"
@@ -118,8 +117,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'APPLY_FILTERS' | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -135,23 +134,22 @@
   } @else if (!isLoading() && appointments().length === 0) {
     <div class="appt-empty">
       <ion-icon name="calendar-outline" class="appt-empty__icon"></ion-icon>
-      <h3 class="appt-empty__title">No appointments</h3>
-      <p class="appt-empty__text">Try changing filters or create a new appointment.</p>
+      <h3 class="appt-empty__title">{{ 'NO_APPOINTMENTS' | translate }}</h3>
+      <p class="appt-empty__text">{{ 'NO_APPOINTMENTS_HINT' | translate }}</p>
     </div>
   } @else {
     <div class="appt-meta">
       <p class="appt-count">
-        {{ totalCount() }} appointment(s)
+        {{ 'APPOINTMENT_COUNT' | translate: { count: totalCount() } }}
         @if (activeFiltersCount() > 0) {
-          <span class="appt-filters-active"> · {{ activeFiltersCount() }} filter(s) active</span>
+          <span class="appt-filters-active"> · {{ 'FILTERS_ACTIVE' | translate: { count: activeFiltersCount() } }}</span>
         }
       </p>
     </div>
 
-    <!-- Подсказка о свайпе — как на странице Employees -->
     <div class="swipe-hint">
       <ion-icon name="swap-horizontal-outline"></ion-icon>
-      <span>Swipe left on a card for options</span>
+      <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
     </div>
 
     <ion-list lines="none">
@@ -197,7 +195,6 @@
                 </div>
               </div>
             </ion-label>
-            <!-- Индикатор свайпа -->
             <ion-icon
               name="chevron-back-outline"
               slot="end"
@@ -207,19 +204,16 @@
 
           @if (canCreateAppointment() || canViewHistory()) {
             <ion-item-options side="end">
-              <!-- Edit — requires active subscription -->
               @if (canCreateAppointment()) {
                 <ion-item-option color="primary" (click)="openEditModal(appt, $event)">
                   <ion-icon name="create-outline" slot="icon-only"></ion-icon>
                 </ion-item-option>
               }
-              <!-- History — requires auditLogs feature -->
               @if (canViewHistory()) {
                 <ion-item-option color="secondary" (click)="openHistory(appt, $event)">
                   <ion-icon name="time-outline" slot="icon-only"></ion-icon>
                 </ion-item-option>
               }
-              <!-- Delete — requires active subscription -->
               @if (canCreateAppointment()) {
                 <ion-item-option color="danger" (click)="confirmDelete(appt, $event)">
                   <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
@@ -236,7 +230,7 @@
     </ion-infinite-scroll>
   }
 
-  <!-- FAB — locked when subscription inactive -->
+  <!-- FAB -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button
       [color]="canCreateAppointment() ? 'primary' : 'medium'"

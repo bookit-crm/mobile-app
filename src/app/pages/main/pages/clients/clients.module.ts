@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { ClientsPage } from './clients.page';
 import { RouterModule, Routes } from '@angular/router';
 import { ClientModalComponent } from './components/client-modal/client-modal.component';
@@ -17,6 +18,7 @@ const routes: Routes = [{ path: '', component: ClientsPage }];
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
+    TranslateModule,
     RouterModule.forChild(routes),
     ClientDetailPage,
     AppointmentModalComponent,

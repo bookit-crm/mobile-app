@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Calendar</ion-title>
+    <ion-title>{{ 'CALENDAR' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         class="cal-filter-btn"
@@ -27,17 +27,17 @@
       class="cal-view-switcher__btn"
       [class.active]="viewType() === SchedulerViewType.Day"
       (click)="setViewType(SchedulerViewType.Day)"
-    >Day</button>
+    >{{ 'CAL_VIEW_DAY' | translate }}</button>
     <button
       class="cal-view-switcher__btn"
       [class.active]="viewType() === SchedulerViewType.Week"
       (click)="setViewType(SchedulerViewType.Week)"
-    >Week</button>
+    >{{ 'CAL_VIEW_WEEK' | translate }}</button>
     <button
       class="cal-view-switcher__btn"
       [class.active]="viewType() === SchedulerViewType.Month"
       (click)="setViewType(SchedulerViewType.Month)"
-    >Month</button>
+    >{{ 'CAL_VIEW_MONTH' | translate }}</button>
   </div>
 
   <!-- Navigation Bar -->
@@ -48,7 +48,7 @@
     <div class="cal-nav__center" (click)="goToToday()">
       <span class="cal-nav__label">{{ dateLabel() }}</span>
       @if (!isToday()) {
-        <span class="cal-nav__today-hint">Tap to go today</span>
+        <span class="cal-nav__today-hint">{{ 'CAL_TAP_TODAY' | translate }}</span>
       }
     </div>
     <button class="cal-nav__arrow" (click)="nextPeriod()">
@@ -62,19 +62,19 @@
       @if (selectedDepartmentId()) {
         <div class="cal-filter-chip">
           <ion-icon name="business-outline"></ion-icon>
-          <span>1 dept</span>
+          <span>{{ 'CAL_1_DEPT' | translate }}</span>
         </div>
       }
       @if (selectedEmployeeIds().length > 0) {
         <div class="cal-filter-chip">
           <ion-icon name="people-outline"></ion-icon>
-          <span>{{ selectedEmployeeIds().length }} emp</span>
+          <span>{{ 'CAL_EMP_COUNT' | translate: { count: selectedEmployeeIds().length } }}</span>
         </div>
       }
       @if (selectedStatuses().length > 0) {
         <div class="cal-filter-chip">
           <ion-icon name="funnel-outline"></ion-icon>
-          <span>{{ selectedStatuses().length }} status</span>
+          <span>{{ 'CAL_STATUS_COUNT' | translate: { count: selectedStatuses().length } }}</span>
         </div>
       }
     </div>

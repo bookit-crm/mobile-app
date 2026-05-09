@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { take } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EUserRole } from '@core/enums/e-user-role';
 import { IEmployee } from '@core/models/employee.interface';
 import { ISupervisor } from '@core/models/supervisor.interface';
@@ -34,7 +35,7 @@ const PAGE_SIZE = 30;
 @Component({
   selector: 'app-create-periods-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule],
+  imports: [CommonModule, IonicModule, FormsModule, TranslateModule],
   templateUrl: './create-periods-modal.component.html',
   styleUrls: ['./create-periods-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,7 @@ export class CreatePeriodsModalComponent implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public targetMonthLabel = '';
   public isLoading = signal(false);
@@ -158,7 +160,7 @@ export class CreatePeriodsModalComponent implements OnInit {
         next: async (res) => {
           this.isLoading.set(false);
           const toast = await this.toastCtrl.create({
-            message: `Created: ${res.created}, Skipped: ${res.skipped}`,
+            message: this.t.instant('PAY_CREATED_TOAST', { created: res.created, skipped: res.skipped }),
             duration: 2500,
             color: 'success',
           });

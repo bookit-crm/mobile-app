@@ -5,13 +5,13 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ title }}</ion-title>
+    <ion-title>{{ (isEdit ? 'SVC_EDIT_TITLE' : 'SVC_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" color="primary" [disabled]="isLoading()" (click)="save()">
         @if (isLoading()) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEdit ? 'Save' : 'Create' }}
+        {{ (isEdit ? 'SVC_SAVE' : 'SVC_CREATE') | translate }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -22,28 +22,28 @@
 
     <!-- Name -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Name <ion-text color="danger">*</ion-text></ion-label>
+      <ion-label position="stacked">{{ 'SVC_NAME_LABEL' | translate }} <ion-text color="danger">*</ion-text></ion-label>
       <ion-input
         [(ngModel)]="name"
-        placeholder="Enter service name"
+        [placeholder]="'SVC_NAME_PLACEHOLDER' | translate"
         [clearInput]="true"
       ></ion-input>
     </ion-item>
 
     <!-- Category -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Category</ion-label>
+      <ion-label position="stacked">{{ 'SVC_CATEGORY_LABEL' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="category"
-        placeholder="e.g. Hair, Massage, Nails"
+        [placeholder]="'SVC_CATEGORY_PLACEHOLDER' | translate"
         [clearInput]="true"
       ></ion-input>
     </ion-item>
 
     <!-- Department -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Department <ion-text color="danger">*</ion-text></ion-label>
-      <ion-select [(ngModel)]="selectedDepartmentId" placeholder="Select department">
+      <ion-label position="stacked">{{ 'SVC_DEPT_FIELD_LABEL' | translate }} <ion-text color="danger">*</ion-text></ion-label>
+      <ion-select [(ngModel)]="selectedDepartmentId" [placeholder]="'SVC_SELECT_DEPT' | translate">
         @for (dept of departments; track dept._id) {
           <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
         }
@@ -52,7 +52,7 @@
 
     <!-- Duration -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Duration (min)</ion-label>
+      <ion-label position="stacked">{{ 'SVC_DURATION_LABEL' | translate }}</ion-label>
       <ion-input
         type="number"
         [(ngModel)]="duration"
@@ -63,7 +63,7 @@
 
     <!-- Price -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Price</ion-label>
+      <ion-label position="stacked">{{ 'SVC_PRICE_LABEL' | translate }}</ion-label>
       <ion-input
         type="number"
         [(ngModel)]="price"
@@ -74,10 +74,10 @@
 
     <!-- Description -->
     <ion-item class="form-item">
-      <ion-label position="stacked">Description</ion-label>
+      <ion-label position="stacked">{{ 'SVC_DESCRIPTION_LABEL' | translate }}</ion-label>
       <ion-textarea
         [(ngModel)]="description"
-        placeholder="Optional description"
+        [placeholder]="'SVC_DESCRIPTION_PLACEHOLDER' | translate"
         [rows]="3"
         [autoGrow]="true"
       ></ion-textarea>
@@ -87,35 +87,35 @@
 
   <!-- Consumable Products -->
   <div class="section-header">
-    <span>Consumable Products</span>
+    <span>{{ 'SVC_CONSUMABLES_SECTION' | translate }}</span>
     <ion-button fill="clear" size="small" (click)="addConsumable()">
       <ion-icon slot="start" name="add-outline"></ion-icon>
-      Add
+      {{ 'SVC_ADD_CONSUMABLE' | translate }}
     </ion-button>
   </div>
 
   @if (consumables.length === 0) {
-    <p class="empty-hint">No consumables attached to this service.</p>
+    <p class="empty-hint">{{ 'SVC_NO_CONSUMABLES' | translate }}</p>
   }
 
   @for (c of consumables; track trackByIndex($index)) {
     <ion-card class="consumable-card">
       <ion-card-content>
         <ion-item lines="none">
-          <ion-label position="stacked">Product</ion-label>
-          <ion-select [(ngModel)]="c.productId" placeholder="Select product" interface="action-sheet">
+          <ion-label position="stacked">{{ 'SVC_PRODUCT_LABEL' | translate }}</ion-label>
+          <ion-select [(ngModel)]="c.productId" [placeholder]="'SVC_SELECT_PRODUCT' | translate" interface="action-sheet">
             @for (p of availableProducts; track p._id) {
               <ion-select-option [value]="p._id">{{ p.name }}</ion-select-option>
             }
           </ion-select>
         </ion-item>
         <ion-item lines="none">
-          <ion-label position="stacked">Quantity</ion-label>
+          <ion-label position="stacked">{{ 'SVC_QUANTITY_LABEL' | translate }}</ion-label>
           <ion-input type="number" [(ngModel)]="c.quantity" min="1"></ion-input>
         </ion-item>
         <ion-button fill="clear" color="danger" size="small" (click)="removeConsumable($index)">
           <ion-icon slot="start" name="trash-outline"></ion-icon>
-          Remove
+          {{ 'SVC_REMOVE' | translate }}
         </ion-button>
       </ion-card-content>
     </ion-card>

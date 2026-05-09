@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   EChatStatus,
   ESenderType,
@@ -31,7 +32,7 @@ import { SupervisorService } from '@services/supervisor.service';
 @Component({
   selector: 'app-support-page',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, DatePipe],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, DatePipe, TranslateModule],
   templateUrl: './support.page.html',
   styleUrls: ['./support.page.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -35,12 +35,12 @@ export class AppointmentHistoryPage {
   public appointmentId: string | null = null;
 
   public readonly actionOptions = [
-    { value: 'all', label: 'All' },
-    { value: 'created', label: 'Created' },
-    { value: 'updated', label: 'Updated' },
-    { value: 'status_changed', label: 'Status Changed' },
-    { value: 'canceled', label: 'Canceled' },
-    { value: 'deleted', label: 'Deleted' },
+    { value: 'all',            label: 'ACTION_ALL' },
+    { value: 'created',        label: 'ACTION_CREATED' },
+    { value: 'updated',        label: 'ACTION_UPDATED' },
+    { value: 'status_changed', label: 'ACTION_STATUS_CHANGED' },
+    { value: 'canceled',       label: 'ACTION_CANCELED' },
+    { value: 'deleted',        label: 'ACTION_DELETED' },
   ];
 
   ionViewWillEnter(): void {

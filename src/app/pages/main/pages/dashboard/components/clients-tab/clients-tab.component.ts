@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { IBaseQueries } from '@core/models/application.interface';
 import {
@@ -30,8 +31,8 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (clientAnalyticsLoading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of clientCards(); track card.title) {
@@ -49,9 +50,9 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
 
       <!-- Client Trend Chart -->
       <div class="chart-card">
-        <h3 class="chart-title">Client Growth Trend</h3>
+        <h3 class="chart-title">{{ 'DASH_CLIENT_TREND_TITLE' | translate }}</h3>
         @if (clientTrendLoading()) {
-          <ion-skeleton-text animated style="height:240px;border-radius:8px"></ion-skeleton-text>
+          <ion-skeleton-text [animated]="true" style="height:240px;border-radius:8px"></ion-skeleton-text>
         } @else if (clientTrendChart()) {
           <apx-chart
             [series]="clientTrendChart()!.series"
@@ -71,14 +72,14 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Top Clients -->
       @if (!topClientsLoading() && topClients()) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Clients by Revenue</h3>
+          <h3 class="chart-title">{{ 'DASH_TOP_CLIENTS_TITLE' | translate }}</h3>
           <ion-list lines="none">
             @for (client of topClients()!.byRevenue; track client.name; let i = $index) {
               <ion-item>
                 <div class="rank-badge" slot="start">#{{ i + 1 }}</div>
                 <ion-label>
                   <h3>{{ client.name }}</h3>
-                  <p>{{ client.visits }} visits</p>
+                  <p>{{ 'DASH_VISITS_COUNT' | translate:{ count: client.visits } }}</p>
                 </ion-label>
                 <ion-note slot="end" color="success">{{ formatCurrency(client.revenue) }}</ion-note>
               </ion-item>
@@ -101,7 +102,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
     .rank-badge { width: 28px; height: 28px; border-radius: 50%; background: #6366f1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ClientsTabComponent implements OnInit {
@@ -109,6 +110,7 @@ export class ClientsTabComponent implements OnInit {
   private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public clientAnalyticsLoading = signal(true);
   public clientCards = signal<KpiCard[]>([]);
@@ -175,12 +177,12 @@ export class ClientsTabComponent implements OnInit {
 
   private buildClientCards(data: IClientAnalyticsResponse): KpiCard[] {
     return [
-      { title: 'Retention Rate', value: `${data.retentionRate}%`, subtitle: 'Returning clients ratio', icon: 'fi_heart', colorVar: '--purple-500', bgVar: '--purple-50' },
-      { title: 'Rebooking Rate', value: `${data.rebookingRate}%`, subtitle: 'Clients with 2+ visits', icon: 'fi_user_check', colorVar: '--green-600', bgVar: '--green-50' },
-      { title: 'Visit Frequency', value: data.avgVisitFrequency.toString(), subtitle: 'Avg visits per client', icon: 'fi_activity', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'New Clients', value: data.newClients.toString(), subtitle: 'Registered in period', icon: 'fi_user_plus', colorVar: '--orange-500', bgVar: '--orange-50' },
-      { title: 'Avg Lifetime Value', value: this.state.formatCurrency(data.avgLifetimeValue), subtitle: 'Revenue per client', icon: 'fi_star', colorVar: '--teal-600', bgVar: '--green-50' },
-      { title: 'Dormant Clients', value: data.dormantClients.toString(), subtitle: 'No visit in 90 days', icon: 'fi_alert_circle', colorVar: '--red-500', bgVar: '--red-50' },
+      { title: this.t.instant('DASH_KPI_RETENTION_TITLE'), value: `${data.retentionRate}%`, subtitle: this.t.instant('DASH_KPI_RETENTION_SUBTITLE'), icon: 'fi_heart', colorVar: '--purple-500', bgVar: '--purple-50' },
+      { title: this.t.instant('DASH_KPI_REBOOKING_TITLE'), value: `${data.rebookingRate}%`, subtitle: this.t.instant('DASH_KPI_REBOOKING_SUBTITLE'), icon: 'fi_user_check', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_VISIT_FREQ_TITLE'), value: data.avgVisitFrequency.toString(), subtitle: this.t.instant('DASH_KPI_VISIT_FREQ_SUBTITLE'), icon: 'fi_activity', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_NEW_CLIENTS_TITLE'), value: data.newClients.toString(), subtitle: this.t.instant('DASH_KPI_NEW_CLIENTS_SUBTITLE'), icon: 'fi_user_plus', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_LTV_TITLE'), value: this.state.formatCurrency(data.avgLifetimeValue), subtitle: this.t.instant('DASH_KPI_LTV_SUBTITLE'), icon: 'fi_star', colorVar: '--teal-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_DORMANT_TITLE'), value: data.dormantClients.toString(), subtitle: this.t.instant('DASH_KPI_DORMANT_SUBTITLE'), icon: 'fi_alert_circle', colorVar: '--red-500', bgVar: '--red-50' },
     ];
   }
 
@@ -190,8 +192,8 @@ export class ClientsTabComponent implements OnInit {
     const tickAmount = !isMonthly && categories.length > 10 ? Math.min(8, Math.ceil(categories.length / 5)) : undefined;
     return {
       series: [
-        { name: 'New Clients', data: data.data.map((p) => p.newClients) },
-        { name: 'Returning Clients', data: data.data.map((p) => p.returningClients) },
+        { name: this.t.instant('DASH_NEW_CLIENTS'), data: data.data.map((p) => p.newClients) },
+        { name: this.t.instant('DASH_RETURNING_CLIENTS'), data: data.data.map((p) => p.returningClients) },
       ],
       chart: { type: 'area', height: 260, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
       colors: ['#f59e0b', '#6366f1'],
@@ -200,7 +202,7 @@ export class ClientsTabComponent implements OnInit {
       dataLabels: { enabled: false },
       xaxis: { categories, tickAmount, labels: { style: { fontSize: '11px', colors: '#94a3b8' }, rotate: -45, rotateAlways: false, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#94a3b8' }, formatter: (val: number) => Math.round(val).toString() } },
-      tooltip: { shared: true, y: { formatter: (val: number) => `${val} clients` } },
+      tooltip: { shared: true, y: { formatter: (val: number) => this.t.instant('DASH_N_CLIENTS', { count: val }) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: false } }, yaxis: { lines: { show: true } } },
     };
   }

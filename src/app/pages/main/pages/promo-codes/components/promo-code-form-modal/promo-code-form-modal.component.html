@@ -5,11 +5,11 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Promo Code' : 'New Promo Code' }}</ion-title>
+    <ion-title>{{ (isEditMode ? 'PC_EDIT_TITLE' : 'PC_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
         <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
-        {{ isEditMode ? 'Save' : 'Create' }}
+        {{ (isEditMode ? 'PC_SAVE' : 'PC_CREATE') | translate }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -21,7 +21,7 @@
     <!-- Department (readonly) -->
     <ion-item lines="full" class="dept-item">
       <ion-label>
-        <p class="field-hint">Department</p>
+        <p class="field-hint">{{ 'PC_DEPARTMENT' | translate }}</p>
         <h3>{{ departmentName }}</h3>
       </ion-label>
       <ion-icon name="business-outline" slot="end" color="medium"></ion-icon>
@@ -29,36 +29,36 @@
 
     <!-- Name -->
     <ion-item lines="full">
-      <ion-label position="stacked">Name <span class="required">*</span></ion-label>
-      <ion-input formControlName="name" placeholder="e.g. SUMMER20" clearInput></ion-input>
+      <ion-label position="stacked">{{ 'PC_NAME_LABEL' | translate }} <span class="required">*</span></ion-label>
+      <ion-input formControlName="name" [placeholder]="'PC_NAME_PLACEHOLDER' | translate" clearInput></ion-input>
     </ion-item>
     @if (form.get('name')?.invalid && form.get('name')?.touched) {
-      <ion-note color="danger" class="validation-note">Name is required</ion-note>
+      <ion-note color="danger" class="validation-note">{{ 'PC_NAME_REQUIRED' | translate }}</ion-note>
     }
 
     <!-- Date range -->
     <ion-item lines="full">
-      <ion-label position="stacked">Start Date</ion-label>
+      <ion-label position="stacked">{{ 'PC_START_DATE' | translate }}</ion-label>
       <ion-input formControlName="startDate" type="date"></ion-input>
     </ion-item>
 
     <ion-item lines="full">
-      <ion-label position="stacked">End Date</ion-label>
+      <ion-label position="stacked">{{ 'PC_END_DATE' | translate }}</ion-label>
       <ion-input formControlName="endDate" type="date"></ion-input>
     </ion-item>
 
     <!-- Visibility toggle -->
     <ion-item lines="full">
-      <ion-label>Visible to clients</ion-label>
+      <ion-label>{{ 'PC_VISIBLE_TO_CLIENTS' | translate }}</ion-label>
       <ion-toggle formControlName="isVisible" slot="end"></ion-toggle>
     </ion-item>
 
     <!-- Services section -->
     <div class="section-header">
-      <h3>Services & Discounts</h3>
+      <h3>{{ 'PC_SERVICES_SECTION' | translate }}</h3>
       <ion-button fill="clear" size="small" color="primary" (click)="addServiceRow()">
         <ion-icon name="add-circle-outline" slot="start"></ion-icon>
-        Add Service
+        {{ 'PC_ADD_SERVICE' | translate }}
       </ion-button>
     </div>
 
@@ -67,15 +67,15 @@
         <ion-card class="service-row">
           <ion-card-content>
             <div class="row-header">
-              <span class="row-label">Service {{ $index + 1 }}</span>
+              <span class="row-label">{{ 'PC_SERVICE_N' | translate: { index: $index + 1 } }}</span>
               <ion-button fill="clear" color="danger" size="small" (click)="removeServiceRow($index)">
                 <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
               </ion-button>
             </div>
 
             <ion-item lines="full" [formGroupName]="$index">
-              <ion-label position="stacked">Service <span class="required">*</span></ion-label>
-              <ion-select formControlName="service" interface="action-sheet" placeholder="Select service">
+              <ion-label position="stacked">{{ 'PC_SERVICE_LABEL' | translate }} <span class="required">*</span></ion-label>
+              <ion-select formControlName="service" interface="action-sheet" [placeholder]="'PC_SELECT_SERVICE' | translate">
                 @for (svc of availableServices; track svc._id) {
                   <ion-select-option [value]="svc">{{ svc.name }}</ion-select-option>
                 }
@@ -84,17 +84,17 @@
 
             <div class="discount-row" [formGroupName]="$index">
               <ion-item lines="none" class="discount-type-item">
-                <ion-label position="stacked">Type</ion-label>
+                <ion-label position="stacked">{{ 'PC_DISCOUNT_TYPE' | translate }}</ion-label>
                 <ion-select formControlName="discountType" interface="popover">
                   @for (opt of discountTypeOptions; track opt.value) {
-                    <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+                    <ion-select-option [value]="opt.value">{{ opt.label | translate }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
 
               <ion-item lines="none" class="discount-value-item">
                 <ion-label position="stacked">
-                  Value {{ getRowControl(row, 'discountType').value === 'percentage' ? '(%)' : '($)' }}
+                  {{ 'PC_DISCOUNT_VALUE' | translate }} {{ getRowControl(row, 'discountType').value === 'percentage' ? '(%)' : '($)' }}
                 </ion-label>
                 <ion-input formControlName="discountValue" type="number" min="0" placeholder="0"></ion-input>
               </ion-item>
@@ -107,7 +107,7 @@
     @if (serviceRows.length === 0) {
       <div class="no-services">
         <ion-icon name="pricetag-outline"></ion-icon>
-        <p>No services added yet</p>
+        <p>{{ 'PC_NO_SERVICES' | translate }}</p>
       </div>
     }
 

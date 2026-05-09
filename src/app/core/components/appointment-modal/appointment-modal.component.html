@@ -5,7 +5,7 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Appointment' : 'New Appointment' }}</ion-title>
+    <ion-title>{{ isEditMode ? ('EDIT_APPOINTMENT' | translate) : ('NEW_APPOINTMENT' | translate) }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         fill="solid"
@@ -16,7 +16,7 @@
         @if (isSaving()) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEditMode ? 'Save' : 'Create' }}
+        {{ isEditMode ? ('SAVE' | translate) : ('CREATE' | translate) }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -35,9 +35,9 @@
       <!-- ── CLIENT ───────────────────────────────────────────────── -->
       <div class="apt-modal__section">
         <div class="apt-modal__section-header">
-          <span class="apt-modal__section-title">Client</span>
+          <span class="apt-modal__section-title">{{ 'CLIENT' | translate }}</span>
           <ion-button fill="clear" size="small" (click)="toggleNewClient()">
-            {{ isNewClient() ? 'Select existing' : '+ New client' }}
+            {{ isNewClient() ? ('SELECT_EXISTING' | translate) : ('NEW_CLIENT' | translate) }}
           </ion-button>
         </div>
 
@@ -74,7 +74,7 @@
             <ion-searchbar
               class="apt-modal__searchbar"
               [value]="clientSearch"
-              placeholder="Search by name or phone..."
+              [placeholder]="'SEARCH_BY_NAME_OR_PHONE' | translate"
               (ionInput)="onClientSearch($any($event.target).value)"
             ></ion-searchbar>
             @if (filteredClients().length > 0) {
@@ -103,7 +103,7 @@
                 }
                 @if (hasMoreClients) {
                   <div class="apt-modal__client-load-more" (click)="loadMoreClients()">
-                    Load more...
+                    {{ 'LOAD_MORE' | translate }}
                   </div>
                 }
               </div>
@@ -111,15 +111,15 @@
           }
         } @else {
           <ion-item>
-            <ion-label position="stacked">Full name <span class="req">*</span></ion-label>
-            <ion-input formControlName="clientName" placeholder="Enter full name"></ion-input>
+            <ion-label position="stacked">{{ 'FULL_NAME' | translate }} <span class="req">*</span></ion-label>
+            <ion-input formControlName="clientName" [placeholder]="'FULL_NAME' | translate"></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label position="stacked">Phone <span class="req">*</span></ion-label>
+            <ion-label position="stacked">{{ 'PHONE' | translate }} <span class="req">*</span></ion-label>
             <ion-input formControlName="clientPhone" type="tel" placeholder="+1 (000) 000-0000"></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label position="stacked">Email</ion-label>
+            <ion-label position="stacked">{{ 'EMAIL' | translate }}</ion-label>
             <ion-input formControlName="clientEmail" type="email" placeholder="email@example.com"></ion-input>
           </ion-item>
         }
@@ -130,11 +130,11 @@
       <!-- ── DEPARTMENT (admin only) ────────────────────────────── -->
       @if (!singleDepartmentMode()) {
         <div class="apt-modal__section">
-          <div class="apt-modal__section-title">Department <span class="req">*</span></div>
+          <div class="apt-modal__section-title">{{ 'DEPARTMENT' | translate }} <span class="req">*</span></div>
           <ion-item>
             <ion-select
               formControlName="departmentId"
-              placeholder="Select department"
+              [placeholder]="'SELECT_DEPARTMENT' | translate"
               interface="action-sheet"
               (ionChange)="onDepartmentChange($any($event.detail.value))"
             >
@@ -149,7 +149,7 @@
 
       <!-- ── SERVICES ───────────────────────────────────────────── -->
       <div class="apt-modal__section">
-        <div class="apt-modal__section-title">Services <span class="req">*</span></div>
+        <div class="apt-modal__section-title">{{ 'SERVICES' | translate }} <span class="req">*</span></div>
         @if (services().length > 0) {
           <ion-list lines="none" class="apt-modal__service-list">
             @for (svc of services(); track svc._id) {
@@ -169,15 +169,15 @@
         } @else {
           <p class="apt-modal__hint">
             @if (!form.get('departmentId')?.value && !singleDepartmentMode()) {
-              Select a department first
+              {{ 'SELECT_DEPT_FIRST' | translate }}
             } @else {
-              No services available
+              {{ 'NO_SERVICES_AVAILABLE' | translate }}
             }
           </p>
         }
         @if (totalDuration() > 0) {
           <div class="apt-modal__svc-summary">
-            <span>{{ form.get('serviceIds')?.value?.length }} service(s) · {{ formatDuration(totalDuration()) }}</span>
+            <span>{{ form.get('serviceIds')?.value?.length }} {{ 'SERVICES' | translate | lowercase }} · {{ formatDuration(totalDuration()) }}</span>
           </div>
         }
 
@@ -195,9 +195,9 @@
                 <span>
                   <strong>{{ w.productName }}</strong>
                   @if (w.status === 'out_of_stock') {
-                    — out of stock
+                    — {{ 'OUT_OF_STOCK' | translate }}
                   } @else {
-                    — only {{ w.currentStock }} {{ w.sku }} available (need {{ w.requiredQuantity }})
+                    — {{ 'STOCK_ONLY_AVAILABLE' | translate: { count: w.currentStock, sku: w.sku, required: w.requiredQuantity } }}
                   }
                 </span>
               </div>
@@ -239,7 +239,7 @@
         <!-- ── EXTRAS toggle (promo, products, notes) ─────────── -->
         <div class="apt-modal__section apt-modal__section--extras">
           <button type="button" class="apt-modal__extras-toggle" (click)="toggleExtras()">
-            <span>Additional options</span>
+            <span>{{ 'ADDITIONAL_OPTIONS' | translate }}</span>
             <ion-icon [name]="showExtras() ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
           </button>
 
@@ -248,9 +248,9 @@
             @if (canUseProducts()) {
               <div class="apt-modal__sub-section">
                 <div class="apt-modal__section-header">
-                  <span class="apt-modal__sub-title">Additional products</span>
+                  <span class="apt-modal__sub-title">{{ 'ADDITIONAL_PRODUCTS' | translate }}</span>
                   <ion-button fill="clear" size="small" (click)="addConsumableProduct()">
-                    <ion-icon name="add-outline" slot="start"></ion-icon>Add
+                    <ion-icon name="add-outline" slot="start"></ion-icon>{{ 'ADD' | translate }}
                   </ion-button>
                 </div>
                 @if (consumableProductsArray.controls.length > 0) {
@@ -259,14 +259,14 @@
                       @for (_ctrl of consumableProductsArray.controls; track $index; let i = $index) {
                         <div [formGroupName]="i" class="apt-modal__product-row">
                           <ion-item class="apt-modal__product-select">
-                            <ion-select formControlName="product" placeholder="Product" interface="action-sheet" (ionChange)="onProductChange()">
+                            <ion-select formControlName="product" [placeholder]="'PRODUCT' | translate" interface="action-sheet" (ionChange)="onProductChange()">
                               @for (opt of productOptions(); track opt.value) {
                                 <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
                               }
                             </ion-select>
                           </ion-item>
                           <ion-item class="apt-modal__product-qty">
-                            <ion-input formControlName="quantity" type="number" min="0.01" step="0.1" placeholder="Qty" (ionChange)="onProductChange()"></ion-input>
+                            <ion-input formControlName="quantity" type="number" min="0.01" step="0.1" [placeholder]="'QTY' | translate" (ionChange)="onProductChange()"></ion-input>
                           </ion-item>
                           <ion-button fill="clear" color="danger" size="small" (click)="removeConsumableProduct(i)">
                             <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
@@ -276,7 +276,7 @@
                     </ng-container>
                   </div>
                 } @else {
-                  <p class="apt-modal__hint">No products added yet</p>
+                  <p class="apt-modal__hint">{{ 'NO_PRODUCTS_ADDED' | translate }}</p>
                 }
               </div>
             }
@@ -284,10 +284,10 @@
             <!-- ── PROMO CODE ─────────────────────────────────────── -->
             @if (canUsePromoCodes() && promoCodeOptions().length > 0) {
               <div class="apt-modal__sub-section">
-                <div class="apt-modal__sub-title">Promo Code</div>
+                <div class="apt-modal__sub-title">{{ 'PROMO_CODE' | translate }}</div>
                 <ion-item lines="none" style="--padding-start:0">
-                  <ion-select formControlName="promoCode" placeholder="Select promo code (optional)" interface="action-sheet">
-                    <ion-select-option [value]="null">— None —</ion-select-option>
+                  <ion-select formControlName="promoCode" [placeholder]="'SELECT_PROMO_CODE' | translate" interface="action-sheet">
+                    <ion-select-option [value]="null">{{ 'PROMO_CODE_NONE' | translate }}</ion-select-option>
                     @for (pc of promoCodeOptions(); track pc._id) {
                       <ion-select-option [value]="pc._id">{{ pc.name }}</ion-select-option>
                     }
@@ -298,9 +298,9 @@
 
             <!-- ── NOTES ─────────────────────────────────────────── -->
             <div class="apt-modal__sub-section">
-              <div class="apt-modal__sub-title">Notes</div>
+              <div class="apt-modal__sub-title">{{ 'NOTES' | translate }}</div>
               <ion-item lines="none" style="--padding-start:0;--inner-padding-end:0">
-                <ion-textarea formControlName="comment" placeholder="Add notes or special instructions..." [rows]="3" auto-grow></ion-textarea>
+                <ion-textarea formControlName="comment" [placeholder]="'ADD_NOTES_PLACEHOLDER' | translate" [rows]="3" auto-grow></ion-textarea>
               </ion-item>
             </div>
           }
@@ -315,9 +315,9 @@
 
         <!-- ── EMPLOYEE ──────────────────────────────────────────── -->
         <div class="apt-modal__section">
-          <div class="apt-modal__section-title">Employee <span class="req">*</span></div>
+          <div class="apt-modal__section-title">{{ 'EMPLOYEE' | translate }} <span class="req">*</span></div>
           <ion-item>
-            <ion-select formControlName="employeeId" placeholder="Select employee" interface="action-sheet">
+            <ion-select formControlName="employeeId" [placeholder]="'EMPLOYEE' | translate" interface="action-sheet">
               @for (emp of employees(); track emp._id) {
                 <ion-select-option [value]="emp._id">{{ emp.firstName }} {{ emp.lastName }}</ion-select-option>
               }
@@ -329,18 +329,18 @@
 
         <!-- ── DATE & TIME ──────────────────────────────────────── -->
         <div class="apt-modal__section">
-          <div class="apt-modal__section-title">Date & Time</div>
+          <div class="apt-modal__section-title">{{ 'DATE_TIME' | translate }}</div>
           <div class="apt-modal__field">
-            <label class="apt-modal__field-label">Date <span class="req">*</span></label>
+            <label class="apt-modal__field-label">{{ 'DATE' | translate }} <span class="req">*</span></label>
             <input type="date" class="apt-modal__native-input" formControlName="startDate" />
           </div>
           <div class="apt-modal__time-row">
             <div class="apt-modal__time-item">
-              <label class="apt-modal__field-label">From <span class="req">*</span></label>
+              <label class="apt-modal__field-label">{{ 'FROM_TIME' | translate }} <span class="req">*</span></label>
               <input type="time" class="apt-modal__native-input" formControlName="fromTime" />
             </div>
             <div class="apt-modal__time-item">
-              <label class="apt-modal__field-label">To <span class="req">*</span></label>
+              <label class="apt-modal__field-label">{{ 'TO_TIME' | translate }} <span class="req">*</span></label>
               <input type="time" class="apt-modal__native-input" formControlName="toTime" />
             </div>
           </div>
@@ -350,7 +350,7 @@
 
         <!-- ── STATUS ────────────────────────────────────────────── -->
         <div class="apt-modal__section">
-          <div class="apt-modal__section-title">Status</div>
+          <div class="apt-modal__section-title">{{ 'STATUS' | translate }}</div>
           <div class="apt-modal__status-row">
             @for (opt of statusOptions; track opt.value) {
               <button
@@ -359,7 +359,7 @@
                 [class.active]="form.get('status')?.value === opt.value"
                 (click)="form.get('status')?.setValue(opt.value)"
                 type="button"
-              >{{ opt.label }}</button>
+              >{{ opt.label | translate }}</button>
             }
           </div>
         </div>
@@ -370,9 +370,9 @@
         @if (canUseProducts()) {
           <div class="apt-modal__section">
             <div class="apt-modal__section-header">
-              <span class="apt-modal__section-title">Additional products</span>
+              <span class="apt-modal__section-title">{{ 'ADDITIONAL_PRODUCTS' | translate }}</span>
               <ion-button fill="clear" size="small" (click)="addConsumableProduct()">
-                <ion-icon name="add-outline" slot="start"></ion-icon>Add
+                <ion-icon name="add-outline" slot="start"></ion-icon>{{ 'ADD' | translate }}
               </ion-button>
             </div>
             @if (consumableProductsArray.controls.length > 0) {
@@ -381,14 +381,14 @@
                   @for (_ctrl of consumableProductsArray.controls; track $index; let i = $index) {
                     <div [formGroupName]="i" class="apt-modal__product-row">
                       <ion-item class="apt-modal__product-select">
-                        <ion-select formControlName="product" placeholder="Select product" interface="action-sheet" (ionChange)="onProductChange()">
+                        <ion-select formControlName="product" [placeholder]="'SELECT_PRODUCT' | translate" interface="action-sheet" (ionChange)="onProductChange()">
                           @for (opt of productOptions(); track opt.value) {
                             <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
                           }
                         </ion-select>
                       </ion-item>
                       <ion-item class="apt-modal__product-qty">
-                        <ion-input formControlName="quantity" type="number" min="0.01" step="0.1" placeholder="Qty" (ionChange)="onProductChange()"></ion-input>
+                        <ion-input formControlName="quantity" type="number" min="0.01" step="0.1" [placeholder]="'QTY' | translate" (ionChange)="onProductChange()"></ion-input>
                       </ion-item>
                       <ion-button fill="clear" color="danger" size="small" (click)="removeConsumableProduct(i)">
                         <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
@@ -398,7 +398,7 @@
                 </ng-container>
               </div>
             } @else {
-              <p class="apt-modal__hint">No products added yet</p>
+              <p class="apt-modal__hint">{{ 'NO_PRODUCTS_ADDED' | translate }}</p>
             }
           </div>
           <div class="apt-modal__divider"></div>
@@ -407,18 +407,18 @@
         <!-- ── PROMO CODE ─────────────────────────────────────── -->
         @if (canUsePromoCodes()) {
           <div class="apt-modal__section">
-            <div class="apt-modal__section-title">Promo Code</div>
+            <div class="apt-modal__section-title">{{ 'PROMO_CODE' | translate }}</div>
             @if (promoCodeOptions().length > 0) {
               <ion-item>
-                <ion-select formControlName="promoCode" placeholder="Select promo code (optional)" interface="action-sheet">
-                  <ion-select-option [value]="null">— None —</ion-select-option>
+                <ion-select formControlName="promoCode" [placeholder]="'SELECT_PROMO_CODE' | translate" interface="action-sheet">
+                  <ion-select-option [value]="null">{{ 'PROMO_CODE_NONE' | translate }}</ion-select-option>
                   @for (pc of promoCodeOptions(); track pc._id) {
                     <ion-select-option [value]="pc._id">{{ pc.name }}</ion-select-option>
                   }
                 </ion-select>
               </ion-item>
             } @else {
-              <p class="apt-modal__hint">No active promo codes for this department</p>
+              <p class="apt-modal__hint">{{ 'NO_ACTIVE_PROMO_CODES' | translate }}</p>
             }
           </div>
           <div class="apt-modal__divider"></div>
@@ -426,9 +426,9 @@
 
         <!-- ── NOTES ─────────────────────────────────────────── -->
         <div class="apt-modal__section">
-          <div class="apt-modal__section-title">Notes</div>
+          <div class="apt-modal__section-title">{{ 'NOTES' | translate }}</div>
           <ion-item>
-            <ion-textarea formControlName="comment" placeholder="Add notes or special instructions..." [rows]="3" auto-grow></ion-textarea>
+            <ion-textarea formControlName="comment" [placeholder]="'ADD_NOTES_PLACEHOLDER' | translate" [rows]="3" auto-grow></ion-textarea>
           </ion-item>
         </div>
 
@@ -447,24 +447,24 @@
         <div class="apt-modal__pricing">
           @if (servicesPrice() > 0) {
             <div class="apt-modal__pricing-row">
-              <span class="apt-modal__pricing-label">Services</span>
+              <span class="apt-modal__pricing-label">{{ 'SERVICES_LABEL' | translate }}</span>
               <span class="apt-modal__pricing-value">{{ servicesPrice() | currency }}</span>
             </div>
           }
           @if (productsPrice() > 0) {
             <div class="apt-modal__pricing-row">
-              <span class="apt-modal__pricing-label">Products</span>
+              <span class="apt-modal__pricing-label">{{ 'PRODUCTS_LABEL' | translate }}</span>
               <span class="apt-modal__pricing-value">{{ productsPrice() | currency }}</span>
             </div>
           }
           @if (discountAmount() > 0) {
             <div class="apt-modal__pricing-row apt-modal__pricing-row--discount">
-              <span class="apt-modal__pricing-label">Discount</span>
+              <span class="apt-modal__pricing-label">{{ 'DISCOUNT' | translate }}</span>
               <span class="apt-modal__pricing-value">−{{ discountAmount() | currency }}</span>
             </div>
           }
           <div class="apt-modal__pricing-row apt-modal__pricing-row--total">
-            <span class="apt-modal__pricing-label">Total</span>
+            <span class="apt-modal__pricing-label">{{ 'TOTAL' | translate }}</span>
             <span class="apt-modal__pricing-value">{{ totalPrice() | currency }}</span>
           </div>
         </div>
@@ -474,10 +474,10 @@
       @if (isEditMode && appointment()?.status !== AppointmentStatus.Canceled) {
         <div class="apt-modal__section apt-modal__danger-zone">
           <ion-button expand="block" fill="outline" color="danger" [disabled]="isSaving()" (click)="cancelAppointment()">
-            Cancel appointment
+            {{ 'CANCEL_APPOINTMENT' | translate }}
           </ion-button>
           <ion-button expand="block" fill="clear" color="danger" [disabled]="isSaving()" (click)="deleteAppointment()">
-            Delete appointment
+            {{ 'DELETE_APPOINTMENT_BTN' | translate }}
           </ion-button>
         </div>
       }

@@ -48,6 +48,17 @@ export const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 /** Порядок отображения: Пн–Вс */
 export const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
+/** Маппинг dayIndex → i18n ключ для локализованных меток дней */
+export const DAY_KEY_MAP: Record<number, string> = {
+  0: 'DAY_SUN',
+  1: 'DAY_MON',
+  2: 'DAY_TUE',
+  3: 'DAY_WED',
+  4: 'DAY_THU',
+  5: 'DAY_FRI',
+  6: 'DAY_SAT',
+};
+
 export interface IDailyEmployeeSchedule {
   employee: IEmployee;
   daySchedule: IDayModel | null;

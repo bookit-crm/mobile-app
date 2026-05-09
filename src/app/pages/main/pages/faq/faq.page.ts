@@ -7,6 +7,7 @@
 } from '@angular/core';
 import { AlertController, ToastController } from '@ionic/angular';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface ITutorial {
   _id: string;
@@ -73,6 +74,7 @@ export class FaqPage {
   public readonly subscriptionService = inject(SubscriptionService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
+  private readonly t = inject(TranslateService);
 
   // ── State ──────────────────────────────────────────────
   public readonly activeTab = signal<'tutorials'>('tutorials');
@@ -102,7 +104,7 @@ export class FaqPage {
   public async onWatchTutorial(tutorial: ITutorial): Promise<void> {
     const alert = await this.alertCtrl.create({
       header: tutorial.title,
-      message: `This video tutorial (${tutorial.duration}) will be available soon.`,
+      message: this.t.instant('FAQ_VIDEO_SOON', { duration: tutorial.duration }),
       buttons: [{ text: 'OK', role: 'cancel' }],
     });
     await alert.present();
@@ -110,7 +112,7 @@ export class FaqPage {
 
   public async onContactSupport(): Promise<void> {
     const toast = await this.toastCtrl.create({
-      message: 'Support chat coming soon. Upgrade to get Priority Support.',
+      message: this.t.instant('FAQ_SUPPORT_COMING_SOON'),
       duration: 3000,
       color: 'primary',
       position: 'bottom',

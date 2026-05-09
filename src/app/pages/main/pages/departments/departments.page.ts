@@ -11,6 +11,7 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { debounceTime, Subject, take } from 'rxjs';
 import { IDepartment } from '@core/models/department.interface';
 import { DepartmentService } from '@core/services/department.service';
@@ -37,6 +38,7 @@ export class DepartmentsPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public departments = signal<IDepartment[]>([]);
   public totalCount = signal(0);
@@ -114,7 +116,8 @@ export class DepartmentsPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadDepartments();
-          void this.showToast(`Department is now ${newStatus}`);
+          const msgKey = newStatus === 'active' ? 'DEPT_NOW_ACTIVE' : 'DEPT_NOW_INACTIVE';
+          void this.showToast(this.t.instant(msgKey));
         },
       });
   }
@@ -122,12 +125,12 @@ export class DepartmentsPage implements OnInit {
   public async confirmDelete(department: IDepartment, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Department',
-      message: `Are you sure you want to delete "${department.name}"?`,
+      header: this.t.instant('DELETE_DEPT_TITLE'),
+      message: this.t.instant('DELETE_DEPT_MSG', { name: department.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteDepartment(department._id),
         },
@@ -139,9 +142,9 @@ export class DepartmentsPage implements OnInit {
   private async showLimitAlert(): Promise<void> {
     const limit = this.locationLimit();
     const alert = await this.alertCtrl.create({
-      header: 'Location limit reached',
-      message: `Your current plan allows up to ${limit} location(s). Upgrade your subscription to add more departments.`,
-      buttons: [{ text: 'OK', role: 'cancel' }],
+      header: this.t.instant('DEPT_LIMIT_REACHED_TITLE'),
+      message: this.t.instant('DEPT_LIMIT_REACHED_MSG', { limit }),
+      buttons: [{ text: this.t.instant('OK'), role: 'cancel' }],
     });
     await alert.present();
   }
@@ -176,7 +179,7 @@ export class DepartmentsPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadDepartments();
-          void this.showToast('Department deleted');
+          void this.showToast(this.t.instant('DEPT_DELETED'));
         },
       });
   }

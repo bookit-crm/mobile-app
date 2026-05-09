@@ -26,6 +26,17 @@
 @import "@ionic/angular/css/flex-utils.css";
 
 /**
+ * Custom global overrides
+ */
+
+// ion-skeleton-text animated uses --background-rgb for shimmer gradient.
+// Explicitly set to neutral grey so it never inherits reddish tones
+// from --ion-color-danger-rgb or other cascade sources.
+ion-skeleton-text {
+  --background-rgb: 187, 187, 187;
+}
+
+/**
  * Ionic Dark Mode
  * -----------------------------------------------------
  * For more info, please see:

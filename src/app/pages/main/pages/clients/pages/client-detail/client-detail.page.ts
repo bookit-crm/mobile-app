@@ -13,6 +13,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { take } from 'rxjs';
 
 import { IClient } from '@core/models/client.interface';
@@ -27,7 +28,7 @@ import { SubscriptionService } from '@core/services/subscription.service';
   standalone: true,
   host: { class: 'ion-page' },
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, IonicModule, CurrencyPipe],
+  imports: [CommonModule, FormsModule, IonicModule, CurrencyPipe, TranslatePipe],
 })
 export class ClientDetailPage implements OnInit {
   @Input() clientId!: string;

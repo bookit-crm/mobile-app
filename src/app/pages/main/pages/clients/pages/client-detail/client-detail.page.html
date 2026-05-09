@@ -5,7 +5,7 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Client Details</ion-title>
+    <ion-title>{{ "CLIENT_DETAILS" | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openFilterModal()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
@@ -24,7 +24,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filter History</ion-title>
+        <ion-title>{{ "FILTER_HISTORY" | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -35,11 +35,11 @@
     <ion-content class="filter-modal-content">
       <ion-list lines="full">
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Date From</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ "FILTER_DATE_FROM" | translate }}</ion-label>
           <input type="date" class="filter-date-input" [(ngModel)]="tempDateFrom" />
         </ion-item>
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Date To</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ "FILTER_DATE_TO" | translate }}</ion-label>
           <input type="date" class="filter-date-input" [(ngModel)]="tempDateTo" />
         </ion-item>
       </ion-list>
@@ -47,8 +47,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ "RESET_ALL" | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ "APPLY_FILTERS" | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -82,7 +82,7 @@
           <ion-item>
             <ion-icon name="call-outline" slot="start" color="primary"></ion-icon>
             <ion-label>
-              <p class="detail-label">Phone</p>
+              <p class="detail-label">{{ "PHONE" | translate }}</p>
               <p class="detail-value">{{ client()!.phone }}</p>
             </ion-label>
           </ion-item>
@@ -91,7 +91,7 @@
             <ion-item>
               <ion-icon name="mail-outline" slot="start" color="primary"></ion-icon>
               <ion-label>
-                <p class="detail-label">Email</p>
+                <p class="detail-label">{{ "EMAIL" | translate }}</p>
                 <p class="detail-value">{{ client()!.email }}</p>
               </ion-label>
             </ion-item>
@@ -101,7 +101,7 @@
             <ion-item>
               <ion-icon name="gift-outline" slot="start" color="primary"></ion-icon>
               <ion-label>
-                <p class="detail-label">Date of Birth</p>
+                <p class="detail-label">{{ "DATE_OF_BIRTH" | translate }}</p>
                 <p class="detail-value">{{ formatDate(client()!.dateOfBirth) }}</p>
               </ion-label>
             </ion-item>
@@ -111,7 +111,7 @@
             <ion-item>
               <ion-icon name="time-outline" slot="start" color="secondary"></ion-icon>
               <ion-label>
-                <p class="detail-label">Last Visit</p>
+                <p class="detail-label">{{ "LAST_VISIT" | translate }}</p>
                 <p class="detail-value">{{ formatDate(client()!.lastVisitDate) }}</p>
               </ion-label>
             </ion-item>
@@ -121,7 +121,7 @@
             <ion-item>
               <ion-icon name="document-text-outline" slot="start" color="medium"></ion-icon>
               <ion-label class="ion-text-wrap">
-                <p class="detail-label">Notes</p>
+                <p class="detail-label">{{ "NOTES" | translate }}</p>
                 <p class="detail-value">{{ client()!.description }}</p>
               </ion-label>
             </ion-item>
@@ -135,7 +135,7 @@
   <div class="section-header">
     <h3 class="section-title">
       <ion-icon name="calendar-outline"></ion-icon>
-      Visit History
+      {{ "VISIT_HISTORY" | translate }}
       @if (totalCount() > 0) {
         <ion-badge color="medium" class="count-badge">{{ totalCount() }}</ion-badge>
       }
@@ -145,8 +145,8 @@
   @if (!canViewHistory()) {
     <div class="upgrade-prompt">
       <ion-icon name="lock-closed-outline" class="upgrade-icon"></ion-icon>
-      <h4>Upgrade Required</h4>
-      <p>Visit history is available on Professional and Enterprise plans.</p>
+      <h4>{{ "UPGRADE_REQUIRED" | translate }}</h4>
+      <p>{{ "UPGRADE_FOR_CLIENT_HISTORY" | translate }}</p>
     </div>
   } @else if (isLoadingHistory() && appointments().length === 0) {
     <div class="history-loading">
@@ -155,7 +155,7 @@
   } @else if (!isLoadingHistory() && appointments().length === 0) {
     <div class="history-empty">
       <ion-icon name="calendar-outline" class="history-empty__icon"></ion-icon>
-      <p class="history-empty__text">No visit history found</p>
+      <p class="history-empty__text">{{ "NO_VISIT_HISTORY" | translate }}</p>
     </div>
   } @else {
     <ion-list lines="none" class="history-list">

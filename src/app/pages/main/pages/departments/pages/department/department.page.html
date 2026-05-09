@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/main/departments"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ department()?.name ?? 'Department' }}</ion-title>
+    <ion-title>{{ department()?.name ?? ('DEPARTMENT' | translate) }}</ion-title>
     @if (!isManager) {
       <ion-buttons slot="end">
         <ion-button fill="clear" (click)="openEditModal()">
@@ -25,7 +25,7 @@
         (click)="setTab('overview')"
       >
         <ion-icon name="information-circle-outline"></ion-icon>
-        Overview
+        {{ 'DEPT_TAB_OVERVIEW' | translate }}
       </button>
       <button
         class="tab-bar__item"
@@ -33,7 +33,7 @@
         (click)="setTab('branding')"
       >
         <ion-icon name="images-outline"></ion-icon>
-        Branding
+        {{ 'DEPT_TAB_BRANDING' | translate }}
       </button>
       <button
         class="tab-bar__item"
@@ -41,7 +41,7 @@
         (click)="setTab('schedule')"
       >
         <ion-icon name="calendar-outline"></ion-icon>
-        Schedule
+        {{ 'DEPT_TAB_SCHEDULE' | translate }}
       </button>
     </div>
   </ion-toolbar>
@@ -91,9 +91,9 @@
           <ion-card-content>
             <div class="status-row">
               <div class="status-row__info">
-                <p class="status-row__label">Department status</p>
+                <p class="status-row__label">{{ 'DEPT_STATUS_LABEL' | translate }}</p>
                 <p class="status-row__desc">
-                  {{ dept.status === 'active' ? 'Accepting online bookings' : 'Hidden from online booking' }}
+                  {{ (dept.status === 'active' ? 'DEPT_STATUS_ACCEPTING' : 'DEPT_STATUS_HIDDEN') | translate }}
                 </p>
               </div>
               <ion-toggle
@@ -110,7 +110,7 @@
       <!-- ── Client booking link ── -->
       <ion-card class="info-card booking-link-card">
         <ion-card-content>
-          <p class="info-row__label">Online booking link</p>
+          <p class="info-row__label">{{ 'DEPT_BOOKING_LINK_LABEL' | translate }}</p>
           <div class="booking-link-row">
             <p class="booking-link-row__url">{{ clientBookingLink }}</p>
             <ion-button
@@ -143,8 +143,8 @@
         <ion-card-content>
           <div class="branding-section">
             <div class="branding-section__info">
-              <h4 class="branding-section__title">Upload avatar</h4>
-              <p class="branding-section__sub">A profile picture for your department</p>
+              <h4 class="branding-section__title">{{ 'DEPT_UPLOAD_AVATAR_TITLE' | translate }}</h4>
+              <p class="branding-section__sub">{{ 'DEPT_UPLOAD_AVATAR_SUB' | translate }}</p>
             </div>
             @if (!isManager) {
               <ion-button
@@ -158,7 +158,7 @@
                 } @else {
                   <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
                 }
-                Upload
+                {{ 'UPLOAD' | translate }}
               </ion-button>
             }
           </div>
@@ -181,8 +181,8 @@
         <ion-card-content>
           <div class="branding-section">
             <div class="branding-section__info">
-              <h4 class="branding-section__title">Gallery photos</h4>
-              <p class="branding-section__sub">Upload photos to showcase your department</p>
+              <h4 class="branding-section__title">{{ 'DEPT_GALLERY_TITLE' | translate }}</h4>
+              <p class="branding-section__sub">{{ 'DEPT_GALLERY_SUB' | translate }}</p>
             </div>
             @if (!isManager) {
               <ion-button
@@ -196,7 +196,7 @@
                 } @else {
                   <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
                 }
-                Upload
+                {{ 'UPLOAD' | translate }}
               </ion-button>
             }
           </div>
@@ -223,8 +223,8 @@
         <ion-card-content>
           <div class="branding-section">
             <div class="branding-section__info">
-              <h4 class="branding-section__title">Department banner</h4>
-              <p class="branding-section__sub">Add promotional banners for your department</p>
+              <h4 class="branding-section__title">{{ 'DEPT_BANNER_TITLE' | translate }}</h4>
+              <p class="branding-section__sub">{{ 'DEPT_BANNER_SUB' | translate }}</p>
             </div>
             @if (!isManager) {
               <ion-button
@@ -238,7 +238,7 @@
                 } @else {
                   <ion-icon name="cloud-upload-outline" slot="start"></ion-icon>
                 }
-                Upload
+                {{ 'UPLOAD' | translate }}
               </ion-button>
             }
           </div>
@@ -264,11 +264,11 @@
     <!-- ── Schedule tab ── -->
     @if (activeTab() === 'schedule') {
       <div class="schedule-header">
-        <h3 class="schedule-header__title">Working Hours</h3>
+        <h3 class="schedule-header__title">{{ 'DEPT_WORKING_HOURS' | translate }}</h3>
         @if (isSavingSchedule()) {
           <div class="schedule-header__saving">
             <ion-spinner name="dots" class="save-spinner"></ion-spinner>
-            <span>Saving…</span>
+            <span>{{ 'DEPT_SAVING' | translate }}</span>
           </div>
         }
       </div>
@@ -283,7 +283,7 @@
                 <div class="schedule-row__name">
                   <span class="schedule-row__day">{{ row.label }}</span>
                   @if (!row.enabled) {
-                    <span class="schedule-row__closed-label">Closed</span>
+                    <span class="schedule-row__closed-label">{{ 'DEPT_CLOSED' | translate }}</span>
                   } @else {
                     <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
                   }
@@ -299,7 +299,7 @@
               @if (row.enabled) {
                 <div class="schedule-row__times">
                   <div class="time-field">
-                    <label class="time-field__label">From</label>
+                    <label class="time-field__label">{{ 'FROM_TIME' | translate }}</label>
                     <input
                       class="time-field__native-input"
                       type="time"
@@ -311,7 +311,7 @@
                   </div>
                   <span class="time-field__separator">—</span>
                   <div class="time-field">
-                    <label class="time-field__label">To</label>
+                    <label class="time-field__label">{{ 'TO_TIME' | translate }}</label>
                     <input
                       class="time-field__native-input"
                       type="time"

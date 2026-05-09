@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Expenses</ion-title>
+    <ion-title>{{ 'EXPENSES' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openFilterSheet()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
@@ -16,7 +16,7 @@
 
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search expenses..."
+      [placeholder]="'EXP_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -33,7 +33,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'FILTERS' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterSheet.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -45,14 +45,14 @@
 
       <!-- Category -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Category</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'EXP_FILTER_CATEGORY' | translate }}</ion-label>
         <ion-select
           [value]="tempCategory()"
           (ionChange)="tempCategory.set($any($event.detail.value))"
           interface="action-sheet"
-          placeholder="All categories"
+          [placeholder]="'EXP_ALL_CATEGORIES' | translate"
         >
-          <ion-select-option value="">All categories</ion-select-option>
+          <ion-select-option value="">{{ 'EXP_ALL_CATEGORIES' | translate }}</ion-select-option>
           @for (opt of categoryOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
           }
@@ -61,14 +61,14 @@
 
       <!-- Status -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Status</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'STATUS' | translate }}</ion-label>
         <ion-select
           [value]="tempStatus()"
           (ionChange)="tempStatus.set($any($event.detail.value))"
           interface="action-sheet"
-          placeholder="All statuses"
+          [placeholder]="'EXP_ALL_STATUSES' | translate"
         >
-          <ion-select-option value="">All statuses</ion-select-option>
+          <ion-select-option value="">{{ 'EXP_ALL_STATUSES' | translate }}</ion-select-option>
           @for (opt of statusOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
           }
@@ -77,14 +77,14 @@
 
       <!-- Recurrence -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Recurrence</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'EXP_FILTER_RECURRENCE' | translate }}</ion-label>
         <ion-select
           [value]="tempRecurrence()"
           (ionChange)="tempRecurrence.set($any($event.detail.value))"
           interface="action-sheet"
-          placeholder="All types"
+          [placeholder]="'EXP_ALL_TYPES' | translate"
         >
-          <ion-select-option value="">All types</ion-select-option>
+          <ion-select-option value="">{{ 'EXP_ALL_TYPES' | translate }}</ion-select-option>
           @for (opt of recurrenceOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
           }
@@ -94,14 +94,14 @@
       <!-- Department (multi-location only) -->
       @if (!singleDepartmentMode()) {
         <ion-item lines="full">
-          <ion-label position="stacked" class="filter-label">Department</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'FILTER_DEPARTMENT' | translate }}</ion-label>
           <ion-select
             [value]="tempDepartmentId()"
             (ionChange)="tempDepartmentId.set($any($event.detail.value))"
             interface="action-sheet"
-            placeholder="All departments"
+            [placeholder]="'ALL_DEPARTMENTS' | translate"
           >
-            <ion-select-option value="">All departments</ion-select-option>
+            <ion-select-option value="">{{ 'ALL_DEPARTMENTS' | translate }}</ion-select-option>
             @for (dept of departments(); track dept._id) {
               <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
             }
@@ -111,11 +111,11 @@
 
       <!-- Date range -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Date From</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'FILTER_DATE_FROM' | translate }}</ion-label>
         <input type="date" class="filter-date-input" [value]="tempDateFrom()" (change)="tempDateFrom.set($any($event.target).value)" />
       </ion-item>
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Date To</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'FILTER_DATE_TO' | translate }}</ion-label>
         <input type="date" class="filter-date-input" [value]="tempDateTo()" (change)="tempDateTo.set($any($event.target).value)" />
       </ion-item>
 
@@ -123,8 +123,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'APPLY_FILTERS' | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -137,9 +137,9 @@
   @if (!hasExpensesFeature()) {
     <div class="expenses-locked">
       <ion-icon name="lock-closed-outline" class="expenses-locked__icon"></ion-icon>
-      <h3>Expenses & Payroll</h3>
-      <p>This feature is available on Starter plan and above. Upgrade your subscription to track expenses.</p>
-      <ion-badge color="warning">Upgrade Required</ion-badge>
+      <h3>{{ 'EXP_LOCKED_TITLE' | translate }}</h3>
+      <p>{{ 'EXP_LOCKED_TEXT' | translate }}</p>
+      <ion-badge color="warning">{{ 'UPGRADE_REQUIRED' | translate }}</ion-badge>
     </div>
   } @else {
 
@@ -154,8 +154,8 @@
     @if (!isLoading() && expenses().length === 0) {
       <div class="expenses-empty">
         <ion-icon name="receipt-outline" class="expenses-empty__icon"></ion-icon>
-        <h3>No expenses yet</h3>
-        <p>Track your business expenses by adding the first record.</p>
+        <h3>{{ 'EXP_EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'EXP_EMPTY_TEXT' | translate }}</p>
       </div>
     }
 
@@ -163,7 +163,7 @@
     @if (expenses().length > 0) {
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left on a card for options</span>
+        <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
       </div>
 
       <ion-list lines="none">
@@ -219,7 +219,7 @@
 
       <!-- Meta info -->
       <div class="expenses-meta ion-padding-horizontal">
-        <p class="expenses-count">{{ totalCount() }} expense(s)</p>
+        <p class="expenses-count">{{ 'EXP_COUNT' | translate: { count: totalCount() } }}</p>
       </div>
     }
 

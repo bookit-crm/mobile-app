@@ -10,6 +10,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
 
 import { IDepartment } from '@core/models/department.interface';
@@ -37,7 +38,7 @@ interface IServicePayload {
 @Component({
   selector: 'app-service-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule],
+  imports: [CommonModule, FormsModule, IonicModule, TranslateModule],
   templateUrl: './service-modal.component.html',
   styleUrls: ['./service-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,6 +53,7 @@ export class ServiceModalComponent implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   private readonly productsService = inject(ProductsService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public readonly isLoading = signal(false);
   public departments: IDepartment[] = [];
@@ -97,7 +99,7 @@ export class ServiceModalComponent implements OnInit {
   public save(): void {
     if (this.isLoading()) return;
     if (!this.name.trim() || !this.selectedDepartmentId) {
-      void this.showToast('Name and department are required', 'warning');
+      void this.showToast(this.t.instant('SVC_NAME_DEPT_REQUIRED'), 'warning');
       return;
     }
 
@@ -124,7 +126,7 @@ export class ServiceModalComponent implements OnInit {
     request$.pipe(take(1)).subscribe({
       next: () => {
         this.isLoading.set(false);
-        const msg = this.isEdit ? 'Service updated' : 'Service created';
+        const msg = this.t.instant(this.isEdit ? 'SVC_UPDATED_TOAST' : 'SVC_CREATED_TOAST');
         void this.modalCtrl.dismiss({ saved: true });
         void this.showToast(msg);
       },
@@ -135,7 +137,7 @@ export class ServiceModalComponent implements OnInit {
           error: err?.error,
         });
         this.isLoading.set(false);
-        const msg = err?.error?.message || err?.message || 'Something went wrong';
+        const msg = err?.error?.message || err?.message || this.t.instant('SVC_ERROR_TOAST');
         void this.showToast(msg, 'danger');
         this.cdr.markForCheck();
       },

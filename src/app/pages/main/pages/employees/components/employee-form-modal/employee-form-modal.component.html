@@ -5,13 +5,13 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Employee' : 'Add Employee' }}</ion-title>
+    <ion-title>{{ (isEditMode ? 'EMP_EDIT_TITLE' : 'EMP_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
         @if (isSubmitting) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEditMode ? 'Save' : 'Create' }}
+        {{ (isEditMode ? 'SAVE' : 'CREATE') | translate }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -21,63 +21,63 @@
   <form [formGroup]="form">
 
     <!-- ── Профиль ─────────────────────────────────────── -->
-    <ion-list-header><ion-label><strong>Profile</strong></ion-label></ion-list-header>
+    <ion-list-header><ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label></ion-list-header>
 
     <ion-item>
-      <ion-label position="stacked">First Name *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
       <ion-input formControlName="firstName" placeholder="John" clearInput></ion-input>
       @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-        <ion-note color="danger" slot="helper">First name is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Last Name *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
       <ion-input formControlName="lastName" placeholder="Doe" clearInput></ion-input>
       @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-        <ion-note color="danger" slot="helper">Last name is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Phone *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
       <ion-input formControlName="phone" type="tel" placeholder="+1234567890" clearInput></ion-input>
       @if (form.controls.phone.invalid && form.controls.phone.touched) {
-        <ion-note color="danger" slot="helper">Phone is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Email *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
       <ion-input formControlName="email" type="email" placeholder="john@example.com" clearInput></ion-input>
       @if (form.controls.email.invalid && form.controls.email.touched) {
-        <ion-note color="danger" slot="helper">Enter a valid email</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Position</ion-label>
-      <ion-input formControlName="position" placeholder="Hair stylist" clearInput></ion-input>
+      <ion-label position="stacked">{{ 'POSITION' | translate }}</ion-label>
+      <ion-input formControlName="position" [placeholder]="'EMP_POSITION_PLACEHOLDER' | translate" clearInput></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Date of Birth</ion-label>
+      <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
       <ion-input formControlName="dateOfBirth" type="date"></ion-input>
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Description</ion-label>
-      <ion-textarea formControlName="description" rows="3" placeholder="About this employee..."></ion-textarea>
+      <ion-label position="stacked">{{ 'DESCRIPTION' | translate }}</ion-label>
+      <ion-textarea formControlName="description" rows="3" [placeholder]="'EMP_DESCRIPTION_PLACEHOLDER' | translate"></ion-textarea>
     </ion-item>
 
     <!-- ── Сервисы ─────────────────────────────────────── -->
-    <ion-list-header><ion-label><strong>Assigned Services</strong></ion-label></ion-list-header>
+    <ion-list-header><ion-label><strong>{{ 'EMP_ASSIGNED_SERVICES' | translate }}</strong></ion-label></ion-list-header>
 
     @if (availableServices.length > 0) {
       <ion-item button (click)="showServicePicker = !showServicePicker" detail="false">
         <ion-icon name="briefcase-outline" slot="start"></ion-icon>
         <ion-label>
-          Select Services
+          {{ 'EMP_SELECT_SERVICES' | translate }}
           @if (selectedServices.length > 0) {
             <ion-badge color="primary" class="ion-margin-start">{{ selectedServices.length }}</ion-badge>
           }
@@ -96,15 +96,15 @@
         }
       }
     } @else {
-      <ion-item><ion-label color="medium">No services in this department yet</ion-label></ion-item>
+      <ion-item><ion-label color="medium">{{ 'EMP_NO_SERVICES_IN_DEPT' | translate }}</ion-label></ion-item>
     }
 
     <!-- ── Зарплатная ставка ───────────────────────────── -->
     @if (canShowSalaryRate) {
-      <ion-list-header><ion-label><strong>Salary Rate</strong></ion-label></ion-list-header>
+      <ion-list-header><ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label></ion-list-header>
       <ion-item>
-        <ion-label position="stacked">Rate Type</ion-label>
-        <ion-select formControlName="salaryRateType" placeholder="Select type"
+        <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
+        <ion-select formControlName="salaryRateType" [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
           (ionChange)="onSalaryRateChange($event.detail.value)">
           @for (opt of salaryRateOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
@@ -113,13 +113,13 @@
       </ion-item>
       @if (showBaseAmount) {
         <ion-item>
-          <ion-label position="stacked">Base Amount</ion-label>
+          <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
           <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
         </ion-item>
       }
       @if (showCommissionPercent) {
         <ion-item>
-          <ion-label position="stacked">Commission %</ion-label>
+          <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
           <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
         </ion-item>
       }
@@ -130,7 +130,7 @@
   <!-- ── Расписание (вне form, signal-based как в Department) ─── -->
   <div class="schedule-section">
     <div class="schedule-header">
-      <h3 class="schedule-header__title">Working Hours</h3>
+      <h3 class="schedule-header__title">{{ 'DEPT_WORKING_HOURS' | translate }}</h3>
     </div>
 
     <ion-card class="schedule-card">
@@ -142,7 +142,7 @@
               <div class="schedule-row__name">
                 <span class="schedule-row__day">{{ row.label }}</span>
                 @if (!row.enabled) {
-                  <span class="schedule-row__closed-label">Closed</span>
+                  <span class="schedule-row__closed-label">{{ 'DEPT_CLOSED' | translate }}</span>
                 } @else {
                   <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
                 }
@@ -157,7 +157,7 @@
             @if (row.enabled) {
               <div class="schedule-row__times">
                 <div class="time-field">
-                  <label class="time-field__label">From</label>
+                  <label class="time-field__label">{{ 'FROM_TIME' | translate }}</label>
                   <input
                     class="time-field__native-input"
                     type="time"
@@ -168,7 +168,7 @@
                 </div>
                 <span class="time-field__separator">—</span>
                 <div class="time-field">
-                  <label class="time-field__label">To</label>
+                  <label class="time-field__label">{{ 'TO_TIME' | translate }}</label>
                   <input
                     class="time-field__native-input"
                     type="time"
@@ -187,5 +187,4 @@
   </div>
 
 </ion-content>
-
 

@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ModalController } from '@ionic/angular';
 import { take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 import { IProductHistory, IProductHistoryList, TProductHistoryAction } from '@core/models/product.interface';
 import { ProductsService } from '@core/services/products.service';
@@ -31,6 +32,7 @@ export class ProductHistoryComponent implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslateService);
 
   public history = signal<IProductHistory[]>([]);
   public totalCount = signal(0);
@@ -38,21 +40,25 @@ export class ProductHistoryComponent implements OnInit {
   public hasMore = signal(true);
   private offset = 0;
 
-  public readonly actionOptions: Array<{ value: TProductHistoryAction | 'all'; label: string }> = [
-    { value: 'all', label: 'All Actions' },
-    { value: 'created', label: 'Created' },
-    { value: 'updated', label: 'Updated' },
-    { value: 'archived', label: 'Archived' },
-    { value: 'unarchived', label: 'Unarchived' },
-    { value: 'imported', label: 'Imported' },
-    { value: 'deleted', label: 'Deleted' },
-    { value: 'consumed', label: 'Consumed' },
-  ];
+  public get actionOptions(): Array<{ value: TProductHistoryAction | 'all'; label: string }> {
+    return [
+      { value: 'all', label: this.t.instant('PROD_HIST_ACTION_ALL') },
+      { value: 'created', label: this.t.instant('PROD_HIST_ACTION_CREATED') },
+      { value: 'updated', label: this.t.instant('PROD_HIST_ACTION_UPDATED') },
+      { value: 'archived', label: this.t.instant('PROD_HIST_ACTION_ARCHIVED') },
+      { value: 'unarchived', label: this.t.instant('PROD_HIST_ACTION_UNARCHIVED') },
+      { value: 'imported', label: this.t.instant('PROD_HIST_ACTION_IMPORTED') },
+      { value: 'deleted', label: this.t.instant('PROD_HIST_ACTION_DELETED') },
+      { value: 'consumed', label: this.t.instant('PROD_HIST_ACTION_CONSUMED') },
+    ];
+  }
 
   public selectedAction: TProductHistoryAction | 'all' = 'all';
 
   get modalTitle(): string {
-    return this.productName ? `History: ${this.productName}` : 'Products History';
+    return this.productName
+      ? this.t.instant('PROD_HIST_TITLE', { name: this.productName })
+      : this.t.instant('PROD_HIST_ALL_TITLE');
   }
 
   ngOnInit(): void {

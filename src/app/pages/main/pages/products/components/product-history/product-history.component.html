@@ -11,7 +11,7 @@
     <ion-select
       [value]="selectedAction"
       interface="action-sheet"
-      placeholder="Filter by action"
+      [placeholder]="'PROD_HIST_FILTER_PLACEHOLDER' | translate"
       (ionChange)="onActionChange($event)"
       class="action-filter"
     >
@@ -30,12 +30,12 @@
   } @else if (!isLoading() && history().length === 0) {
     <div class="history-empty">
       <ion-icon name="time-outline" class="history-empty__icon"></ion-icon>
-      <h3 class="history-empty__title">No history found</h3>
-      <p class="history-empty__text">Try changing the action filter.</p>
+      <h3 class="history-empty__title">{{ 'PROD_HIST_EMPTY_TITLE' | translate }}</h3>
+      <p class="history-empty__text">{{ 'PROD_HIST_EMPTY_TEXT' | translate }}</p>
     </div>
   } @else {
     <div class="history-meta">
-      <p class="history-count">{{ totalCount() }} record(s)</p>
+      <p class="history-count">{{ 'PROD_HIST_COUNT' | translate:{ count: totalCount() } }}</p>
     </div>
 
     <ion-list lines="full">

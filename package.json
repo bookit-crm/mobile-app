@@ -38,6 +38,8 @@
     "@capacitor/share": "^6.0.4",
     "@capacitor/status-bar": "6.0.2",
     "@ionic/angular": "^8.8.4",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "apexcharts": "^5.10.6",
     "date-fns": "^4.1.0",
     "ionicons": "^7.4.0",

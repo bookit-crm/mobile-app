@@ -16,11 +16,12 @@ import {
   Validators,
 } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { IEmployee } from '@core/models/employee.interface';
 import { IService } from '@core/models/appointment.interface';
 import { IDepartment } from '@core/models/department.interface';
-import { ISchedulePayload, IScheduleRow, DAY_LABELS, DAY_ORDER } from '@core/models/schedule.interface';
+import { ISchedulePayload, IScheduleRow, DAY_KEY_MAP, DAY_ORDER } from '@core/models/schedule.interface';
 import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
 import { EmployeeService } from '@core/services/employee.service';
 import { SchedulesService } from '@core/services/schedules.service';
@@ -30,7 +31,7 @@ import { SubscriptionService } from '@core/services/subscription.service';
 @Component({
   selector: 'app-employee-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './employee-form-modal.component.html',
   styleUrls: ['./employee-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +47,7 @@ export class EmployeeFormModalComponent implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly toastCtrl = inject(ToastController);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public readonly ESalaryRateType = ESalaryRateType;
 
@@ -61,12 +63,14 @@ export class EmployeeFormModalComponent implements OnInit {
   public selectedServices: IService[] = [];
   public showServicePicker = false;
 
-  public readonly salaryRateOptions = [
-    { value: ESalaryRateType.Fixed, label: 'Fixed' },
-    { value: ESalaryRateType.Commission, label: 'Commission %' },
-    { value: ESalaryRateType.FixedPlusCommission, label: 'Fixed + Commission' },
-    { value: ESalaryRateType.BaseOrCommission, label: 'Base or Commission' },
-  ];
+  public get salaryRateOptions() {
+    return [
+      { value: ESalaryRateType.Fixed, label: this.t.instant('EMP_SALARY_FIXED') },
+      { value: ESalaryRateType.Commission, label: this.t.instant('EMP_SALARY_COMMISSION') },
+      { value: ESalaryRateType.FixedPlusCommission, label: this.t.instant('EMP_SALARY_FIXED_PLUS_COMMISSION') },
+      { value: ESalaryRateType.BaseOrCommission, label: this.t.instant('EMP_SALARY_BASE_OR_COMMISSION') },
+    ];
+  }
 
   // ── Signal-based schedule (same pattern as department) ─────────────────────
   public scheduleRows: WritableSignal<IScheduleRow[]> = signal([]);
@@ -210,7 +214,7 @@ export class EmployeeFormModalComponent implements OnInit {
           this.isSubmitting = false;
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: this.isEditMode ? 'Employee updated' : 'Employee created',
+            message: this.isEditMode ? this.t.instant('EMP_UPDATED') : this.t.instant('EMP_CREATED_OK'),
             duration: 2000,
             color: 'success',
           });
@@ -221,7 +225,7 @@ export class EmployeeFormModalComponent implements OnInit {
           this.isSubmitting = false;
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: 'An error occurred. Please try again.',
+            message: this.t.instant('ERROR_OCCURRED'),
             duration: 3000,
             color: 'danger',
           });
@@ -277,7 +281,7 @@ export class EmployeeFormModalComponent implements OnInit {
             const enabled = !!existing?.from;
             return {
               day,
-              label: DAY_LABELS[day],
+              label: this.t.instant(DAY_KEY_MAP[day]),
               enabled,
               from: existing?.from ? this.isoToTime(existing.from) : '09:00',
               to: existing?.to ? this.isoToTime(existing.to) : '18:00',
@@ -298,7 +302,7 @@ export class EmployeeFormModalComponent implements OnInit {
       const enabled = !!(existing?.from && existing?.to);
       return {
         day,
-        label: DAY_LABELS[day],
+        label: this.t.instant(DAY_KEY_MAP[day]),
         enabled,
         from: existing?.from ? this.isoToTime(existing.from) : '09:00',
         to: existing?.to ? this.isoToTime(existing.to) : '18:00',

@@ -14,6 +14,7 @@ import { filter, take } from 'rxjs/operators';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { IBaseQueries } from '@core/models/application.interface';
 import { ReportFormat, ReportService, ReportType } from '@core/services/report.service';
@@ -39,12 +40,12 @@ interface IFormatOption {
   template: `
     <div class="tab-content">
       <div class="reports-header">
-        <h2 class="reports-header__title">Reports</h2>
-        <p class="reports-header__subtitle">Download reports for the selected period and filters</p>
+        <h2 class="reports-header__title">{{ 'REPORTS' | translate }}</h2>
+        <p class="reports-header__subtitle">{{ 'DASH_REPORTS_SUBTITLE' | translate }}</p>
       </div>
 
       <!-- Report Type Cards -->
-      <h3 class="section-title">Select Report Type</h3>
+      <h3 class="section-title">{{ 'DASH_SELECT_REPORT_TYPE' | translate }}</h3>
       <div class="report-cards">
         @for (card of reportCards; track card.type) {
           <div
@@ -67,7 +68,7 @@ interface IFormatOption {
       </div>
 
       <!-- Format Selection -->
-      <h3 class="section-title">Select Format</h3>
+      <h3 class="section-title">{{ 'DASH_SELECT_FORMAT' | translate }}</h3>
       <div class="format-row">
         @for (fmt of formatOptions; track fmt.value) {
           <button
@@ -98,10 +99,10 @@ interface IFormatOption {
         >
           @if (loading()) {
             <ion-spinner name="crescent" slot="start"></ion-spinner>
-            Generating...
+            {{ 'DASH_GENERATING' | translate }}
           } @else {
             <ion-icon name="download-outline" slot="start"></ion-icon>
-            Download Report
+            {{ 'DASH_DOWNLOAD_REPORT' | translate }}
           }
         </ion-button>
       </div>
@@ -160,7 +161,7 @@ interface IFormatOption {
     /* Download */
     .download-section { margin-top: 8px; }
   `],
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportsTabComponent implements OnInit {
@@ -169,6 +170,7 @@ export class ReportsTabComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
   private toastCtrl = inject(ToastController);
+  private t = inject(TranslateService);
 
   public selectedType = signal<ReportType | null>(null);
   public selectedFormat = signal<ReportFormat | null>(null);
@@ -177,36 +179,38 @@ export class ReportsTabComponent implements OnInit {
 
   private currentFilters: IBaseQueries = {};
 
-  public readonly reportCards: IReportCard[] = [
-    {
-      type: 'appointments',
-      title: 'Appointments Report',
-      description: 'All appointments with status, client, employee and service details',
-      icon: 'calendar-outline',
-      color: '#6366f1',
-    },
-    {
-      type: 'staff_performance',
-      title: 'Staff Performance',
-      description: 'Revenue, appointment count and utilization per employee',
-      icon: 'trophy-outline',
-      color: '#10b981',
-    },
-    {
-      type: 'client_detailed',
-      title: 'Client Report',
-      description: 'Client visits, spend history and retention stats',
-      icon: 'people-outline',
-      color: '#3b82f6',
-    },
-    {
-      type: 'inventory_history',
-      title: 'Inventory History',
-      description: 'Product usage, sales and stock movement',
-      icon: 'cube-outline',
-      color: '#f59e0b',
-    },
-  ];
+  public get reportCards(): IReportCard[] {
+    return [
+      {
+        type: 'appointments',
+        title: this.t.instant('DASH_REPORT_APPOINTMENTS_TITLE'),
+        description: this.t.instant('DASH_REPORT_APPOINTMENTS_DESC'),
+        icon: 'calendar-outline',
+        color: '#6366f1',
+      },
+      {
+        type: 'staff_performance',
+        title: this.t.instant('DASH_REPORT_STAFF_TITLE'),
+        description: this.t.instant('DASH_REPORT_STAFF_DESC'),
+        icon: 'trophy-outline',
+        color: '#10b981',
+      },
+      {
+        type: 'client_detailed',
+        title: this.t.instant('DASH_REPORT_CLIENT_TITLE'),
+        description: this.t.instant('DASH_REPORT_CLIENT_DESC'),
+        icon: 'people-outline',
+        color: '#3b82f6',
+      },
+      {
+        type: 'inventory_history',
+        title: this.t.instant('DASH_REPORT_INVENTORY_TITLE'),
+        description: this.t.instant('DASH_REPORT_INVENTORY_DESC'),
+        icon: 'cube-outline',
+        color: '#f59e0b',
+      },
+    ];
+  }
 
   public readonly formatOptions: IFormatOption[] = [
     { value: 'excel', label: 'Excel', icon: 'document-text-outline' },
@@ -262,7 +266,7 @@ export class ReportsTabComponent implements OnInit {
         },
         error: () => {
           this.loading.set(false);
-          this.error.set('Failed to generate report. Please try again.');
+          this.error.set(this.t.instant('DASH_REPORT_ERROR'));
           this.cdr.markForCheck();
         },
       });
@@ -299,7 +303,6 @@ export class ReportsTabComponent implements OnInit {
       const base64 = (reader.result as string).split(',')[1];
       let uri: string;
 
-      // 1. Пишем файл — если упало здесь, это настоящая ошибка
       try {
         const result = await Filesystem.writeFile({
           path: filename,
@@ -308,21 +311,19 @@ export class ReportsTabComponent implements OnInit {
         });
         uri = result.uri;
       } catch {
-        this.error.set('Could not write file to device storage.');
+        this.error.set(this.t.instant('DASH_ERROR_WRITE_FILE'));
         this.cdr.markForCheck();
         return;
       }
 
-      // 2. Пробуем Share — если упало (эмулятор, отмена) — не страшно, файл уже сохранён
       try {
         await Share.share({
           title: filename,
           url: uri,
-          dialogTitle: 'Open or save report',
+          dialogTitle: this.t.instant('DASH_SHARE_DIALOG_TITLE'),
         });
       } catch {
-        // Share недоступен или отменён — показываем тост с путём
-        void this.showToast(`File saved: Documents/${filename}`);
+        void this.showToast(this.t.instant('DASH_FILE_SAVED', { filename }));
       }
     };
     reader.readAsDataURL(blob);

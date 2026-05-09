@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Services</ion-title>
+    <ion-title>{{ 'SVC_TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (!singleDepartmentMode()) {
         <ion-button (click)="openFilterModal()" class="filter-btn">
@@ -19,7 +19,7 @@
   <!-- Search bar -->
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search services..."
+      [placeholder]="'SVC_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
       [value]="searchQuery()"
@@ -47,19 +47,19 @@
     @if (services().length === 0) {
       <!-- Empty state -->
       <div class="empty-state">
-        <h3 class="empty-state__title">No Services Yet</h3>
-        <p class="empty-state__text">Add your first service to get started</p>
+        <h3 class="empty-state__title">{{ 'SVC_EMPTY_TITLE' | translate }}</h3>
+        <p class="empty-state__text">{{ 'SVC_EMPTY_TEXT' | translate }}</p>
         @if (canManage()) {
           <ion-button (click)="openCreateModal()">
             <ion-icon slot="start" name="add-outline"></ion-icon>
-            Add Service
+            {{ 'SVC_ADD_BTN' | translate }}
           </ion-button>
         }
       </div>
     } @else {
       <!-- Count bar -->
       <div class="count-bar">
-        <span>Showing {{ services().length }} of {{ totalCount() }}</span>
+        <span>{{ 'SVC_SHOWING' | translate: { shown: services().length, total: totalCount() } }}</span>
       </div>
 
       @for (service of services(); track service._id) {
@@ -73,7 +73,7 @@
               <div class="service-item__meta">
                 <ion-chip color="primary" [outline]="true">
                   <ion-icon name="time-outline"></ion-icon>
-                  <ion-label>{{ service.duration }} min</ion-label>
+                  <ion-label>{{ service.duration }} {{ 'SVC_MIN' | translate }}</ion-label>
                 </ion-chip>
                 <ion-chip color="success" [outline]="true">
                   <ion-icon name="pricetag-outline"></ion-icon>
@@ -110,7 +110,7 @@
 
       <!-- Infinite scroll -->
       <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">
-        <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more...">
+        <ion-infinite-scroll-content [loadingText]="'SVC_LOADING_MORE' | translate">
         </ion-infinite-scroll-content>
       </ion-infinite-scroll>
 
@@ -118,12 +118,12 @@
       @if (hasMore() && !isLoading()) {
         <div class="load-more">
           <ion-button fill="outline" expand="block" (click)="loadMore()">
-            Load more
+            {{ 'SVC_LOAD_MORE' | translate }}
           </ion-button>
         </div>
       }
       @if (!hasMore()) {
-        <p class="end-of-list">All {{ totalCount() }} services loaded</p>
+        <p class="end-of-list">{{ 'SVC_ALL_LOADED' | translate: { count: totalCount() } }}</p>
       }
     }
   }
@@ -149,7 +149,7 @@
     <ng-template>
       <ion-header>
         <ion-toolbar>
-          <ion-title>Filter Services</ion-title>
+          <ion-title>{{ 'SVC_FILTER_TITLE' | translate }}</ion-title>
           <ion-buttons slot="end">
             <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
               <ion-icon slot="icon-only" name="close-outline"></ion-icon>
@@ -159,9 +159,9 @@
       </ion-header>
       <ion-content class="filter-modal-content ion-padding">
         <ion-item lines="full">
-          <ion-label position="stacked" class="filter-label">Department</ion-label>
-          <ion-select [(ngModel)]="tempDept" placeholder="All departments" interface="action-sheet">
-            <ion-select-option value="">All departments</ion-select-option>
+          <ion-label position="stacked" class="filter-label">{{ 'SVC_DEPT_LABEL' | translate }}</ion-label>
+          <ion-select [(ngModel)]="tempDept" [placeholder]="'SVC_ALL_DEPTS' | translate" interface="action-sheet">
+            <ion-select-option value="">{{ 'SVC_ALL_DEPTS' | translate }}</ion-select-option>
             @for (dept of departments(); track dept._id) {
               <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
             }
@@ -171,8 +171,8 @@
       <ion-footer>
         <ion-toolbar class="filter-footer-toolbar">
           <div class="filter-modal-footer">
-            <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-            <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+            <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'SVC_RESET_ALL' | translate }}</ion-button>
+            <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'SVC_APPLY_FILTERS' | translate }}</ion-button>
           </div>
         </ion-toolbar>
       </ion-footer>

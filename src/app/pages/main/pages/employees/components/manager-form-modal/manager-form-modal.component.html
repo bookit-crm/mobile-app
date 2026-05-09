@@ -5,13 +5,13 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Manager' : 'Add Manager' }}</ion-title>
+    <ion-title>{{ (isEditMode ? 'MGR_EDIT_TITLE' : 'MGR_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
         @if (isSubmitting) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEditMode ? 'Save' : 'Create' }}
+        {{ (isEditMode ? 'SAVE' : 'CREATE') | translate }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -22,87 +22,87 @@
 
     <!-- ── Профиль ─────────────────────────────────────── -->
     <ion-list-header>
-      <ion-label><strong>Profile</strong></ion-label>
+      <ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label>
     </ion-list-header>
 
     <ion-item>
-      <ion-label position="stacked">First Name *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
       <ion-input formControlName="firstName" placeholder="John" [clearInput]="true"></ion-input>
       @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
-        <ion-note color="danger" slot="helper">First name is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Last Name *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
       <ion-input formControlName="lastName" placeholder="Doe" [clearInput]="true"></ion-input>
       @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
-        <ion-note color="danger" slot="helper">Last name is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Phone *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
       <ion-input formControlName="phone" type="tel" placeholder="+1234567890" [clearInput]="true"></ion-input>
       @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
-        <ion-note color="danger" slot="helper">Enter a valid phone number</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Email *</ion-label>
+      <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
       <ion-input formControlName="email" type="email" placeholder="john@example.com" [clearInput]="true"></ion-input>
       @if (form.get('email')?.invalid && form.get('email')?.touched) {
-        <ion-note color="danger" slot="helper">Enter a valid email</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">Date of Birth</ion-label>
+      <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
       <ion-input formControlName="dateOfBirth" type="date"></ion-input>
     </ion-item>
 
     <!-- ── Пароль ──────────────────────────────────────── -->
     <ion-list-header>
       <ion-label>
-        <strong>{{ isEditMode ? 'Change Password (optional)' : 'Password' }}</strong>
+        <strong>{{ (isEditMode ? 'MGR_CHANGE_PASSWORD_OPTIONAL' : 'MGR_PASSWORD_HEADER') | translate }}</strong>
       </ion-label>
     </ion-list-header>
 
     <ion-item>
-      <ion-label position="stacked">{{ isEditMode ? 'New Password' : 'Password *' }}</ion-label>
-      <ion-input formControlName="password" type="password" [placeholder]="isEditMode ? 'Leave blank to keep current' : 'Min 10 chars'"></ion-input>
+      <ion-label position="stacked">{{ (isEditMode ? 'MGR_NEW_PASSWORD_LABEL' : 'MGR_PASSWORD_LABEL') | translate }}</ion-label>
+      <ion-input formControlName="password" type="password" [placeholder]="(isEditMode ? 'MGR_PWD_LEAVE_BLANK' : 'MGR_PWD_MIN_HINT') | translate"></ion-input>
       @if (form.get('password')?.invalid && form.get('password')?.touched) {
         <ion-note color="danger" slot="helper">
-          @if (form.get('password')?.errors?.['required']) { Password is required. }
-          @else if (form.get('password')?.errors?.['minlength']) { At least 10 characters. }
-          @else { Must contain uppercase, lowercase, digit and special char. }
+          @if (form.get('password')?.errors?.['required']) { {{ 'MGR_PASSWORD_REQUIRED' | translate }} }
+          @else if (form.get('password')?.errors?.['minlength']) { {{ 'MGR_PASSWORD_MIN_LENGTH' | translate }} }
+          @else { {{ 'MGR_PASSWORD_PATTERN' | translate }} }
         </ion-note>
       }
     </ion-item>
 
     <ion-item>
-      <ion-label position="stacked">{{ isEditMode ? 'Confirm New Password' : 'Confirm Password *' }}</ion-label>
-      <ion-input formControlName="confirmPassword" type="password" placeholder="Repeat password"></ion-input>
+      <ion-label position="stacked">{{ (isEditMode ? 'MGR_CONFIRM_NEW_PASSWORD_LABEL' : 'MGR_CONFIRM_PASSWORD_LABEL') | translate }}</ion-label>
+      <ion-input formControlName="confirmPassword" type="password" [placeholder]="'MGR_CONFIRM_PLACEHOLDER' | translate"></ion-input>
       @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" slot="helper">Passwords do not match</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'MGR_PASSWORDS_MISMATCH' | translate }}</ion-note>
       }
       @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" slot="helper">Confirm password is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'MGR_CONFIRM_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <!-- ── Зарплатная ставка ───────────────────────────── -->
     @if (canShowSalaryRate) {
       <ion-list-header>
-        <ion-label><strong>Salary Rate</strong></ion-label>
+        <ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label>
       </ion-list-header>
 
       <ion-item>
-        <ion-label position="stacked">Rate Type</ion-label>
+        <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
         <ion-select
           formControlName="salaryRateType"
-          placeholder="Select type"
+          [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
           (ionChange)="onSalaryRateChange($event.detail.value)"
         >
           @for (opt of salaryRateOptions; track opt.value) {
@@ -113,14 +113,14 @@
 
       @if (showBaseAmount) {
         <ion-item>
-          <ion-label position="stacked">Base Amount</ion-label>
+          <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
           <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
         </ion-item>
       }
 
       @if (showCommissionPercent) {
         <ion-item>
-          <ion-label position="stacked">Commission %</ion-label>
+          <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
           <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
         </ion-item>
       }
@@ -131,7 +131,7 @@
   <!-- ── Расписание (вне form, signal-based как у employee) ─── -->
   <div class="schedule-section">
     <div class="schedule-header">
-      <h3 class="schedule-header__title">Working Hours</h3>
+      <h3 class="schedule-header__title">{{ 'DEPT_WORKING_HOURS' | translate }}</h3>
     </div>
 
     <ion-card class="schedule-card">
@@ -143,7 +143,7 @@
               <div class="schedule-row__name">
                 <span class="schedule-row__day">{{ row.label }}</span>
                 @if (!row.enabled) {
-                  <span class="schedule-row__closed-label">Closed</span>
+                  <span class="schedule-row__closed-label">{{ 'DEPT_CLOSED' | translate }}</span>
                 } @else {
                   <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
                 }
@@ -158,7 +158,7 @@
             @if (row.enabled) {
               <div class="schedule-row__times">
                 <div class="time-field">
-                  <label class="time-field__label">From</label>
+                  <label class="time-field__label">{{ 'FROM_TIME' | translate }}</label>
                   <input
                     class="time-field__native-input"
                     type="time"
@@ -169,7 +169,7 @@
                 </div>
                 <span class="time-field__separator">—</span>
                 <div class="time-field">
-                  <label class="time-field__label">To</label>
+                  <label class="time-field__label">{{ 'TO_TIME' | translate }}</label>
                   <input
                     class="time-field__native-input"
                     type="time"
@@ -188,5 +188,4 @@
   </div>
 
 </ion-content>
-
 

@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { IBaseQueries } from '@core/models/application.interface';
 import {
@@ -30,7 +31,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (inventoryLoading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of inventoryCards(); track card.title) {
@@ -49,7 +50,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Top Services by Revenue -->
       @if (!servicesLoading() && servicesByRevenueChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Services by Revenue</h3>
+          <h3 class="chart-title">{{ 'DASH_TOP_SERVICES_REVENUE_TITLE' | translate }}</h3>
           <apx-chart
             [series]="servicesByRevenueChart()!.series"
             [chart]="servicesByRevenueChart()!.chart"
@@ -67,7 +68,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Top Services by Bookings -->
       @if (!servicesLoading() && servicesByBookingsChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Services by Bookings</h3>
+          <h3 class="chart-title">{{ 'DASH_TOP_SERVICES_BOOKINGS_TITLE' | translate }}</h3>
           <apx-chart
             [series]="servicesByBookingsChart()!.series"
             [chart]="servicesByBookingsChart()!.chart"
@@ -85,14 +86,14 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Top Products -->
       @if (!productsLoading() && topProducts().length) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Products</h3>
+          <h3 class="chart-title">{{ 'DASH_TOP_PRODUCTS_TITLE' | translate }}</h3>
           <ion-list lines="none">
             @for (product of topProducts(); track product.name; let i = $index) {
               <ion-item>
                 <div class="rank-badge" slot="start">#{{ i + 1 }}</div>
                 <ion-label>
                   <h3>{{ product.name }}</h3>
-                  <p>{{ product.quantitySold }} sold</p>
+                  <p>{{ 'DASH_N_SOLD' | translate:{ count: product.quantitySold } }}</p>
                 </ion-label>
                 <ion-note slot="end" color="success">{{ formatCurrency(product.revenue) }}</ion-note>
               </ion-item>
@@ -115,7 +116,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
     .rank-badge { width: 28px; height: 28px; border-radius: 50%; background: #6366f1; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InventoryTabComponent implements OnInit {
@@ -123,6 +124,7 @@ export class InventoryTabComponent implements OnInit {
   private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public servicesLoading = signal(true);
   public servicesByRevenueChart = signal<BarChartOptions | null>(null);
@@ -192,7 +194,7 @@ export class InventoryTabComponent implements OnInit {
     if (!items.length) return null;
     const isRevenue = mode === 'revenue';
     const color = isRevenue ? '#6366f1' : '#3b82f6';
-    const title = isRevenue ? 'Top Services by Revenue' : 'Top Services by Bookings';
+    const title = isRevenue ? this.t.instant('DASH_TOP_SERVICES_REVENUE_TITLE') : this.t.instant('DASH_TOP_SERVICES_BOOKINGS_TITLE');
     return {
       series: [{ name: title, data: items.map((i) => isRevenue ? i.revenue : i.bookings) }],
       chart: { type: 'bar', height: Math.max(200, items.length * 40 + 60), fontFamily: 'inherit', toolbar: { show: false } },
@@ -201,16 +203,16 @@ export class InventoryTabComponent implements OnInit {
       dataLabels: { enabled: true, formatter: (val: number) => isRevenue ? this.state.formatCurrency(val) : val.toString(), style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
       xaxis: { categories: items.map((i) => i.name), labels: { style: { fontSize: '11px', colors: '#94a3b8' }, formatter: (val: string) => isRevenue ? this.state.formatCurrency(parseFloat(val) || 0) : val }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '12px', colors: '#334155' }, maxWidth: 160 } },
-      tooltip: { y: { formatter: (val: number): string => isRevenue ? this.state.formatCurrency(val) : `${val} bookings` } },
+      tooltip: { y: { formatter: (val: number): string => isRevenue ? this.state.formatCurrency(val) : this.t.instant('DASH_N_BOOKINGS', { count: val }) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
     };
   }
 
   private buildInventoryCards(data: IInventoryAnalyticsResponse): KpiCard[] {
     return [
-      { title: 'Inventory Turnover', value: data.inventoryTurnover.toString(), subtitle: 'COGS / Avg Inventory', icon: 'fi_refresh_cw', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'Product Revenue', value: this.state.formatCurrency(data.totalProductRevenue), subtitle: 'From sold products', icon: 'fi_dollar_sign', colorVar: '--green-600', bgVar: '--green-50' },
-      { title: 'Cost of Goods', value: this.state.formatCurrency(data.totalCostOfGoods), subtitle: 'Total material cost', icon: 'fi_package', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_INVENTORY_TURNOVER_TITLE'), value: data.inventoryTurnover.toString(), subtitle: this.t.instant('DASH_KPI_INVENTORY_TURNOVER_SUBTITLE'), icon: 'fi_refresh_cw', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_PRODUCT_REVENUE_TITLE'), value: this.state.formatCurrency(data.totalProductRevenue), subtitle: this.t.instant('DASH_KPI_PRODUCT_REVENUE_SUBTITLE'), icon: 'fi_dollar_sign', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_COST_OF_GOODS_TITLE'), value: this.state.formatCurrency(data.totalCostOfGoods), subtitle: this.t.instant('DASH_KPI_COST_OF_GOODS_SUBTITLE'), icon: 'fi_package', colorVar: '--orange-500', bgVar: '--orange-50' },
     ];
   }
 }

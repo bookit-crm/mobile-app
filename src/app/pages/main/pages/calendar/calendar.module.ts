@@ -1,6 +1,7 @@
 ﻿import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { CalendarPage } from './calendar.page';
 import { RouterModule, Routes } from '@angular/router';
 import { DayViewComponent } from './components/day-view/day-view.component';
@@ -17,6 +18,7 @@ const routes: Routes = [{ path: '', component: CalendarPage }];
   imports: [
     CommonModule,
     IonicModule,
+    TranslateModule,
     RouterModule.forChild(routes),
     DayViewComponent,
     WeekViewComponent,

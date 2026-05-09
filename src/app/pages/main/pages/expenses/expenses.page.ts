@@ -10,6 +10,7 @@
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { debounceTime, Subject, take } from 'rxjs';
 
 import { IExpense } from '@core/models/expense.interface';
@@ -39,6 +40,7 @@ export class ExpensesPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   // ── Feature gate ─────────────────────────────────────────────────────────
   public readonly hasExpensesFeature = computed(() =>
@@ -90,16 +92,16 @@ export class ExpensesPage implements OnInit {
 
   private readonly search$ = new Subject<string>();
 
-  // ── Label options ─────────────────────────────────────────────────────────
-  public readonly categoryOptions: IKeyValuePair[] = Object.values(EExpenseCategory).map((v) => ({
-    value: v, display: this.categoryLabel(v),
-  }));
-  public readonly statusOptions: IKeyValuePair[] = Object.values(EExpenseStatus).map((v) => ({
-    value: v, display: this.statusLabel(v),
-  }));
-  public readonly recurrenceOptions: IKeyValuePair[] = Object.values(EExpenseRecurrence).map((v) => ({
-    value: v, display: this.recurrenceLabel(v),
-  }));
+  // ── Label options (getters for live translation) ──────────────────────────
+  get categoryOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseCategory).map((v) => ({ value: v, display: this.categoryLabel(v) }));
+  }
+  get statusOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseStatus).map((v) => ({ value: v, display: this.statusLabel(v) }));
+  }
+  get recurrenceOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseRecurrence).map((v) => ({ value: v, display: this.recurrenceLabel(v) }));
+  }
 
   ngOnInit(): void {
     if (!this.singleDepartmentMode()) {
@@ -188,11 +190,11 @@ export class ExpensesPage implements OnInit {
   public async confirmDeleteExpense(expense: IExpense, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Expense',
-      message: `Delete "${expense.title}"?`,
+      header: this.t.instant('DELETE_EXP_TITLE'),
+      message: this.t.instant('DELETE_EXP_MSG', { title: expense.title }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
-        { text: 'Delete', role: 'destructive', handler: () => this.deleteExpense(expense._id) },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
+        { text: this.t.instant('DELETE'), role: 'destructive', handler: () => this.deleteExpense(expense._id) },
       ],
     });
     await alert.present();
@@ -222,27 +224,42 @@ export class ExpensesPage implements OnInit {
   }
 
   public categoryLabel(val: EExpenseCategory | string): string {
-    const labels: Record<string, string> = {
-      rent: 'Rent', salary: 'Salary', commission: 'Commission', utilities: 'Utilities',
-      inventory: 'Inventory', equipment: 'Equipment', marketing: 'Marketing',
-      software: 'Software', maintenance: 'Maintenance', tax: 'Tax',
-      insurance: 'Insurance', training: 'Training', other: 'Other',
+    const map: Record<string, string> = {
+      [EExpenseCategory.Rent]:        'EXP_CAT_RENT',
+      [EExpenseCategory.Salary]:      'EXP_CAT_SALARY',
+      [EExpenseCategory.Commission]:  'EXP_CAT_COMMISSION',
+      [EExpenseCategory.Utilities]:   'EXP_CAT_UTILITIES',
+      [EExpenseCategory.Inventory]:   'EXP_CAT_INVENTORY',
+      [EExpenseCategory.Equipment]:   'EXP_CAT_EQUIPMENT',
+      [EExpenseCategory.Marketing]:   'EXP_CAT_MARKETING',
+      [EExpenseCategory.Software]:    'EXP_CAT_SOFTWARE',
+      [EExpenseCategory.Maintenance]: 'EXP_CAT_MAINTENANCE',
+      [EExpenseCategory.Tax]:         'EXP_CAT_TAX',
+      [EExpenseCategory.Insurance]:   'EXP_CAT_INSURANCE',
+      [EExpenseCategory.Training]:    'EXP_CAT_TRAINING',
+      [EExpenseCategory.Other]:       'EXP_CAT_OTHER',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
   public statusLabel(val: EExpenseStatus | string): string {
-    const labels: Record<string, string> = {
-      pending: 'Pending', approved: 'Approved', rejected: 'Rejected',
+    const map: Record<string, string> = {
+      [EExpenseStatus.Pending]:  'EXP_STATUS_PENDING',
+      [EExpenseStatus.Approved]: 'EXP_STATUS_APPROVED',
+      [EExpenseStatus.Rejected]: 'EXP_STATUS_REJECTED',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
   public recurrenceLabel(val: EExpenseRecurrence | string): string {
-    const labels: Record<string, string> = {
-      one_time: 'One time', daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly',
+    const map: Record<string, string> = {
+      [EExpenseRecurrence.OneTime]: 'EXP_REC_ONE_TIME',
+      [EExpenseRecurrence.Daily]:   'EXP_REC_DAILY',
+      [EExpenseRecurrence.Weekly]:  'EXP_REC_WEEKLY',
+      [EExpenseRecurrence.Monthly]: 'EXP_REC_MONTHLY',
+      [EExpenseRecurrence.Yearly]:  'EXP_REC_YEARLY',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
   // ── Private ───────────────────────────────────────────────────────────────
@@ -303,7 +320,11 @@ export class ExpensesPage implements OnInit {
     this.expensesService.deleteExpense(id).pipe(take(1)).subscribe({
       next: async () => {
         this.resetAndLoad();
-        const toast = await this.toastCtrl.create({ message: 'Expense deleted', duration: 2000, color: 'success' });
+        const toast = await this.toastCtrl.create({
+          message: this.t.instant('EXP_DELETED'),
+          duration: 2000,
+          color: 'success',
+        });
         await toast.present();
       },
     });

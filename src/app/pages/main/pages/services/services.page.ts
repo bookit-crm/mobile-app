@@ -22,6 +22,7 @@ import { ServicesService, IServicesFilters } from '@core/services/services.servi
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { EUserRole } from '@core/enums/e-user-role';
+import { TranslateService } from '@ngx-translate/core';
 import { ServiceModalComponent } from './components/service-modal/service-modal.component';
 
 @Component({
@@ -42,6 +43,7 @@ export class ServicesPage {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   // ── List state ─────────────────────────────────────────────────────────────
   public services = signal<IService[]>([]);
@@ -165,7 +167,7 @@ export class ServicesPage {
       full = await firstValueFrom(this.servicesService.getServiceById(service._id));
     } catch (err) {
       console.error('[Services] getServiceById error', err);
-      await this.showToast('Failed to load service', 'danger');
+      await this.showToast(this.t.instant('SVC_FAIL_LOAD'), 'danger');
       return;
     }
 
@@ -186,12 +188,12 @@ export class ServicesPage {
     }
 
     const alert = await this.alertCtrl.create({
-      header: 'Delete Service',
-      message: `Delete "${service.name}"? This action cannot be undone.`,
+      header: this.t.instant('SVC_DELETE_TITLE'),
+      message: this.t.instant('SVC_DELETE_MSG', { name: service.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteService(service._id),
         },
@@ -317,16 +319,16 @@ export class ServicesPage {
     this.servicesService.delete(id).pipe(take(1)).subscribe({
       next: async () => {
         this.refresh();
-        await this.showToast('Service deleted');
+        await this.showToast(this.t.instant('SVC_DELETED'));
       },
     });
   }
 
   private async showSubscriptionAlert(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Subscription Required',
-      message: 'Your subscription is not active. Please renew your plan.',
-      buttons: ['OK'],
+      header: this.t.instant('SVC_SUB_REQUIRED_TITLE'),
+      message: this.t.instant('SVC_SUB_REQUIRED_MSG'),
+      buttons: [this.t.instant('OK')],
     });
     await alert.present();
   }

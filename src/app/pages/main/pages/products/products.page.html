@@ -3,10 +3,10 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Products</ion-title>
+    <ion-title>{{ 'PROD_TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (canViewHistory()) {
-        <ion-button (click)="openAllHistory()" title="All History">
+        <ion-button (click)="openAllHistory()" [title]="'PROD_OPT_HISTORY' | translate">
           <ion-icon name="time-outline" slot="icon-only"></ion-icon>
         </ion-button>
       }
@@ -20,7 +20,7 @@
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search by name, SKU..."
+      [placeholder]="'PROD_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -37,7 +37,7 @@
   <ng-template>
     <ion-header class="ion-no-border">
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'PROD_FILTER_TITLE' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -50,29 +50,29 @@
       <ion-list lines="full">
 
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Status</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'PROD_FILTER_STATUS' | translate }}</ion-label>
           <ion-select
             [(ngModel)]="tempStatusFilter"
             interface="action-sheet"
-            placeholder="All statuses"
+            [placeholder]="'PROD_ALL_STATUSES' | translate"
           >
-            <ion-select-option value="">All</ion-select-option>
-            <ion-select-option value="active">Active</ion-select-option>
-            <ion-select-option value="archived">Archived</ion-select-option>
+            <ion-select-option value="">{{ 'PROD_STATUS_ALL' | translate }}</ion-select-option>
+            <ion-select-option value="active">{{ 'PROD_STATUS_ACTIVE' | translate }}</ion-select-option>
+            <ion-select-option value="archived">{{ 'PROD_STATUS_ARCHIVED' | translate }}</ion-select-option>
           </ion-select>
         </ion-item>
 
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Stock Status</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'PROD_FILTER_STOCK' | translate }}</ion-label>
           <ion-select
             [(ngModel)]="tempStockStatusFilter"
             interface="action-sheet"
-            placeholder="All stock levels"
+            [placeholder]="'PROD_ALL_STOCK_LEVELS' | translate"
           >
-            <ion-select-option value="">All</ion-select-option>
-            <ion-select-option value="normal">Normal</ion-select-option>
-            <ion-select-option value="low">Low Stock</ion-select-option>
-            <ion-select-option value="out_of_stock">Out of Stock</ion-select-option>
+            <ion-select-option value="">{{ 'PROD_STATUS_ALL' | translate }}</ion-select-option>
+            <ion-select-option value="normal">{{ 'PROD_STOCK_NORMAL' | translate }}</ion-select-option>
+            <ion-select-option value="low">{{ 'PROD_STOCK_LOW' | translate }}</ion-select-option>
+            <ion-select-option value="out_of_stock">{{ 'PROD_STOCK_OUT' | translate }}</ion-select-option>
           </ion-select>
         </ion-item>
 
@@ -82,8 +82,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'PROD_RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'PROD_APPLY_FILTERS' | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -100,35 +100,34 @@
   } @else if (!isLoading() && products().length === 0) {
     <div class="products-empty">
       <ion-icon name="cube-outline" class="products-empty__icon"></ion-icon>
-      <h3 class="products-empty__title">No products yet</h3>
-      <p class="products-empty__text">Add your first product to start managing inventory.</p>
+      <h3 class="products-empty__title">{{ 'PROD_EMPTY_TITLE' | translate }}</h3>
+      <p class="products-empty__text">{{ 'PROD_EMPTY_TEXT' | translate }}</p>
       @if (canManageProducts()) {
         <ion-button color="primary" (click)="openCreateModal()">
           <ion-icon name="add-outline" slot="start"></ion-icon>
-          Add Product
+          {{ 'PROD_ADD_PRODUCT' | translate }}
         </ion-button>
       }
     </div>
   } @else {
     <div class="products-meta">
       <p class="products-count">
-        {{ totalCount() }} product(s)
+        {{ 'PROD_COUNT' | translate:{ count: totalCount() } }}
         @if (activeFiltersCount() > 0) {
-          <span class="products-filters-active"> · {{ activeFiltersCount() }} filter(s) active</span>
+          <span class="products-filters-active"> {{ 'PROD_FILTERS_ACTIVE' | translate:{ count: activeFiltersCount() } }}</span>
         }
       </p>
     </div>
 
     <div class="swipe-hint">
       <ion-icon name="swap-horizontal-outline"></ion-icon>
-      <span>Swipe left on a card for options</span>
+      <span>{{ 'PROD_SWIPE_HINT' | translate }}</span>
     </div>
 
     <ion-list lines="none">
       @for (product of products(); track product._id) {
         <ion-item-sliding>
           <ion-item [button]="true" [detail]="false">
-            <!-- Stock status icon slot -->
             <div class="product-icon" slot="start">
               <ion-icon name="cube-outline"></ion-icon>
             </div>
@@ -140,7 +139,7 @@
                   {{ getStockStatusLabel(product) }}
                 </ion-badge>
                 @if (product.status === 'archived') {
-                  <ion-badge color="medium" class="status-badge">Archived</ion-badge>
+                  <ion-badge color="medium" class="status-badge">{{ 'PROD_ARCHIVED_BADGE' | translate }}</ion-badge>
                 }
               </div>
 
@@ -153,50 +152,41 @@
 
               <p class="product-info">
                 <ion-icon name="storefront-outline"></ion-icon>
-                Stock: <strong>{{ product.stock ?? 0 }} {{ product.unit }}</strong>
+                {{ 'PROD_STOCK_LABEL' | translate }} <strong>{{ product.stock ?? 0 }} {{ product.unit }}</strong>
                 @if (product.minStock !== null && product.minStock !== undefined) {
-                  <span class="stock-threshold"> / min {{ product.minStock }}</span>
+                  <span class="stock-threshold"> {{ 'PROD_MIN_LABEL' | translate }} {{ product.minStock }}</span>
                 }
               </p>
 
               <p class="product-info product-price">
                 <ion-icon name="pricetag-outline"></ion-icon>
-                Sale: <strong>{{ formatPrice(product.salePrice) }}</strong>
+                {{ 'PROD_SALE_LABEL' | translate }} <strong>{{ formatPrice(product.salePrice) }}</strong>
                 @if (product.purchasePrice !== null && product.purchasePrice !== undefined) {
-                  <span class="price-purchase"> · Cost: {{ formatPrice(product.purchasePrice) }}</span>
+                  <span class="price-purchase"> {{ 'PROD_COST_LABEL' | translate }} {{ formatPrice(product.purchasePrice) }}</span>
                 }
               </p>
             </ion-label>
 
             @if (canManageProducts() || canViewHistory()) {
-              <ion-icon
-                name="chevron-back-outline"
-                slot="end"
-                class="swipe-indicator"
-              ></ion-icon>
+              <ion-icon name="chevron-back-outline" slot="end" class="swipe-indicator"></ion-icon>
             }
           </ion-item>
 
           @if (canManageProducts() || canViewHistory()) {
             <ion-item-options side="end">
               @if (canManageProducts()) {
-                <!-- Edit -->
                 <ion-item-option color="primary" (click)="openEditModal(product, $event)">
                   <ion-icon name="create-outline" slot="top"></ion-icon>
-                  <span class="option-label">Edit</span>
+                  <span class="option-label">{{ 'PROD_OPT_EDIT' | translate }}</span>
                 </ion-item-option>
               }
-
               @if (canViewHistory()) {
-                <!-- History -->
                 <ion-item-option color="secondary" (click)="openHistory(product, $event)">
                   <ion-icon name="time-outline" slot="top"></ion-icon>
-                  <span class="option-label">History</span>
+                  <span class="option-label">{{ 'PROD_OPT_HISTORY' | translate }}</span>
                 </ion-item-option>
               }
-
               @if (canManageProducts()) {
-                <!-- Archive / Activate -->
                 <ion-item-option
                   [color]="product.status === 'archived' ? 'success' : 'warning'"
                   (click)="confirmArchive(product, $event)"
@@ -205,13 +195,12 @@
                     [name]="product.status === 'archived' ? 'refresh-outline' : 'archive-outline'"
                     slot="top"
                   ></ion-icon>
-                  <span class="option-label">{{ product.status === 'archived' ? 'Activate' : 'Archive' }}</span>
+                  <span class="option-label">{{ (product.status === 'archived' ? 'PROD_OPT_ACTIVATE' : 'PROD_OPT_ARCHIVE') | translate }}</span>
                 </ion-item-option>
 
-                <!-- Delete -->
                 <ion-item-option color="danger" (click)="confirmDelete(product, $event)">
                   <ion-icon name="trash-outline" slot="top"></ion-icon>
-                  <span class="option-label">Delete</span>
+                  <span class="option-label">{{ 'PROD_OPT_DELETE' | translate }}</span>
                 </ion-item-option>
               }
             </ion-item-options>

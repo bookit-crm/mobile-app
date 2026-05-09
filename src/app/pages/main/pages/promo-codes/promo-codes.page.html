@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Promo Codes</ion-title>
+    <ion-title>{{ 'PC_TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <!-- Filter button with active-count badge -->
       <ion-button fill="clear" (click)="openFilterSheet()" class="filter-btn">
@@ -17,7 +17,7 @@
 
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search promo codes..."
+      [placeholder]="'PC_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -37,8 +37,8 @@
   @if (!isLoading() && !hasPromoCodesFeature()) {
     <div class="pc-empty">
       <ion-icon name="lock-closed-outline" class="pc-empty__icon"></ion-icon>
-      <h3>Upgrade Required</h3>
-      <p>Promo codes are available on Starter plan and above.</p>
+      <h3>{{ 'PC_UPGRADE_TITLE' | translate }}</h3>
+      <p>{{ 'PC_UPGRADE_TEXT' | translate }}</p>
     </div>
   }
 
@@ -46,8 +46,8 @@
   @if (!isLoading() && hasPromoCodesFeature() && promoCodes().length === 0) {
     <div class="pc-empty">
       <ion-icon name="pricetag-outline" class="pc-empty__icon"></ion-icon>
-      <h3>No promo codes yet</h3>
-      <p>Create your first promo code to offer discounts to clients.</p>
+      <h3>{{ 'PC_EMPTY_TITLE' | translate }}</h3>
+      <p>{{ 'PC_EMPTY_TEXT' | translate }}</p>
     </div>
   }
 
@@ -56,7 +56,7 @@
 
     <div class="swipe-hint">
       <ion-icon name="swap-horizontal-outline"></ion-icon>
-      <span>Swipe left on a card for options</span>
+      <span>{{ 'PC_SWIPE_HINT' | translate }}</span>
     </div>
 
     <ion-list lines="none">
@@ -67,7 +67,7 @@
               <div class="promo-header">
                 <h2>{{ promo.name }}</h2>
                 <ion-badge [color]="promo.isVisible ? 'success' : 'medium'" class="vis-badge">
-                  {{ promo.isVisible ? 'Visible' : 'Hidden' }}
+                  {{ promo.isVisible ? ('PC_VISIBLE' | translate) : ('PC_HIDDEN' | translate) }}
                 </ion-badge>
               </div>
 
@@ -126,7 +126,7 @@
     </ion-list>
 
     <div class="pc-meta ion-padding-horizontal">
-      <p class="pc-count">{{ promoCodesTotal() }} promo code(s)</p>
+      <p class="pc-count">{{ 'PC_COUNT' | translate: { count: promoCodesTotal() } }}</p>
     </div>
   }
 
@@ -150,7 +150,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'PC_FILTERS' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="closeFilterSheet()">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -162,22 +162,22 @@
 
       <!-- Visibility -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Visibility</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'PC_VISIBILITY' | translate }}</ion-label>
         <ion-select
           [value]="visibilityFilter()"
           (ionChange)="visibilityFilter.set($any($event.detail.value))"
           interface="action-sheet"
-          placeholder="All"
+          [placeholder]="'PC_ALL' | translate"
         >
           @for (opt of visibilityOptions; track opt.value) {
-            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+            <ion-select-option [value]="opt.value">{{ opt.label | translate }}</ion-select-option>
           }
         </ion-select>
       </ion-item>
 
       <!-- Date from -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Valid From</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'PC_VALID_FROM' | translate }}</ion-label>
         <input
           type="date"
           class="filter-date-input"
@@ -188,7 +188,7 @@
 
       <!-- Date to -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Valid To</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'PC_VALID_TO' | translate }}</ion-label>
         <input
           type="date"
           class="filter-date-input"
@@ -201,8 +201,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'PC_RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'PC_APPLY_FILTERS' | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>

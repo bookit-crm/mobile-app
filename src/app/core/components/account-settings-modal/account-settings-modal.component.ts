@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { take, catchError, throwError, switchMap } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SupervisorService } from '@services/supervisor.service';
 import { AuthService } from '@services/auth.service';
 import { FilesService } from '@services/files.service';
@@ -30,7 +31,7 @@ enum EChangePasswordStep {
 @Component({
   selector: 'app-account-settings-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './account-settings-modal.component.html',
   styleUrls: ['./account-settings-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +45,7 @@ export class AccountSettingsModalComponent implements OnInit {
   private readonly fb           = inject(FormBuilder);
   private readonly cdr          = inject(ChangeDetectorRef);
   private readonly router       = inject(Router);
+  private readonly translate    = inject(TranslateService);
 
   public readonly authUser     = this.supervisorSvc.authUserSignal;
   public readonly isManager    = this.supervisorSvc.isManager;
@@ -72,6 +74,13 @@ export class AccountSettingsModalComponent implements OnInit {
     if (!u) return '?';
     return ((u.firstName?.[0] ?? '') + (u.lastName?.[0] ?? '')).toUpperCase() || '?';
   });
+
+  public readonly currentLang = signal<string>(localStorage.getItem('app_lang') ?? 'en');
+
+  public readonly languages = [
+    { code: 'en', labelKey: 'LANG_EN' },
+    { code: 'ua', labelKey: 'LANG_UA' },
+  ];
 
   constructor() {
     effect(() => {
@@ -257,6 +266,12 @@ export class AccountSettingsModalComponent implements OnInit {
       position: 'bottom',
     });
     await toast.present();
+  }
+
+  switchLanguage(code: string): void {
+    this.currentLang.set(code);
+    localStorage.setItem('app_lang', code);
+    this.translate.use(code);
   }
 }
 

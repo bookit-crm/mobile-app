@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { debounceTime, Subject, take } from 'rxjs';
 import { IDepartment, IDepartmentScheduleDay } from '@core/models/department.interface';
 import { IFileDTO } from '@core/models/file.interface';
@@ -33,7 +34,15 @@ export interface IScheduleRow {
   to: string;        // HH:mm
 }
 
-const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAY_KEY_MAP: Record<number, string> = {
+  0: 'DAY_SUN',
+  1: 'DAY_MON',
+  2: 'DAY_TUE',
+  3: 'DAY_WED',
+  4: 'DAY_THU',
+  5: 'DAY_FRI',
+  6: 'DAY_SAT',
+};
 // Display order: Mon → Sun
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
@@ -57,6 +66,7 @@ export class DepartmentPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   private readonly scheduleSave$ = new Subject<void>();
 
@@ -151,17 +161,17 @@ export class DepartmentPage implements OnInit {
             // Reset input value so the same file can be re-selected
             input.value = '';
           },
-          error: async () => {
-            this.uploadingField.set(null);
-            this.cdr.markForCheck();
-            const toast = await this.toastCtrl.create({
-              message: 'Upload failed. Please try again.',
-              duration: 3000,
-              color: 'danger',
-            });
-            await toast.present();
-            input.value = '';
-          },
+            error: async () => {
+              this.uploadingField.set(null);
+              this.cdr.markForCheck();
+              const toast = await this.toastCtrl.create({
+                message: this.t.instant('UPLOAD_FAILED'),
+                duration: 3000,
+                color: 'danger',
+              });
+              await toast.present();
+              input.value = '';
+            },
         });
     });
   }
@@ -176,12 +186,12 @@ export class DepartmentPage implements OnInit {
     // Confirm before removing the avatar
     if (field === 'logo') {
       const alert = await this.alertCtrl.create({
-        header: 'Remove Avatar',
-        message: 'Are you sure you want to remove the department avatar?',
+        header: this.t.instant('REMOVE_AVATAR_TITLE'),
+        message: this.t.instant('REMOVE_AVATAR_MSG'),
         buttons: [
-          { text: 'Cancel', role: 'cancel' },
+          { text: this.t.instant('CANCEL'), role: 'cancel' },
           {
-            text: 'Remove',
+            text: this.t.instant('REMOVE'),
             role: 'destructive',
             cssClass: 'alert-btn-danger',
             handler: () => this.doRemoveImage(dept, { logo: null }),
@@ -288,8 +298,9 @@ export class DepartmentPage implements OnInit {
           this.department.set(updated);
           this.isTogglingStatus.set(false);
           this.cdr.markForCheck();
+          const msgKey = newStatus === 'active' ? 'DEPT_NOW_ACTIVE' : 'DEPT_NOW_INACTIVE';
           const toast = await this.toastCtrl.create({
-            message: `Department is now ${newStatus}`,
+            message: this.t.instant(msgKey),
             duration: 2000,
             color: newStatus === 'active' ? 'success' : 'medium',
           });
@@ -299,7 +310,7 @@ export class DepartmentPage implements OnInit {
           this.isTogglingStatus.set(false);
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: 'Failed to update status',
+            message: this.t.instant('DEPT_STATUS_FAILED'),
             duration: 3000,
             color: 'danger',
           });
@@ -322,17 +333,17 @@ export class DepartmentPage implements OnInit {
 
     try {
       await Share.share({
-        title: 'Online booking link',
+        title: this.t.instant('DEPT_SHARE_TITLE'),
         text: link,
         url: link,
-        dialogTitle: 'Share online booking link',
+        dialogTitle: this.t.instant('DEPT_SHARE_DIALOG_TITLE'),
       });
     } catch {
       // fallback to clipboard (web/browser)
       try {
         await navigator.clipboard.writeText(link);
         const toast = await this.toastCtrl.create({
-          message: 'Link copied to clipboard',
+          message: this.t.instant('LINK_COPIED'),
           duration: 2000,
           color: 'success',
         });
@@ -350,34 +361,34 @@ export class DepartmentPage implements OnInit {
     if (!dept) return [];
 
     const items: Array<{ label: string; value: string }> = [
-      { label: 'Name', value: dept.name },
-      { label: 'Status', value: dept.status ?? 'active' },
-      { label: 'Phone', value: dept.phone ?? '—' },
-      { label: 'Address', value: dept.location?.formattedAddress ?? '—' },
-      { label: 'Website', value: dept.websiteURL ?? '—' },
+      { label: this.t.instant('NAME'), value: dept.name },
+      { label: this.t.instant('STATUS'), value: dept.status ?? 'active' },
+      { label: this.t.instant('PHONE'), value: dept.phone ?? '—' },
+      { label: this.t.instant('ADDRESS'), value: dept.location?.formattedAddress ?? '—' },
+      { label: this.t.instant('WEBSITE'), value: dept.websiteURL ?? '—' },
     ];
 
     if (dept.manager) {
       const full = `${dept.manager.firstName} ${dept.manager.lastName}`.trim();
-      items.push({ label: 'Manager', value: full || '—' });
+      items.push({ label: this.t.instant('MANAGER'), value: full || '—' });
     }
 
     if (dept.stats) {
       items.push(
-        { label: 'Employees', value: String(dept.stats.employees ?? 0) },
-        { label: 'Services', value: String(dept.stats.services ?? 0) },
+        { label: this.t.instant('EMPLOYEES'), value: String(dept.stats.employees ?? 0) },
+        { label: this.t.instant('SERVICES'), value: String(dept.stats.services ?? 0) },
       );
     }
 
     if (dept.created) {
       items.push({
-        label: 'Created',
+        label: this.t.instant('CREATED'),
         value: new Date(dept.created).toLocaleDateString('en-GB'),
       });
     }
 
     if (dept.specializations?.length) {
-      items.push({ label: 'Specializations', value: dept.specializations.join(', ') });
+      items.push({ label: this.t.instant('SPECIALIZATIONS'), value: dept.specializations.join(', ') });
     }
 
     return items;
@@ -403,12 +414,12 @@ export class DepartmentPage implements OnInit {
     const dept = this.department();
     if (!dept) return;
     const alert = await this.alertCtrl.create({
-      header: 'Delete Department',
-      message: `Are you sure you want to delete "${dept.name}"? This cannot be undone.`,
+      header: this.t.instant('DELETE_DEPT_TITLE'),
+      message: this.t.instant('DELETE_DEPT_MSG_UNDONE', { name: dept.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           cssClass: 'alert-btn-danger',
           handler: () => {
@@ -418,7 +429,7 @@ export class DepartmentPage implements OnInit {
               .subscribe({
                 next: async () => {
                   const toast = await this.toastCtrl.create({
-                    message: 'Department deleted',
+                    message: this.t.instant('DEPT_DELETED'),
                     duration: 2000,
                     color: 'success',
                   });
@@ -473,7 +484,7 @@ export class DepartmentPage implements OnInit {
           this.isLoading.set(false);
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: 'Failed to load department',
+            message: this.t.instant('DEPT_LOAD_FAILED'),
             duration: 3000,
             color: 'danger',
           });
@@ -489,7 +500,7 @@ export class DepartmentPage implements OnInit {
       const enabled = !!(existing?.from && existing?.to);
       return {
         day,
-        label: DAY_LABELS[day],
+        label: this.t.instant(DAY_KEY_MAP[day]),
         enabled,
         from: existing?.from ? this.isoToTime(existing.from) : '08:00',
         to:   existing?.to   ? this.isoToTime(existing.to)   : '18:00',

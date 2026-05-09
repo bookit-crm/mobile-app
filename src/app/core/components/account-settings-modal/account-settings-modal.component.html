@@ -5,7 +5,7 @@
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>My Account</ion-title>
+    <ion-title>{{ 'MY_ACCOUNT' | translate }}</ion-title>
     <ion-buttons slot="end">
 
       <!-- Profile tab: Save -->
@@ -16,7 +16,7 @@
           @if (isSavingProfile()) {
             <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
           }
-          Save
+          {{ 'SAVE' | translate }}
         </ion-button>
       }
 
@@ -29,7 +29,7 @@
             @if (isSavingSecurity()) {
               <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
             }
-            Send Code
+            {{ 'SEND_CODE' | translate }}
           </ion-button>
         }
         @if (changePasswordStep() === EChangePasswordStep.Otp) {
@@ -39,7 +39,7 @@
             @if (isSavingSecurity()) {
               <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
             }
-            Confirm
+            {{ 'CONFIRM' | translate }}
           </ion-button>
         }
         @if (changePasswordStep() === EChangePasswordStep.Password) {
@@ -49,7 +49,7 @@
             @if (isSavingSecurity()) {
               <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
             }
-            Save
+            {{ 'SAVE' | translate }}
           </ion-button>
         }
       }
@@ -61,11 +61,11 @@
   <ion-toolbar>
     <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event.detail.value))">
       <ion-segment-button value="profile">
-        <ion-label>Profile</ion-label>
+        <ion-label>{{ 'PROFILE' | translate }}</ion-label>
       </ion-segment-button>
       @if (showSecurity()) {
         <ion-segment-button value="security">
-          <ion-label>Security</ion-label>
+          <ion-label>{{ 'SECURITY' | translate }}</ion-label>
         </ion-segment-button>
       }
     </ion-segment>
@@ -94,7 +94,7 @@
             [disabled]="isUploadingAvatar()"
           >
             <ion-icon slot="start" name="cloud-upload-outline"></ion-icon>
-            {{ authUser()?.avatar?.url ? 'Change' : 'Upload' }}
+            {{ authUser()?.avatar?.url ? ('CHANGE_AVATAR' | translate) : ('UPLOAD_AVATAR' | translate) }}
           </ion-button>
 
           @if (authUser()?.avatar?.url) {
@@ -105,7 +105,7 @@
               (click)="removeAvatar()"
             >
               <ion-icon slot="start" name="trash-outline"></ion-icon>
-              Remove
+              {{ 'REMOVE_AVATAR' | translate }}
             </ion-button>
           }
         </div>
@@ -117,54 +117,71 @@
 
           <ion-item class="acc-modal__field">
             <ion-input
-              label="First Name"
+              [label]="'FIRST_NAME' | translate"
               labelPlacement="stacked"
-              placeholder="Enter first name"
+              [placeholder]="'ENTER_FIRST_NAME' | translate"
               formControlName="firstName"
-              clearInput
+              [clearInput]="true"
             ></ion-input>
           </ion-item>
           @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
-            <p class="acc-modal__field-error">First name is required</p>
+            <p class="acc-modal__field-error">{{ 'FIRST_NAME_REQUIRED' | translate }}</p>
           }
 
           <ion-item class="acc-modal__field">
             <ion-input
-              label="Last Name"
+              [label]="'LAST_NAME' | translate"
               labelPlacement="stacked"
-              placeholder="Enter last name"
+              [placeholder]="'ENTER_LAST_NAME' | translate"
               formControlName="lastName"
-              clearInput
+              [clearInput]="true"
             ></ion-input>
           </ion-item>
 
           <ion-item class="acc-modal__field">
             <ion-input
-              label="Email"
+              [label]="'EMAIL' | translate"
               labelPlacement="stacked"
-              placeholder="Enter email"
+              [placeholder]="'ENTER_EMAIL' | translate"
               type="email"
               formControlName="email"
-              clearInput
+              [clearInput]="true"
             ></ion-input>
           </ion-item>
           @if (profileForm.get('email')?.invalid && profileForm.get('email')?.touched) {
-            <p class="acc-modal__field-error">Please enter a valid email</p>
+            <p class="acc-modal__field-error">{{ 'EMAIL_INVALID' | translate }}</p>
           }
 
           <ion-item class="acc-modal__field">
             <ion-input
-              label="Phone"
+              [label]="'PHONE' | translate"
               labelPlacement="stacked"
-              placeholder="Enter phone"
+              [placeholder]="'ENTER_PHONE' | translate"
               type="tel"
               formControlName="phone"
-              clearInput
+              [clearInput]="true"
             ></ion-input>
           </ion-item>
 
         </ion-list>
       </form>
+
+      <!-- ── LANGUAGE ─────────────────────────────── -->
+      <div class="acc-modal__lang-section">
+        <p class="acc-modal__lang-label">{{ 'LANGUAGE' | translate }}</p>
+        <div class="acc-modal__lang-buttons">
+          @for (lang of languages; track lang.code) {
+            <button
+              class="acc-modal__lang-btn"
+              [class.acc-modal__lang-btn--active]="currentLang() === lang.code"
+              (click)="switchLanguage(lang.code)"
+            >
+              {{ lang.labelKey | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
     </div>
   }
 
@@ -174,8 +191,8 @@
       <div class="acc-modal__section-header">
         <ion-icon name="shield-checkmark-outline" color="primary"></ion-icon>
         <div>
-          <h4 class="acc-modal__section-title">Change Password</h4>
-          <p class="acc-modal__section-sub">Update your password to keep your account secure</p>
+          <h4 class="acc-modal__section-title">{{ 'CHANGE_PASSWORD' | translate }}</h4>
+          <p class="acc-modal__section-sub">{{ 'CHANGE_PASSWORD_SUB' | translate }}</p>
         </div>
       </div>
 
@@ -186,12 +203,12 @@
           @if (changePasswordStep() === EChangePasswordStep.Email) {
             <ion-item class="acc-modal__field">
               <ion-input
-                label="Email address"
+                [label]="'EMAIL_ADDRESS' | translate"
                 labelPlacement="stacked"
-                placeholder="Enter your email"
+                [placeholder]="'ENTER_YOUR_EMAIL' | translate"
                 type="email"
                 formControlName="email"
-                clearInput
+                [clearInput]="true"
               ></ion-input>
             </ion-item>
           }
@@ -200,16 +217,16 @@
           @if (changePasswordStep() === EChangePasswordStep.Otp) {
             <div class="acc-modal__otp-hint">
               <ion-icon name="mail-outline" color="primary"></ion-icon>
-              <p>We sent a verification code to your email</p>
+              <p>{{ 'OTP_HINT' | translate }}</p>
             </div>
             <ion-item class="acc-modal__field">
               <ion-input
-                label="Verification Code"
+                [label]="'VERIFICATION_CODE' | translate"
                 labelPlacement="stacked"
-                placeholder="Enter code"
+                [placeholder]="'ENTER_CODE' | translate"
                 formControlName="otpCode"
                 inputmode="numeric"
-                clearInput
+                [clearInput]="true"
               ></ion-input>
             </ion-item>
           }
@@ -218,22 +235,22 @@
           @if (changePasswordStep() === EChangePasswordStep.Password) {
             <ion-item class="acc-modal__field">
               <ion-input
-                label="New Password"
+                [label]="'NEW_PASSWORD' | translate"
                 labelPlacement="stacked"
-                placeholder="Enter new password"
+                [placeholder]="'ENTER_NEW_PASSWORD' | translate"
                 type="password"
                 formControlName="password"
-                clearInput
+                [clearInput]="true"
               ></ion-input>
             </ion-item>
             <ion-item class="acc-modal__field">
               <ion-input
-                label="Confirm Password"
+                [label]="'CONFIRM_PASSWORD' | translate"
                 labelPlacement="stacked"
-                placeholder="Confirm new password"
+                [placeholder]="'CONFIRM_NEW_PASSWORD' | translate"
                 type="password"
                 formControlName="confirmPassword"
-                clearInput
+                [clearInput]="true"
               ></ion-input>
             </ion-item>
           }
@@ -255,7 +272,7 @@
     (click)="logout()"
   >
     <ion-icon slot="start" name="log-out-outline"></ion-icon>
-    Log Out
+    {{ 'LOG_OUT' | translate }}
   </ion-button>
 
 </ion-footer>

@@ -60,6 +60,36 @@
   --ion-color-success-shade:    #18cc75;
   --ion-color-success-tint:     #32ea91;
 
+  // ── Extended color palette (Tailwind-inspired, used in dashboard KPI cards) ──
+  --red-50:        #fef2f2;
+  --red-500:       #ef4444;
+  --red-600:       #dc2626;
+
+  --orange-50:     var(--bk-orange-50);
+  --orange-500:    var(--bk-orange-500);
+
+  --yellow-50:     #fefce8;
+  --yellow-500:    #eab308;
+
+  --green-50:      #f0fdf4;
+  --green-500:     #22c55e;
+  --green-600:     #16a34a;
+
+  --teal-50:       #f0fdfa;
+  --teal-500:      #14b8a6;
+  --teal-600:      #0d9488;
+
+  --blue-50:       #eff6ff;
+  --blue-500:      #3b82f6;
+  --blue-600:      #2563eb;
+
+  --indigo-50:     #eef2ff;
+  --indigo-500:    #6366f1;
+
+  --purple-50:     #faf5ff;
+  --purple-500:    #a855f7;
+  --purple-600:    #9333ea;
+
   // Sidebar tokens
   --bk-sidebar-bg:            var(--bk-grey-900);
   --bk-sidebar-item-color:    var(--bk-stroke);

@@ -10,6 +10,7 @@
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { debounceTime, Subject, switchMap, take } from 'rxjs';
 import { IEmployee } from '@core/models/employee.interface';
 import { ISupervisor } from '@core/models/supervisor.interface';
@@ -40,6 +41,7 @@ export class EmployeesPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   // ── Состояние ──────────────────────────────────────────
   public activeTab = signal<'employees' | 'managers'>('employees');
@@ -133,12 +135,12 @@ export class EmployeesPage implements OnInit {
   public async confirmDeleteEmployee(employee: IEmployee, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Employee',
-      message: `Delete ${employee.firstName} ${employee.lastName}?`,
+      header: this.t.instant('DELETE_EMP_TITLE'),
+      message: this.t.instant('DELETE_EMP_MSG', { name: `${employee.firstName} ${employee.lastName}` }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteEmployee(employee._id),
         },
@@ -177,12 +179,12 @@ export class EmployeesPage implements OnInit {
   public async confirmDeleteManager(manager: ISupervisor, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Manager',
-      message: `Delete ${manager.firstName} ${manager.lastName}?`,
+      header: this.t.instant('DELETE_MGR_TITLE'),
+      message: this.t.instant('DELETE_MGR_MSG', { name: `${manager.firstName} ${manager.lastName}` }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteManager(manager._id),
         },
@@ -202,12 +204,12 @@ export class EmployeesPage implements OnInit {
 
     if (isAssigned) {
       const alert = await this.alertCtrl.create({
-        header: 'Unassign Manager',
-        message: `Remove ${manager.firstName} ${manager.lastName} from managing "${dept.name}"?`,
+        header: this.t.instant('MGR_UNASSIGN_TITLE'),
+        message: this.t.instant('MGR_UNASSIGN_MSG', { name: `${manager.firstName} ${manager.lastName}`, dept: dept.name }),
         buttons: [
-          { text: 'Cancel', role: 'cancel' },
+          { text: this.t.instant('CANCEL'), role: 'cancel' },
           {
-            text: 'Unassign',
+            text: this.t.instant('MGR_UNASSIGN_BTN'),
             role: 'destructive',
             handler: () =>
               this.departmentService
@@ -318,7 +320,7 @@ export class EmployeesPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadEmployees();
-          void this.showToast('Employee deleted');
+          void this.showToast(this.t.instant('EMP_DELETED'));
         },
       });
   }
@@ -330,7 +332,7 @@ export class EmployeesPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadManagers();
-          void this.showToast('Manager deleted');
+          void this.showToast(this.t.instant('MGR_DELETED'));
         },
       });
   }
@@ -355,7 +357,7 @@ export class EmployeesPage implements OnInit {
 
     const depts = this.departments();
     if (!depts.length) {
-      await this.showToast('No departments found. Create a department first.', 'warning');
+      await this.showToast(this.t.instant('EMP_NO_DEPTS_MSG'), 'warning');
       return null;
     }
 
@@ -363,7 +365,7 @@ export class EmployeesPage implements OnInit {
 
     return new Promise(async (resolve) => {
       const alert = await this.alertCtrl.create({
-        header: 'Select Department',
+        header: this.t.instant('SELECT_DEPT_HEADER'),
         inputs: depts.map((d, i) => ({
           type: 'radio' as const,
           label: d.name,
@@ -371,8 +373,8 @@ export class EmployeesPage implements OnInit {
           checked: i === 0,
         })),
         buttons: [
-          { text: 'Cancel', role: 'cancel', handler: () => resolve(null) },
-          { text: 'Select', handler: (data: IDepartment) => resolve(data) },
+          { text: this.t.instant('CANCEL'), role: 'cancel', handler: () => resolve(null) },
+          { text: this.t.instant('SELECT'), handler: (data: IDepartment) => resolve(data) },
         ],
       });
       await alert.present();
@@ -382,9 +384,9 @@ export class EmployeesPage implements OnInit {
   private async showLimitAlert(): Promise<void> {
     const limit = this.subscriptionService.getLimit('employees');
     const alert = await this.alertCtrl.create({
-      header: 'Limit reached',
-      message: `Your plan allows up to ${limit} employee(s). Upgrade to add more.`,
-      buttons: [{ text: 'OK', role: 'cancel' }],
+      header: this.t.instant('EMP_LIMIT_TITLE'),
+      message: this.t.instant('EMP_LIMIT_MSG', { limit }),
+      buttons: [{ text: this.t.instant('OK'), role: 'cancel' }],
     });
     await alert.present();
   }

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy, ChangeDetectorRef, Component, effect, inject, input, output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import {
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   addDays, isSameMonth, isSameDay, isToday, parse, parseISO,
@@ -21,7 +22,7 @@ export interface IMonthDay {
 @Component({
   selector: 'app-month-view',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './month-view.component.html',
   styleUrls: ['./month-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,7 +34,7 @@ export class MonthViewComponent {
   public readonly appointments = input<IAppointment[]>([]);
   public readonly dayClicked = output<string>();
 
-  public dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  public dayNames = ['DAY_MON', 'DAY_TUE', 'DAY_WED', 'DAY_THU', 'DAY_FRI', 'DAY_SAT', 'DAY_SUN'];
   public weeks: IMonthDay[][] = [];
   private viewDate: Date = new Date();
 

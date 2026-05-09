@@ -10,6 +10,7 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActionSheetController, ModalController, ToastController } from '@ionic/angular';
 import { take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 import { IDepartment } from '@core/models/department.interface';
 import { IProduct } from '@core/models/product.interface';
@@ -34,6 +35,7 @@ export class ProductModalComponent implements OnInit {
   private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly toastCtrl = inject(ToastController);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public isSaving = false;
   public selectedDepartmentId: string | null = null;
@@ -41,11 +43,13 @@ export class ProductModalComponent implements OnInit {
 
   public readonly singleDepartmentMode = computed(() => this.supervisorService.singleDepartmentMode());
 
-  public readonly unitOptions = [
-    { value: 'pcs', label: 'Pcs (шт.)' },
-    { value: 'kg', label: 'Kg (кг)' },
-    { value: 'l', label: 'L (л)' },
-  ];
+  public get unitOptions() {
+    return [
+      { value: 'pcs', label: this.t.instant('PROD_UNIT_PCS') },
+      { value: 'kg', label: this.t.instant('PROD_UNIT_KG') },
+      { value: 'l', label: this.t.instant('PROD_UNIT_L') },
+    ];
+  }
 
   public form!: FormGroup;
 
@@ -54,7 +58,7 @@ export class ProductModalComponent implements OnInit {
   }
 
   get modalTitle(): string {
-    return this.isEditMode ? 'Edit Product' : 'Add Product';
+    return this.isEditMode ? this.t.instant('PROD_EDIT_TITLE') : this.t.instant('PROD_ADD_TITLE');
   }
 
   ngOnInit(): void {
@@ -174,7 +178,7 @@ export class ProductModalComponent implements OnInit {
         error: (err) => {
           this.isSaving = false;
           this.cdr.markForCheck();
-          const msg = err?.error?.message ?? 'Failed to save product';
+          const msg = err?.error?.message ?? this.t.instant('PROD_FAIL_SAVE');
           void this.showErrorToast(msg);
         },
       });
@@ -196,7 +200,7 @@ export class ProductModalComponent implements OnInit {
         error: (err) => {
           this.isSaving = false;
           this.cdr.markForCheck();
-          const msg = err?.error?.message ?? 'Failed to create product';
+          const msg = err?.error?.message ?? this.t.instant('PROD_FAIL_CREATE');
           void this.showErrorToast(msg);
         },
       });
@@ -226,10 +230,10 @@ export class ProductModalComponent implements OnInit {
         this.cdr.markForCheck();
       },
     }));
-    buttons.push({ text: 'Cancel', handler: () => {} } as any);
+    buttons.push({ text: this.t.instant('PROD_CANCEL'), handler: () => {} } as any);
 
     const sheet = await this.actionSheetCtrl.create({
-      header: 'Select Department',
+      header: this.t.instant('PROD_SELECT_DEPT_SHEET'),
       buttons,
     });
     await sheet.present();

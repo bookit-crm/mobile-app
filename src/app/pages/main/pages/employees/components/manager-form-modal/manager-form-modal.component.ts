@@ -18,10 +18,11 @@ import {
   Validators,
 } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { ISupervisor } from '@core/models/supervisor.interface';
 import { IDepartment } from '@core/models/department.interface';
-import { ISchedulePayload, IScheduleRow, DAY_LABELS, DAY_ORDER } from '@core/models/schedule.interface';
+import { ISchedulePayload, IScheduleRow, DAY_KEY_MAP, DAY_ORDER } from '@core/models/schedule.interface';
 import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SchedulesService } from '@core/services/schedules.service';
@@ -32,7 +33,7 @@ import { ValidatorsHelper } from '@core/helpers/validators.helper';
 @Component({
   selector: 'app-manager-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './manager-form-modal.component.html',
   styleUrls: ['./manager-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,7 @@ export class ManagerFormModalComponent implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly toastCtrl = inject(ToastController);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public readonly ESalaryRateType = ESalaryRateType;
 
@@ -59,12 +61,14 @@ export class ManagerFormModalComponent implements OnInit {
   public showBaseAmount = false;
   public showCommissionPercent = false;
 
-  public readonly salaryRateOptions = [
-    { value: ESalaryRateType.Fixed, label: 'Fixed' },
-    { value: ESalaryRateType.Commission, label: 'Commission %' },
-    { value: ESalaryRateType.FixedPlusCommission, label: 'Fixed + Commission' },
-    { value: ESalaryRateType.BaseOrCommission, label: 'Base or Commission' },
-  ];
+  public get salaryRateOptions() {
+    return [
+      { value: ESalaryRateType.Fixed, label: this.t.instant('EMP_SALARY_FIXED') },
+      { value: ESalaryRateType.Commission, label: this.t.instant('EMP_SALARY_COMMISSION') },
+      { value: ESalaryRateType.FixedPlusCommission, label: this.t.instant('EMP_SALARY_FIXED_PLUS_COMMISSION') },
+      { value: ESalaryRateType.BaseOrCommission, label: this.t.instant('EMP_SALARY_BASE_OR_COMMISSION') },
+    ];
+  }
 
   // ── Signal-based schedule (same as employee modal) ─────────────────────────
   public scheduleRows: WritableSignal<IScheduleRow[]> = signal([]);
@@ -188,7 +192,7 @@ export class ManagerFormModalComponent implements OnInit {
           this.isSubmitting = false;
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: this.isEditMode ? 'Manager updated' : 'Manager created',
+            message: this.isEditMode ? this.t.instant('MGR_UPDATED') : this.t.instant('MGR_CREATED_OK'),
             duration: 2000,
             color: 'success',
           });
@@ -199,7 +203,7 @@ export class ManagerFormModalComponent implements OnInit {
           this.isSubmitting = false;
           this.cdr.markForCheck();
           const toast = await this.toastCtrl.create({
-            message: 'An error occurred. Please try again.',
+            message: this.t.instant('ERROR_OCCURRED'),
             duration: 3000,
             color: 'danger',
           });
@@ -260,7 +264,7 @@ export class ManagerFormModalComponent implements OnInit {
             const enabled = !!existing?.from;
             return {
               day,
-              label: DAY_LABELS[day],
+              label: this.t.instant(DAY_KEY_MAP[day]),
               enabled,
               from: existing?.from ? this.isoToTime(existing.from) : '09:00',
               to: existing?.to ? this.isoToTime(existing.to) : '18:00',
@@ -281,7 +285,7 @@ export class ManagerFormModalComponent implements OnInit {
       const enabled = !!(existing?.from && existing?.to);
       return {
         day,
-        label: DAY_LABELS[day],
+        label: this.t.instant(DAY_KEY_MAP[day]),
         enabled,
         from: existing?.from ? this.isoToTime(existing.from) : '09:00',
         to: existing?.to ? this.isoToTime(existing.to) : '18:00',

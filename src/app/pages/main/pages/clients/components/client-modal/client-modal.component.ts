@@ -46,7 +46,7 @@ export class ClientModalComponent implements OnInit {
   }
 
   get modalTitle(): string {
-    return this.isEditMode ? 'Edit Client' : 'Add Client';
+    return this.isEditMode ? 'EDIT_CLIENT' : 'ADD_CLIENT';
   }
 
   ngOnInit(): void {

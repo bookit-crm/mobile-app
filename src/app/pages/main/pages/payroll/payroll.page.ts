@@ -20,8 +20,13 @@ import { DepartmentService } from '@core/services/department.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { CreatePeriodsModalComponent } from './components/create-periods-modal/create-periods-modal.component';
 import { PayrollDetailComponent } from './components/payroll-detail/payroll-detail.component';
+import { TranslateService } from '@ngx-translate/core';
 
-const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_KEYS = [
+  'PAY_MONTH_JAN', 'PAY_MONTH_FEB', 'PAY_MONTH_MAR', 'PAY_MONTH_APR',
+  'PAY_MONTH_MAY', 'PAY_MONTH_JUN', 'PAY_MONTH_JUL', 'PAY_MONTH_AUG',
+  'PAY_MONTH_SEP', 'PAY_MONTH_OCT', 'PAY_MONTH_NOV', 'PAY_MONTH_DEC',
+];
 
 @Component({
   selector: 'app-payroll',
@@ -41,9 +46,13 @@ export class PayrollPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public readonly EPayrollPeriodStatus = EPayrollPeriodStatus;
-  public readonly MONTH_NAMES = MONTH_NAMES;
+
+  public get MONTH_NAMES(): string[] {
+    return MONTH_KEYS.map((k) => this.t.instant(k));
+  }
 
   // ── Feature gate ──────────────────────────────────────────────────────────
   public readonly hasPayrollFeature = computed(() =>
@@ -77,12 +86,14 @@ export class PayrollPage implements OnInit {
     return n;
   });
 
-  public readonly statusOptions: { value: EPayrollPeriodStatus | ''; label: string }[] = [
-    { value: '', label: 'All statuses' },
-    { value: EPayrollPeriodStatus.Open, label: 'Open' },
-    { value: EPayrollPeriodStatus.Paid, label: 'Paid' },
-    { value: EPayrollPeriodStatus.Reversed, label: 'Reversed' },
-  ];
+  public get statusOptions(): { value: EPayrollPeriodStatus | ''; label: string }[] {
+    return [
+      { value: '', label: this.t.instant('PAY_STATUS_ALL') },
+      { value: EPayrollPeriodStatus.Open, label: this.t.instant('PAY_STATUS_OPEN') },
+      { value: EPayrollPeriodStatus.Paid, label: this.t.instant('PAY_STATUS_PAID') },
+      { value: EPayrollPeriodStatus.Reversed, label: this.t.instant('PAY_STATUS_REVERSED') },
+    ];
+  }
 
   // ── List state ────────────────────────────────────────────────────────────
   public periods = signal<IPayrollPeriod[]>([]);
@@ -177,12 +188,12 @@ export class PayrollPage implements OnInit {
     const staff = period.employee || period.supervisor;
     const name = `${staff?.firstName ?? ''} ${staff?.lastName ?? ''}`.trim();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Period',
-      message: `Delete payroll period for ${name}?`,
+      header: this.t.instant('PAY_DELETE_TITLE'),
+      message: this.t.instant('PAY_DELETE_MSG', { name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('PAY_CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('PAY_DELETE'),
           role: 'destructive',
           handler: () => this.deletePeriod(period._id),
         },
@@ -311,7 +322,7 @@ export class PayrollPage implements OnInit {
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: async () => {
-          const toast = await this.toastCtrl.create({ message: 'Period deleted', duration: 2000, color: 'success' });
+          const toast = await this.toastCtrl.create({ message: this.t.instant('PAY_PERIOD_DELETED'), duration: 2000, color: 'success' });
           await toast.present();
           this.resetAndLoad();
           this.loadMonthStatuses(this.selectedYear());

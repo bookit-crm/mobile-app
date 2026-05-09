@@ -3,11 +3,11 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Departments</ion-title>
+    <ion-title>{{ 'DEPARTMENTS' | translate }}</ion-title>
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search departments..."
+      [placeholder]="'SEARCH_DEPARTMENTS_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -23,24 +23,24 @@
   } @else if (departments().length === 0) {
     <div class="departments-empty">
       <ion-icon name="business-outline" class="departments-empty__icon"></ion-icon>
-      <h3 class="departments-empty__title">No departments yet</h3>
-      <p class="departments-empty__text">Create your first department to get started.</p>
+      <h3 class="departments-empty__title">{{ 'DEPT_EMPTY_TITLE' | translate }}</h3>
+      <p class="departments-empty__text">{{ 'DEPT_EMPTY_TEXT' | translate }}</p>
       @if (!isManager) {
         <ion-button expand="block" (click)="openCreateModal()">
           <ion-icon name="add-outline" slot="start"></ion-icon>
-          Create Department
+          {{ 'DEPT_CREATE_BTN' | translate }}
         </ion-button>
       }
     </div>
   } @else {
     <!-- Лимит локаций -->
     <div class="departments-meta">
-      <p class="departments-count">{{ totalCount() }} department(s)</p>
+      <p class="departments-count">{{ 'DEPT_COUNT' | translate:{ count: totalCount() } }}</p>
       @if (!isManager) {
         @if (locationLimit() !== -1) {
           <p class="departments-limit" [class.departments-limit--warn]="!canCreateDepartment()">
             <ion-icon [name]="canCreateDepartment() ? 'location-outline' : 'lock-closed-outline'"></ion-icon>
-            {{ totalCount() }} / {{ locationLimit() }} locations
+            {{ 'DEPT_LOCATIONS_LIMIT' | translate:{ current: totalCount(), limit: locationLimit() } }}
           </p>
         }
       }
@@ -49,7 +49,7 @@
     @if (!isManager) {
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left on a card for options</span>
+        <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
       </div>
     }
 
@@ -105,15 +105,15 @@
                   [name]="dept.status === 'active' ? 'pause-circle-outline' : 'play-circle-outline'"
                   slot="top"
                 ></ion-icon>
-                <span class="option-label">{{ dept.status === 'active' ? 'Deactivate' : 'Activate' }}</span>
+                <span class="option-label">{{ (dept.status === 'active' ? 'DEPT_DEACTIVATE' : 'DEPT_ACTIVATE') | translate }}</span>
               </ion-item-option>
               <ion-item-option color="primary" (click)="openEditModal(dept, $event)">
                 <ion-icon name="create-outline" slot="top"></ion-icon>
-                <span class="option-label">Edit</span>
+                <span class="option-label">{{ 'EDIT' | translate }}</span>
               </ion-item-option>
               <ion-item-option color="danger" (click)="confirmDelete(dept, $event)">
                 <ion-icon name="trash-outline" slot="top"></ion-icon>
-                <span class="option-label">Delete</span>
+                <span class="option-label">{{ 'DELETE' | translate }}</span>
               </ion-item-option>
             </ion-item-options>
           }
@@ -134,5 +134,4 @@
   }
 
 </ion-content>
-
 

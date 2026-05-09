@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { IBaseQueries } from '@core/models/application.interface';
@@ -63,7 +64,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
 
       <!-- Revenue Trend Chart -->
       <div class="chart-card">
-        <h3 class="chart-title">Revenue Trend</h3>
+        <h3 class="chart-title">{{ 'DASH_REVENUE_TREND_TITLE' | translate }}</h3>
         @if (chartLoading()) {
           <ion-skeleton-text [animated]="true" style="height:280px;border-radius:8px"></ion-skeleton-text>
         } @else if (chartOptions()) {
@@ -84,7 +85,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
 
       <!-- Revenue by Service -->
       <div class="chart-card">
-        <h3 class="chart-title">Revenue by Service</h3>
+        <h3 class="chart-title">{{ 'DASH_REVENUE_BY_SERVICE_TITLE' | translate }}</h3>
         @if (revenueByServiceLoading()) {
           <ion-skeleton-text [animated]="true" style="height:200px;border-radius:8px"></ion-skeleton-text>
         } @else if (serviceBarChart()) {
@@ -106,7 +107,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
         <!-- Revenue by Employee -->
         @if (employeeBarChart()) {
           <div class="chart-card">
-            <h3 class="chart-title">Revenue by Employee</h3>
+            <h3 class="chart-title">{{ 'DASH_REVENUE_BY_EMPLOYEE_TITLE' | translate }}</h3>
             <apx-chart
               [series]="employeeBarChart()!.series"
               [chart]="employeeBarChart()!.chart"
@@ -124,7 +125,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
         <!-- Revenue by Department -->
         @if (departmentBarChart()) {
           <div class="chart-card">
-            <h3 class="chart-title">Revenue by Location</h3>
+            <h3 class="chart-title">{{ 'DASH_REVENUE_BY_LOCATION_TITLE' | translate }}</h3>
             <apx-chart
               [series]="departmentBarChart()!.series"
               [chart]="departmentBarChart()!.chart"
@@ -142,7 +143,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
         <!-- Revenue Breakdown Donut -->
         @if (revenueDonutChart()) {
           <div class="chart-card">
-            <h3 class="chart-title">Revenue Breakdown</h3>
+            <h3 class="chart-title">{{ 'DASH_REVENUE_BREAKDOWN_TITLE' | translate }}</h3>
             <apx-chart
               [series]="revenueDonutChart()!.series"
               [chart]="revenueDonutChart()!.chart"
@@ -157,24 +158,24 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
           </div>
         }
 
-      <!-- Revenue vs Expenses -->
-      @if (revenueVsExpensesChart()) {
-        <div class="chart-card">
-          <h3 class="chart-title">Revenue vs Expenses</h3>
-          <apx-chart
-            [series]="revenueVsExpensesChart()!.series"
-            [chart]="revenueVsExpensesChart()!.chart"
-            [xaxis]="revenueVsExpensesChart()!.xaxis"
-            [yaxis]="revenueVsExpensesChart()!.yaxis"
-            [stroke]="revenueVsExpensesChart()!.stroke"
-            [fill]="revenueVsExpensesChart()!.fill"
-            [dataLabels]="revenueVsExpensesChart()!.dataLabels"
-            [tooltip]="revenueVsExpensesChart()!.tooltip"
-            [grid]="revenueVsExpensesChart()!.grid"
-            [colors]="revenueVsExpensesChart()!.colors"
-          ></apx-chart>
-        </div>
-      }
+        <!-- Revenue vs Expenses -->
+        @if (revenueVsExpensesChart()) {
+          <div class="chart-card">
+            <h3 class="chart-title">{{ 'DASH_REVENUE_VS_EXPENSES_TITLE' | translate }}</h3>
+            <apx-chart
+              [series]="revenueVsExpensesChart()!.series"
+              [chart]="revenueVsExpensesChart()!.chart"
+              [xaxis]="revenueVsExpensesChart()!.xaxis"
+              [yaxis]="revenueVsExpensesChart()!.yaxis"
+              [stroke]="revenueVsExpensesChart()!.stroke"
+              [fill]="revenueVsExpensesChart()!.fill"
+              [dataLabels]="revenueVsExpensesChart()!.dataLabels"
+              [tooltip]="revenueVsExpensesChart()!.tooltip"
+              [grid]="revenueVsExpensesChart()!.grid"
+              [colors]="revenueVsExpensesChart()!.colors"
+            ></apx-chart>
+          </div>
+        }
       }
     </div>
   `,
@@ -191,7 +192,7 @@ type TAnalyticsLevel = 'minimal' | 'basic' | 'advanced' | 'bi';
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; color: var(--ion-text-color); }
     .skeleton-cards { margin-bottom: 16px; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RevenueTabComponent implements OnInit {
@@ -200,6 +201,7 @@ export class RevenueTabComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
   private subscriptionService = inject(SubscriptionService);
+  private t = inject(TranslateService);
 
   public analyticsLevel: TAnalyticsLevel = 'minimal';
 
@@ -299,7 +301,7 @@ export class RevenueTabComponent implements OnInit {
     this.revenueByServiceLoading.set(true);
     this.dashboardService.getRevenueByService(filters).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.serviceBarChart.set(this.buildBarChartOptions(data.byService, 'Revenue by Service', '#6366f1'));
+        this.serviceBarChart.set(this.buildBarChartOptions(data.byService, this.t.instant('DASH_REVENUE_BY_SERVICE_TITLE'), '#6366f1'));
         this.revenueByServiceLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -311,7 +313,7 @@ export class RevenueTabComponent implements OnInit {
     this.revenueByEmployeeLoading.set(true);
     this.dashboardService.getRevenueByEmployee(filters).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.employeeBarChart.set(data.byEmployee.length ? this.buildBarChartOptions(data.byEmployee, 'Revenue by Employee', '#10b981') : null);
+        this.employeeBarChart.set(data.byEmployee.length ? this.buildBarChartOptions(data.byEmployee, this.t.instant('DASH_REVENUE_BY_EMPLOYEE_TITLE'), '#10b981') : null);
         this.revenueByEmployeeLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -323,7 +325,7 @@ export class RevenueTabComponent implements OnInit {
     this.revenueByDepartmentLoading.set(true);
     this.dashboardService.getRevenueByDepartment(filters).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data) => {
-        this.departmentBarChart.set(data.byDepartment.length ? this.buildBarChartOptions(data.byDepartment, 'Revenue by Department', '#3b82f6') : null);
+        this.departmentBarChart.set(data.byDepartment.length ? this.buildBarChartOptions(data.byDepartment, this.t.instant('DASH_REVENUE_BY_LOCATION_TITLE'), '#3b82f6') : null);
         this.revenueByDepartmentLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -337,7 +339,11 @@ export class RevenueTabComponent implements OnInit {
       next: (data) => {
         const total = data.serviceRevenue + data.productRevenue;
         this.revenueDonutChart.set(total > 0
-          ? this.buildDonutChartOptions([data.serviceRevenue, data.productRevenue], ['Services', 'Products'], ['#6366f1', '#f59e0b'])
+          ? this.buildDonutChartOptions(
+              [data.serviceRevenue, data.productRevenue],
+              [this.t.instant('DASH_SERVICES'), this.t.instant('DASH_PRODUCTS')],
+              ['#6366f1', '#f59e0b'],
+            )
           : null);
         this.revenueBreakdownLoading.set(false);
         this.cdr.markForCheck();
@@ -378,25 +384,25 @@ export class RevenueTabComponent implements OnInit {
   private buildCards(data: IDashboardKpis, profit?: IProfitResponse | null): KpiCard[] {
     if (this.analyticsLevel === 'minimal') {
       return [
-        { title: 'Total Revenue', value: this.state.formatCurrency(data.totalRevenue), subtitle: 'This period', icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
-        { title: 'Avg Appointment Value', value: this.state.formatCurrency(data.avgTicketValue), subtitle: 'Per appointment', icon: 'fi_tag', colorVar: '--orange-500', bgVar: '--orange-50' },
-        { title: 'Completed', value: data.completedAppointments.toString(), subtitle: 'Appointments', icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
+        { title: this.t.instant('DASH_KPI_REVENUE_TITLE'), value: this.state.formatCurrency(data.totalRevenue), subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
+        { title: this.t.instant('DASH_KPI_AVG_TICKET_TITLE'), value: this.state.formatCurrency(data.avgTicketValue), subtitle: this.t.instant('DASH_KPI_PER_APPOINTMENT'), icon: 'fi_tag', colorVar: '--orange-500', bgVar: '--orange-50' },
+        { title: this.t.instant('DASH_KPI_COMPLETED_TITLE'), value: data.completedAppointments.toString(), subtitle: this.t.instant('DASH_KPI_APPOINTMENTS'), icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
       ];
     }
 
     const cards: KpiCard[] = [
-      { title: 'Total Revenue', value: this.state.formatCurrency(data.totalRevenue), subtitle: 'This period', icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_REVENUE_TITLE'), value: this.state.formatCurrency(data.totalRevenue), subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
     ];
 
     if (profit && this.analyticsLevel !== 'basic') {
-      cards.push({ title: 'Net Profit', value: this.state.formatCurrency(profit.netProfit), subtitle: 'Revenue minus expenses', icon: 'fi_dollar_sign', colorVar: profit.netProfit >= 0 ? '--green-600' : '--red-500', bgVar: profit.netProfit >= 0 ? '--green-50' : '--red-50' });
+      cards.push({ title: this.t.instant('DASH_KPI_NET_PROFIT_TITLE'), value: this.state.formatCurrency(profit.netProfit), subtitle: this.t.instant('DASH_KPI_NET_PROFIT_SUBTITLE'), icon: 'fi_dollar_sign', colorVar: profit.netProfit >= 0 ? '--green-600' : '--red-500', bgVar: profit.netProfit >= 0 ? '--green-50' : '--red-50' });
     }
 
     cards.push(
-      { title: 'Avg Appointment Value', value: this.state.formatCurrency(data.avgTicketValue), subtitle: 'Per appointment', icon: 'fi_tag', colorVar: '--orange-500', bgVar: '--orange-50' },
-      { title: 'Completed', value: data.completedAppointments.toString(), subtitle: 'Appointments', icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'New / Returning', value: `${data.newClients} / ${data.returningClients}`, subtitle: 'Clients', icon: 'fi_users', colorVar: '--purple-500', bgVar: '--purple-50' },
-      { title: 'Utilization Rate', value: `${data.utilizationRate || 0}%`, subtitle: 'Staff capacity used', icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_AVG_TICKET_TITLE'), value: this.state.formatCurrency(data.avgTicketValue), subtitle: this.t.instant('DASH_KPI_PER_APPOINTMENT'), icon: 'fi_tag', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_COMPLETED_TITLE'), value: data.completedAppointments.toString(), subtitle: this.t.instant('DASH_KPI_APPOINTMENTS'), icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_NEW_RETURNING_TITLE'), value: `${data.newClients} / ${data.returningClients}`, subtitle: this.t.instant('DASH_KPI_CLIENTS'), icon: 'fi_users', colorVar: '--purple-500', bgVar: '--purple-50' },
+      { title: this.t.instant('DASH_KPI_UTILIZATION_TITLE'), value: `${data.utilizationRate || 0}%`, subtitle: this.t.instant('DASH_KPI_UTILIZATION_SUBTITLE'), icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
     );
 
     return cards;
@@ -408,8 +414,8 @@ export class RevenueTabComponent implements OnInit {
     const tickAmount = !isMonthly && categories.length > 10 ? Math.min(8, Math.ceil(categories.length / 5)) : undefined;
     return {
       series: [
-        { name: 'Current Period', data: data.current.map((p) => p.value) },
-        { name: 'Previous Period', data: data.previous.map((p) => p.value) },
+        { name: this.t.instant('DASH_CURRENT_PERIOD'), data: data.current.map((p) => p.value) },
+        { name: this.t.instant('DASH_PREVIOUS_PERIOD'), data: data.previous.map((p) => p.value) },
       ],
       chart: { type: 'area', height: 280, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
       colors: ['#6366f1', '#d1d5db'],
@@ -445,7 +451,7 @@ export class RevenueTabComponent implements OnInit {
       legend: { position: 'bottom', fontSize: '13px', markers: { shape: 'circle' } },
       dataLabels: { enabled: true, formatter: (val: number) => `${Math.round(val)}%`, style: { fontSize: '12px' } },
       tooltip: { y: { formatter: (val: number) => this.state.formatCurrency(val) } },
-      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: 'Total', formatter: (w: { globals: { seriesTotals: number[] } }): string => { const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0); return this.state.formatCurrency(total); } } } } } },
+      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: this.t.instant('DASH_TOTAL'), formatter: (w: { globals: { seriesTotals: number[] } }): string => { const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0); return this.state.formatCurrency(total); } } } } } },
       responsive: [{ breakpoint: 480, options: { chart: { height: 260 }, legend: { position: 'bottom' } } }],
     };
   }
@@ -462,8 +468,8 @@ export class RevenueTabComponent implements OnInit {
     const tickAmount = isDaily && pointCount > 10 ? Math.min(8, Math.ceil(pointCount / 5)) : undefined;
     return {
       series: [
-        { name: 'Revenue', data: revenueValues.slice(0, pointCount) },
-        { name: 'Expenses', data: expenseValues },
+        { name: this.t.instant('DASH_REVENUE_SERIES'), data: revenueValues.slice(0, pointCount) },
+        { name: this.t.instant('DASH_EXPENSES_SERIES'), data: expenseValues },
       ],
       chart: { type: 'area', height: 280, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
       colors: ['#10b981', '#ef4444'],

@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { ExpensesService } from '@core/services/expenses.service';
 import { IBaseQueries } from '@core/models/application.interface';
@@ -33,8 +34,8 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (kpiLoading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of cards(); track card.title) {
@@ -53,7 +54,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Category Donut -->
       @if (!categoryDonutLoading() && categoryDonutChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Expenses by Category</h3>
+          <h3 class="chart-title">{{ 'DASH_EXPENSES_BY_CATEGORY_TITLE' | translate }}</h3>
           <apx-chart
             [series]="categoryDonutChart()!.series"
             [chart]="categoryDonutChart()!.chart"
@@ -71,7 +72,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Revenue vs Expenses -->
       @if (!revenueVsExpensesLoading() && revenueVsExpensesChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Revenue vs Expenses</h3>
+          <h3 class="chart-title">{{ 'DASH_REVENUE_VS_EXPENSES_TITLE' | translate }}</h3>
           <apx-chart
             [series]="revenueVsExpensesChart()!.series"
             [chart]="revenueVsExpensesChart()!.chart"
@@ -90,7 +91,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Expense Category Bar -->
       @if (!expenseCategoryLoading() && expenseCategoryBarChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Expense Categories</h3>
+          <h3 class="chart-title">{{ 'DASH_EXPENSE_CATEGORIES_TITLE' | translate }}</h3>
           <apx-chart
             [series]="expenseCategoryBarChart()!.series"
             [chart]="expenseCategoryBarChart()!.chart"
@@ -118,7 +119,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .chart-card { background: var(--ion-card-background, #fff); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExpensesTabComponent implements OnInit {
@@ -127,6 +128,7 @@ export class ExpensesTabComponent implements OnInit {
   private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public cards = signal<KpiCard[]>([]);
   public kpiLoading = signal(true);
@@ -193,7 +195,7 @@ export class ExpensesTabComponent implements OnInit {
     this.dashboardService.getExpensesOverview(filters).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (data: IExpensesOverviewResponse) => {
         const items = data.byCategory.map((c) => ({ name: c.category, revenue: c.total }));
-        this.expenseCategoryBarChart.set(items.length ? this.buildBarChartOptions(items, 'Expense Categories', '#ef4444') : null);
+        this.expenseCategoryBarChart.set(items.length ? this.buildBarChartOptions(items, this.t.instant('DASH_EXPENSE_CATEGORIES_TITLE'), '#ef4444') : null);
         this.expenseCategoryLoading.set(false);
         this.cdr.markForCheck();
       },
@@ -218,13 +220,13 @@ export class ExpensesTabComponent implements OnInit {
   }
 
   private buildKpiCards(summary: IExpenseSummary, profit: IProfitResponse): KpiCard[] {
-    const topCategoryLabel = summary.topCategory ? summary.topCategory : 'No category';
+    const topCategoryLabel = summary.topCategory ? summary.topCategory : this.t.instant('DASH_NO_CATEGORY');
     return [
-      { title: 'Total Expenses', value: this.state.formatCurrency(summary.totalAmount), subtitle: 'This period', icon: 'fi_dollar_sign', colorVar: '--red-500', bgVar: '--red-50' },
-      { title: 'Net Profit', value: this.state.formatCurrency(profit.netProfit), subtitle: 'Revenue minus expenses', icon: 'fi_trending_up', colorVar: profit.netProfit >= 0 ? '--green-600' : '--red-500', bgVar: profit.netProfit >= 0 ? '--green-50' : '--red-50' },
-      { title: 'Avg Expense', value: this.state.formatCurrency(summary.averageAmount), subtitle: 'This period', icon: 'bar_chart_2', colorVar: '--orange-500', bgVar: '--orange-50' },
-      { title: 'Count', value: summary.count.toString(), subtitle: 'This period', icon: 'fi_hash', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'Top Category', value: topCategoryLabel, subtitle: 'This period', icon: 'fi_pie_chart', colorVar: '--purple-500', bgVar: '--purple-50' },
+      { title: this.t.instant('DASH_KPI_TOTAL_EXPENSES_TITLE'), value: this.state.formatCurrency(summary.totalAmount), subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'fi_dollar_sign', colorVar: '--red-500', bgVar: '--red-50' },
+      { title: this.t.instant('DASH_KPI_NET_PROFIT_TITLE'), value: this.state.formatCurrency(profit.netProfit), subtitle: this.t.instant('DASH_KPI_NET_PROFIT_SUBTITLE'), icon: 'fi_trending_up', colorVar: profit.netProfit >= 0 ? '--green-600' : '--red-500', bgVar: profit.netProfit >= 0 ? '--green-50' : '--red-50' },
+      { title: this.t.instant('DASH_KPI_AVG_EXPENSE_TITLE'), value: this.state.formatCurrency(summary.averageAmount), subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'bar_chart_2', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_COUNT_TITLE'), value: summary.count.toString(), subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'fi_hash', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_TOP_CATEGORY_TITLE'), value: topCategoryLabel, subtitle: this.t.instant('DASH_KPI_THIS_PERIOD'), icon: 'fi_pie_chart', colorVar: '--purple-500', bgVar: '--purple-50' },
     ];
   }
 
@@ -242,7 +244,7 @@ export class ExpensesTabComponent implements OnInit {
       legend: { position: 'bottom', fontSize: '13px', markers: { shape: 'circle' } },
       dataLabels: { enabled: true, formatter: (val: number): string => `${Math.round(val)}%`, style: { fontSize: '12px' } },
       tooltip: { y: { formatter: (val: number): string => this.state.formatCurrency(val) } },
-      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: 'Total', formatter: (w: { globals: { seriesTotals: number[] } }): string => { const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0); return this.state.formatCurrency(total); } } } } } },
+      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: this.t.instant('DASH_TOTAL'), formatter: (w: { globals: { seriesTotals: number[] } }): string => { const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0); return this.state.formatCurrency(total); } } } } } },
       responsive: [{ breakpoint: 480, options: { chart: { height: 240 }, legend: { position: 'bottom' } } }],
     };
   }
@@ -258,7 +260,7 @@ export class ExpensesTabComponent implements OnInit {
     const fewPoints = pointCount <= 2;
     const tickAmount = isDaily && pointCount > 10 ? Math.min(8, Math.ceil(pointCount / 5)) : undefined;
     return {
-      series: [{ name: 'Revenue', data: revenueValues.slice(0, pointCount) }, { name: 'Expenses', data: expenseValues }],
+      series: [{ name: this.t.instant('DASH_REVENUE_SERIES'), data: revenueValues.slice(0, pointCount) }, { name: this.t.instant('DASH_EXPENSES_SERIES'), data: expenseValues }],
       chart: { type: 'area', height: 260, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
       colors: ['#10b981', '#ef4444'],
       stroke: { curve: 'smooth', width: [2.5, 2.5], dashArray: [0, 0] },

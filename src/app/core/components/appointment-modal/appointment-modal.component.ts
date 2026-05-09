@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { combineLatest, Observable, of, Subject, switchMap, take } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
 
@@ -45,7 +46,7 @@ export interface IAppointmentModalPayload {
   selector: 'app-appointment-modal',
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule,
-    AppointmentDayScrollerComponent, AppointmentSlotGridComponent],
+    TranslateModule, AppointmentDayScrollerComponent, AppointmentSlotGridComponent],
   templateUrl: './appointment-modal.component.html',
   styleUrls: ['./appointment-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -217,9 +218,9 @@ export class AppointmentModalComponent implements OnInit {
   public showExtras = signal(false);
 
   public readonly statusOptions = [
-    { value: AppointmentStatus.New, label: 'New' },
-    { value: AppointmentStatus.Completed, label: 'Completed' },
-    { value: AppointmentStatus.Canceled, label: 'Canceled' },
+    { value: AppointmentStatus.New,       label: 'STATUS_NEW' },
+    { value: AppointmentStatus.Completed, label: 'STATUS_COMPLETED' },
+    { value: AppointmentStatus.Canceled,  label: 'STATUS_CANCELED' },
   ];
 
   get consumableProductsArray(): FormArray {

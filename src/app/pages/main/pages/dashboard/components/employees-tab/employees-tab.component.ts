@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, take } from 'rxjs/operators';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { EmployeeService } from '@core/services/employee.service';
 import { IBaseQueries } from '@core/models/application.interface';
@@ -55,18 +56,18 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Employee Performance Table -->
       @if (!employeePerformanceLoading()) {
         <div class="chart-card">
-          <h3 class="chart-title">Employee Performance</h3>
+          <h3 class="chart-title">{{ 'DASH_EMPLOYEE_PERFORMANCE_TITLE' | translate }}</h3>
           @if (employeePerformance()?.employees?.length) {
             <div class="perf-scroll">
               <table class="perf-table">
                 <thead>
                   <tr>
                     <th class="perf-table__rank">#</th>
-                    <th>Employee</th>
-                    <th class="perf-table__num">Revenue</th>
-                    <th class="perf-table__num">Appts</th>
-                    <th class="perf-table__num">Avg</th>
-                    <th class="perf-table__num">Util.</th>
+                    <th>{{ 'EMPLOYEES' | translate }}</th>
+                    <th class="perf-table__num">{{ 'REVENUE' | translate }}</th>
+                    <th class="perf-table__num">{{ 'DASH_APPTS' | translate }}</th>
+                    <th class="perf-table__num">{{ 'DASH_AVG' | translate }}</th>
+                    <th class="perf-table__num">{{ 'DASH_UTIL' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -95,7 +96,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
               </table>
             </div>
           } @else {
-            <p class="chart-empty">No employee data for this period</p>
+            <p class="chart-empty">{{ 'DASH_NO_EMPLOYEE_DATA' | translate }}</p>
           }
         </div>
       }
@@ -103,7 +104,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Employee Schedule Heatmap -->
       @if (!employeeHeatmapLoading() && employeeHeatmapChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Appointment Heatmap</h3>
+          <h3 class="chart-title">{{ 'DASH_APPOINTMENT_HEATMAP_TITLE' | translate }}</h3>
           <apx-chart
             [series]="employeeHeatmapChart()!.series"
             [chart]="employeeHeatmapChart()!.chart"
@@ -160,7 +161,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .util--mid   { background: #fef3c7; color: #d97706; }
     .util--low   { background: #fee2e2; color: #dc2626; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule, EmployeeAvatarComponent],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, EmployeeAvatarComponent, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EmployeesTabComponent implements OnInit {
@@ -170,6 +171,7 @@ export class EmployeesTabComponent implements OnInit {
   public state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public employeePerformanceLoading = signal(true);
   public employeePerformance = signal<IEmployeePerformanceResponse | null>(null);
@@ -260,18 +262,21 @@ export class EmployeesTabComponent implements OnInit {
       : 0;
     const topPerformer = employees[0];
     return [
-      { title: 'Total Staff Revenue', value: this.state.formatCurrency(totalRevenue), subtitle: `From ${employees.length} employees`, icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
-      { title: 'Total Appointments', value: totalAppointments.toString(), subtitle: 'Completed by staff', icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'Avg Utilization', value: `${avgUtilization}%`, subtitle: 'Across all staff', icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
-      { title: 'Top Performer', value: topPerformer?.name || '—', subtitle: topPerformer ? `${this.state.formatCurrency(topPerformer.revenue)} revenue` : '', icon: 'fi_award', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_STAFF_REVENUE_TITLE'), value: this.state.formatCurrency(totalRevenue), subtitle: this.t.instant('DASH_FROM_N_EMPLOYEES', { count: employees.length }), icon: 'fi_trending_up', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_TOTAL_APPOINTMENTS_TITLE'), value: totalAppointments.toString(), subtitle: this.t.instant('DASH_KPI_COMPLETED_BY_STAFF'), icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_AVG_UTILIZATION_TITLE'), value: `${avgUtilization}%`, subtitle: this.t.instant('DASH_KPI_ACROSS_STAFF'), icon: 'fi_clock', colorVar: '--teal-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_TOP_PERFORMER_TITLE'), value: topPerformer?.name || '—', subtitle: topPerformer ? this.t.instant('DASH_KPI_TOP_PERFORMER_SUBTITLE', { revenue: this.state.formatCurrency(topPerformer.revenue) }) : '', icon: 'fi_award', colorVar: '--orange-500', bgVar: '--orange-50' },
     ];
   }
-
 
   private buildHeatmapChart(data: IEmployeeHeatmapResponse): HeatmapChartOptions | null {
     const hasData = data.data.some((cell) => cell.value > 0);
     if (!hasData) return null;
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayNames = [
+      this.t.instant('DASH_DAY_MON'), this.t.instant('DASH_DAY_TUE'), this.t.instant('DASH_DAY_WED'),
+      this.t.instant('DASH_DAY_THU'), this.t.instant('DASH_DAY_FRI'), this.t.instant('DASH_DAY_SAT'),
+      this.t.instant('DASH_DAY_SUN'),
+    ];
     const hourLabels: string[] = [];
     for (let h = 0; h < 24; h++) hourLabels.push(`${h.toString().padStart(2, '0')}:00`);
     const series = dayNames.map((dayName, dayIndex) => ({
@@ -288,8 +293,14 @@ export class EmployeesTabComponent implements OnInit {
       xaxis: { type: 'category', labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' } } },
       dataLabels: { enabled: false },
-      tooltip: { y: { formatter: (val: number) => `${val} appointment${val !== 1 ? 's' : ''}` } },
-      plotOptions: { heatmap: { shadeIntensity: 0.5, radius: 4, colorScale: { ranges: [{ from: 0, to: 0, name: 'None', color: '#f1f5f9' }, { from: 1, to: 3, name: 'Low', color: '#bbf7d0' }, { from: 4, to: 7, name: 'Medium', color: '#4ade80' }, { from: 8, to: 15, name: 'High', color: '#16a34a' }, { from: 16, to: 100, name: 'Very High', color: '#166534' }] } } },
+      tooltip: { y: { formatter: (val: number) => this.t.instant('DASH_N_APPOINTMENTS', { count: val }) } },
+      plotOptions: { heatmap: { shadeIntensity: 0.5, radius: 4, colorScale: { ranges: [
+        { from: 0, to: 0, name: this.t.instant('DASH_HEATMAP_NONE'), color: '#f1f5f9' },
+        { from: 1, to: 3, name: this.t.instant('DASH_HEATMAP_LOW'), color: '#bbf7d0' },
+        { from: 4, to: 7, name: this.t.instant('DASH_HEATMAP_MEDIUM'), color: '#4ade80' },
+        { from: 8, to: 15, name: this.t.instant('DASH_HEATMAP_HIGH'), color: '#16a34a' },
+        { from: 16, to: 100, name: this.t.instant('DASH_HEATMAP_VERY_HIGH'), color: '#166534' },
+      ] } } },
       colors: ['#16a34a'],
     };
   }

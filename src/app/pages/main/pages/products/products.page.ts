@@ -20,6 +20,7 @@ import { SupervisorService } from '@core/services/supervisor.service';
 import { DepartmentService } from '@core/services/department.service';
 import { ProductModalComponent } from './components/product-modal/product-modal.component';
 import { ProductHistoryComponent } from './components/product-history/product-history.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-products',
@@ -42,6 +43,7 @@ export class ProductsPage {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   // ── List state ────────────────────────────────────────────────────────────
   public products = signal<IProduct[]>([]);
@@ -177,7 +179,7 @@ export class ProductsPage {
     this.closeSlidingItems();
     if (!this.canViewHistory()) {
       const toast = await this.toastCtrl.create({
-        message: 'Upgrade your plan to view product history.',
+        message: this.t.instant('PROD_UPGRADE_HISTORY'),
         duration: 3000,
         color: 'warning',
         icon: 'lock-closed-outline',
@@ -197,7 +199,7 @@ export class ProductsPage {
   public async openAllHistory(): Promise<void> {
     if (!this.canViewHistory()) {
       const toast = await this.toastCtrl.create({
-        message: 'Upgrade your plan to view product history.',
+        message: this.t.instant('PROD_UPGRADE_HISTORY'),
         duration: 3000,
         color: 'warning',
         icon: 'lock-closed-outline',
@@ -221,19 +223,19 @@ export class ProductsPage {
 
     const isArchived = product.status === 'archived';
     const stockWarn = !isArchived && (product.stock ?? 0) > 0
-      ? `\n\n⚠️ Stock is ${product.stock} — must be 0 to archive.`
+      ? this.t.instant('PROD_ARCHIVE_STOCK_WARN', { stock: product.stock })
       : '';
 
     const alert = await this.alertCtrl.create({
-      header: isArchived ? 'Activate Product' : 'Archive Product',
+      header: isArchived ? this.t.instant('PROD_ACTIVATE_TITLE') : this.t.instant('PROD_ARCHIVE_TITLE'),
       message: isArchived
-        ? `Activate "${product.name}"?`
-        : `Archive "${product.name}"? It will be hidden from active lists.${stockWarn}`,
-      inputs: [{ name: 'comment', type: 'text', placeholder: 'Comment (optional)' }],
+        ? this.t.instant('PROD_ACTIVATE_MSG', { name: product.name })
+        : this.t.instant('PROD_ARCHIVE_MSG', { name: product.name }) + stockWarn,
+      inputs: [{ name: 'comment', type: 'text', placeholder: this.t.instant('PROD_COMMENT_PLACEHOLDER') }],
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('PROD_CANCEL'), role: 'cancel' },
         {
-          text: isArchived ? 'Activate' : 'Archive',
+          text: isArchived ? this.t.instant('PROD_ACTIVATE_BTN') : this.t.instant('PROD_ARCHIVE_BTN'),
           handler: (data) => {
             const action$ = isArchived
               ? this.productsService.unarchive(product._id, data.comment)
@@ -241,10 +243,10 @@ export class ProductsPage {
             action$.pipe(take(1)).subscribe({
               next: () => {
                 this.refresh();
-                void this.showToast(isArchived ? 'Product activated' : 'Product archived');
+                void this.showToast(isArchived ? this.t.instant('PROD_ACTIVATED') : this.t.instant('PROD_ARCHIVED_TOAST'));
               },
               error: (err) => {
-                const msg = err?.error?.message ?? (isArchived ? 'Failed to activate product' : 'Failed to archive product');
+                const msg = err?.error?.message ?? (isArchived ? this.t.instant('PROD_FAIL_ACTIVATE') : this.t.instant('PROD_FAIL_ARCHIVE'));
                 void this.showToast(msg, 'danger');
               },
             });
@@ -261,12 +263,12 @@ export class ProductsPage {
     if (!this.canManageProducts()) { await this.showSubscriptionAlert(); return; }
 
     const alert = await this.alertCtrl.create({
-      header: 'Delete Product',
-      message: `Delete "${product.name}"? This action cannot be undone.`,
+      header: this.t.instant('PROD_DELETE_TITLE'),
+      message: this.t.instant('PROD_DELETE_MSG', { name: product.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('PROD_CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('PROD_DELETE_BTN'),
           role: 'destructive',
           handler: () => this.deleteProduct(product._id),
         },
@@ -295,8 +297,8 @@ export class ProductsPage {
 
   public getStockStatusLabel(product: IProduct): string {
     switch (this.computeStockStatus(product)) {
-      case 'low': return 'Low';
-      case 'out_of_stock': return 'Out';
+      case 'low': return this.t.instant('PROD_STOCK_LOW');
+      case 'out_of_stock': return this.t.instant('PROD_STOCK_OUT');
       default: return 'OK';
     }
   }
@@ -388,10 +390,10 @@ export class ProductsPage {
       .subscribe({
         next: () => {
           this.refresh();
-          void this.showToast('Product deleted');
+          void this.showToast(this.t.instant('PROD_DELETED'));
         },
         error: (err) => {
-          const msg = err?.error?.message ?? 'Failed to delete product';
+          const msg = err?.error?.message ?? this.t.instant('PROD_FAIL_DELETE');
           void this.showToast(msg, 'danger');
         },
       });
@@ -413,8 +415,8 @@ export class ProductsPage {
 
   private async showSubscriptionAlert(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Subscription Required',
-      message: 'Your plan does not include Warehouse management. Please upgrade to access this feature.',
+      header: this.t.instant('PROD_SUB_REQUIRED_TITLE'),
+      message: this.t.instant('PROD_SUB_REQUIRED_MSG'),
       buttons: ['OK'],
     });
     await alert.present();

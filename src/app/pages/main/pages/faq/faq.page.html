@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Support Center</ion-title>
+    <ion-title>{{ 'FAQ_TITLE' | translate }}</ion-title>
   </ion-toolbar>
 
   <!-- Segment tabs (расширяемо — добавить FAQ/Q&A в будущем) -->
@@ -12,7 +12,7 @@
       <ion-segment-button value="tutorials">
         <ion-label>
           <ion-icon name="play-circle-outline"></ion-icon>
-          Video Tutorials ({{ filteredTutorials().length }})
+          {{ 'FAQ_TAB_TUTORIALS' | translate }} ({{ filteredTutorials().length }})
         </ion-label>
       </ion-segment-button>
     </ion-segment>
@@ -20,7 +20,7 @@
 
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search tutorials..."
+      [placeholder]="'FAQ_SEARCH_PLACEHOLDER' | translate"
       [debounce]="200"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -29,20 +29,19 @@
 
 <ion-content>
 
-
   <!-- ── TUTORIALS LIST ─────────────────────────────── -->
   @if (activeTab() === 'tutorials') {
     @if (filteredTutorials().length === 0) {
       <div class="faq-empty">
         <ion-icon name="search-outline" class="faq-empty__icon"></ion-icon>
-        <h3>No tutorials found</h3>
-        <p>Try a different search term.</p>
+        <h3>{{ 'FAQ_EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'FAQ_EMPTY_TEXT' | translate }}</p>
       </div>
     } @else {
       <!-- Swipe hint -->
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left to watch</span>
+        <span>{{ 'FAQ_SWIPE_HINT' | translate }}</span>
       </div>
 
       <ion-list lines="none">

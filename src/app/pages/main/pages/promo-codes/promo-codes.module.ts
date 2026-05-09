@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { PromoCodesPage } from './promo-codes.page';
 import { PromoCodeFormModalComponent } from './components/promo-code-form-modal/promo-code-form-modal.component';
 
@@ -15,6 +16,7 @@ const routes: Routes = [{ path: '', component: PromoCodesPage }];
     IonicModule,
     ReactiveFormsModule,
     FormsModule,
+    TranslateModule,
     RouterModule.forChild(routes),
     PromoCodeFormModalComponent,
   ],

@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { IBaseQueries } from '@core/models/application.interface';
 import { IPromoCodeAnalyticsResponse } from '@core/models/dashboard.interface';
@@ -26,8 +27,8 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (loading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of cards(); track card.title) {
@@ -46,7 +47,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Top Promo Codes Chart -->
       @if (!loading() && topPromoCodesChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Top Promo Codes</h3>
+          <h3 class="chart-title">{{ 'DASH_TOP_PROMO_CODES_TITLE' | translate }}</h3>
           <apx-chart
             [series]="topPromoCodesChart()!.series"
             [chart]="topPromoCodesChart()!.chart"
@@ -64,7 +65,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Discount by Service Chart -->
       @if (!loading() && discountByServiceChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Discount by Service</h3>
+          <h3 class="chart-title">{{ 'DASH_DISCOUNT_BY_SERVICE_TITLE' | translate }}</h3>
           <apx-chart
             [series]="discountByServiceChart()!.series"
             [chart]="discountByServiceChart()!.chart"
@@ -92,7 +93,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .chart-card { background: var(--ion-card-background, #fff); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PromoCodesTabComponent implements OnInit {
@@ -100,6 +101,7 @@ export class PromoCodesTabComponent implements OnInit {
   private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public loading = signal(true);
   public cards = signal<KpiCard[]>([]);
@@ -133,7 +135,7 @@ export class PromoCodesTabComponent implements OnInit {
         this.analytics.set(data);
         this.cards.set(this.buildCards(data));
         this.topPromoCodesChart.set(this.buildTopPromoCodesChart(data));
-        this.discountByServiceChart.set(this.buildDiscountByChart(data.discountByService, 'Discount by Service', '#6366f1'));
+        this.discountByServiceChart.set(this.buildDiscountByChart(data.discountByService, this.t.instant('DASH_DISCOUNT_BY_SERVICE_TITLE'), '#6366f1'));
         this.loading.set(false);
         this.cdr.markForCheck();
       },
@@ -143,10 +145,10 @@ export class PromoCodesTabComponent implements OnInit {
 
   private buildCards(data: IPromoCodeAnalyticsResponse): KpiCard[] {
     return [
-      { title: 'Total Discount Given', value: this.state.formatCurrency(data.totalDiscountGiven), subtitle: 'All promo codes combined', icon: 'fi_tag', colorVar: '--green-600', bgVar: '--green-50' },
-      { title: 'Usage Count', value: `${data.appointmentsWithPromo} / ${data.totalAppointments}`, subtitle: 'Appointments with promo', icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'Usage Rate', value: `${data.promoUsageRate}%`, subtitle: 'Of total appointments', icon: 'fi_trending_up', colorVar: '--purple-500', bgVar: '--purple-50' },
-      { title: 'Avg Discount', value: this.state.formatCurrency(data.avgDiscountPerAppointment), subtitle: 'Per appointment', icon: 'fi_dollar_sign', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_TOTAL_DISCOUNT_TITLE'), value: this.state.formatCurrency(data.totalDiscountGiven), subtitle: this.t.instant('DASH_KPI_TOTAL_DISCOUNT_SUBTITLE'), icon: 'fi_tag', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_USAGE_COUNT_TITLE'), value: `${data.appointmentsWithPromo} / ${data.totalAppointments}`, subtitle: this.t.instant('DASH_KPI_USAGE_COUNT_SUBTITLE'), icon: 'fi_check_circle', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_USAGE_RATE_TITLE'), value: `${data.promoUsageRate}%`, subtitle: this.t.instant('DASH_KPI_USAGE_RATE_SUBTITLE'), icon: 'fi_trending_up', colorVar: '--purple-500', bgVar: '--purple-50' },
+      { title: this.t.instant('DASH_KPI_AVG_DISCOUNT_TITLE'), value: this.state.formatCurrency(data.avgDiscountPerAppointment), subtitle: this.t.instant('DASH_KPI_PER_APPOINTMENT'), icon: 'fi_dollar_sign', colorVar: '--orange-500', bgVar: '--orange-50' },
     ];
   }
 
@@ -154,14 +156,14 @@ export class PromoCodesTabComponent implements OnInit {
     if (!data.topPromoCodes?.length) return null;
     const items = data.topPromoCodes.map((pc) => ({ name: pc.name, revenue: pc.usageCount }));
     return {
-      series: [{ name: 'Usage Count', data: items.map((i) => i.revenue) }],
+      series: [{ name: this.t.instant('DASH_KPI_USAGE_COUNT_TITLE'), data: items.map((i) => i.revenue) }],
       chart: { type: 'bar', height: Math.max(200, items.length * 40 + 60), fontFamily: 'inherit', toolbar: { show: false } },
       plotOptions: { bar: { horizontal: true, barHeight: '60%', borderRadius: 4 } },
       colors: ['#f59e0b'],
       dataLabels: { enabled: true, formatter: (val: number) => `${val}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
       xaxis: { categories: items.map((i) => i.name), labels: { style: { fontSize: '11px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '12px', colors: '#334155' }, maxWidth: 160 } },
-      tooltip: { y: { formatter: (val: number) => `${val} uses` } },
+      tooltip: { y: { formatter: (val: number) => this.t.instant('DASH_N_USES', { count: val }) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
     };
   }

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Payroll</ion-title>
+    <ion-title>{{ 'PAY_TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openFilterSheet()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
@@ -25,7 +25,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'PAY_FILTER_TITLE' | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterSheet.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -37,12 +37,12 @@
 
       <!-- Status -->
       <ion-item lines="full">
-        <ion-label position="stacked" class="filter-label">Status</ion-label>
+        <ion-label position="stacked" class="filter-label">{{ 'PAY_FILTER_STATUS' | translate }}</ion-label>
         <ion-select
           [value]="tempStatus()"
           (ionChange)="tempStatus.set($any($event.detail.value))"
           interface="action-sheet"
-          placeholder="All statuses"
+          [placeholder]="'PAY_ALL_STATUSES' | translate"
         >
           @for (opt of statusOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
@@ -53,14 +53,14 @@
       <!-- Department (multi-location only) -->
       @if (!singleDepartmentMode()) {
         <ion-item lines="full">
-          <ion-label position="stacked" class="filter-label">Department</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ 'PAY_FILTER_DEPT' | translate }}</ion-label>
           <ion-select
             [value]="tempDepartmentId()"
             (ionChange)="tempDepartmentId.set($any($event.detail.value))"
             interface="action-sheet"
-            placeholder="All departments"
+            [placeholder]="'PAY_ALL_DEPTS' | translate"
           >
-            <ion-select-option value="">All departments</ion-select-option>
+            <ion-select-option value="">{{ 'PAY_ALL_DEPTS' | translate }}</ion-select-option>
             @for (dept of departments(); track dept._id) {
               <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
             }
@@ -72,8 +72,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ 'PAY_RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ 'PAY_APPLY_FILTERS' | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -86,9 +86,9 @@
   @if (!hasPayrollFeature()) {
     <div class="payroll-locked">
       <ion-icon name="lock-closed-outline" class="payroll-locked__icon"></ion-icon>
-      <h3>Payroll</h3>
-      <p>This feature is available on Starter plan and above. Upgrade your subscription to manage payroll.</p>
-      <ion-badge color="warning">Upgrade Required</ion-badge>
+      <h3>{{ 'PAY_LOCKED_TITLE' | translate }}</h3>
+      <p>{{ 'PAY_LOCKED_TEXT' | translate }}</p>
+      <ion-badge color="warning">{{ 'PAY_UPGRADE_REQUIRED' | translate }}</ion-badge>
     </div>
   } @else {
 
@@ -130,8 +130,8 @@
     @if (!isLoading() && periods().length === 0) {
       <div class="payroll-empty">
         <ion-icon name="cash-outline" class="payroll-empty__icon"></ion-icon>
-        <h3>No payroll periods</h3>
-        <p>No periods found for {{ MONTH_NAMES[selectedMonth()] }} {{ selectedYear() }}.</p>
+        <h3>{{ 'PAY_EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'PAY_EMPTY_TEXT' | translate:{ month: MONTH_NAMES[selectedMonth()], year: selectedYear() } }}</p>
       </div>
     }
 
@@ -139,7 +139,7 @@
     @if (periods().length > 0) {
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left on a card for options</span>
+        <span>{{ 'PAY_SWIPE_HINT' | translate }}</span>
       </div>
 
       <ion-list lines="none">
@@ -157,7 +157,7 @@
                 <h2>
                   {{ getStaffName(period) }}
                   @if (period.supervisor) {
-                    <ion-badge color="secondary" class="mgr-badge">Mgr</ion-badge>
+                    <ion-badge color="secondary" class="mgr-badge">{{ 'PAY_MGR_BADGE' | translate }}</ion-badge>
                   }
                 </h2>
                 <p>
@@ -194,7 +194,7 @@
 
       <!-- Meta -->
       <div class="payroll-meta ion-padding-horizontal">
-        <p class="payroll-count">{{ totalCount() }} period(s)</p>
+        <p class="payroll-count">{{ 'PAY_COUNT' | translate:{ count: totalCount() } }}</p>
       </div>
     }
 

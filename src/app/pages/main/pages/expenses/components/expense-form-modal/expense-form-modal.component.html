@@ -5,13 +5,13 @@
         <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>{{ isEditMode ? 'Edit Expense' : 'Add Expense' }}</ion-title>
+    <ion-title>{{ (isEditMode ? 'EXP_EDIT_TITLE' : 'EXP_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button fill="solid" color="primary" [disabled]="form.invalid || isSubmitting" (click)="submit()">
         @if (isSubmitting) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEditMode ? 'Save' : 'Add' }}
+        {{ (isEditMode ? 'SAVE' : 'ADD') | translate }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -22,44 +22,44 @@
 
     <!-- ── Title ──────────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Title *</ion-label>
-      <ion-input formControlName="title" placeholder="e.g. Office rent" clearInput></ion-input>
+      <ion-label position="stacked">{{ 'EXP_TITLE_LABEL' | translate }}</ion-label>
+      <ion-input formControlName="title" [placeholder]="'EXP_TITLE_PLACEHOLDER' | translate" [clearInput]="true"></ion-input>
       @if (form.controls['title'].invalid && form.controls['title'].touched) {
-        <ion-note color="danger" slot="helper">Title is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EXP_TITLE_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <!-- ── Amount ─────────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Amount ($) *</ion-label>
+      <ion-label position="stacked">{{ 'EXP_AMOUNT_LABEL' | translate }}</ion-label>
       <ion-input formControlName="amount" type="number" placeholder="0.00" min="0"></ion-input>
       @if (form.controls['amount'].invalid && form.controls['amount'].touched) {
-        <ion-note color="danger" slot="helper">Enter a valid amount</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EXP_AMOUNT_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <!-- ── Department (multi-location only) ──────────────── -->
     @if (!singleDepartmentMode()) {
       <ion-item>
-        <ion-label position="stacked">Department *</ion-label>
-        <ion-select formControlName="department" interface="action-sheet" placeholder="Select department">
+        <ion-label position="stacked">{{ 'EXP_DEPARTMENT_LABEL' | translate }}</ion-label>
+        <ion-select formControlName="department" interface="action-sheet" [placeholder]="'SELECT_DEPARTMENT' | translate">
           @for (dept of departments()?.results; track dept._id) {
             <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
           }
         </ion-select>
         @if (form.controls['department'].invalid && form.controls['department'].touched) {
-          <ion-note color="danger" slot="helper">Department is required</ion-note>
+          <ion-note color="danger" slot="helper">{{ 'EXP_DEPT_REQUIRED' | translate }}</ion-note>
         }
       </ion-item>
     }
 
     <!-- ── Category ───────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Category *</ion-label>
+      <ion-label position="stacked">{{ 'EXP_CATEGORY_LABEL' | translate }}</ion-label>
       <ion-select
         formControlName="category"
         interface="action-sheet"
-        placeholder="Select category"
+        [placeholder]="'EXP_CATEGORY_SELECT' | translate"
         (ionChange)="onCategoryChange()"
       >
         @for (opt of categoryOptions; track opt.value) {
@@ -67,23 +67,23 @@
         }
       </ion-select>
       @if (form.controls['category'].invalid && form.controls['category'].touched) {
-        <ion-note color="danger" slot="helper">Category is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EXP_CATEGORY_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <!-- ── Date ───────────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Date *</ion-label>
+      <ion-label position="stacked">{{ 'EXP_DATE_LABEL' | translate }}</ion-label>
       <ion-input formControlName="date" type="date"></ion-input>
       @if (form.controls['date'].invalid && form.controls['date'].touched) {
-        <ion-note color="danger" slot="helper">Date is required</ion-note>
+        <ion-note color="danger" slot="helper">{{ 'EXP_DATE_REQUIRED' | translate }}</ion-note>
       }
     </ion-item>
 
     <!-- ── Status ─────────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Status</ion-label>
-      <ion-select formControlName="status" interface="action-sheet" placeholder="Select status">
+      <ion-label position="stacked">{{ 'EXP_STATUS_LABEL' | translate }}</ion-label>
+      <ion-select formControlName="status" interface="action-sheet" [placeholder]="'EXP_STATUS_SELECT' | translate">
         @for (opt of statusOptions; track opt.value) {
           <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
         }
@@ -92,8 +92,8 @@
 
     <!-- ── Recurrence ─────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Recurrence</ion-label>
-      <ion-select formControlName="recurrence" interface="action-sheet" placeholder="Select recurrence">
+      <ion-label position="stacked">{{ 'EXP_RECURRENCE_LABEL' | translate }}</ion-label>
+      <ion-select formControlName="recurrence" interface="action-sheet" [placeholder]="'EXP_RECURRENCE_SELECT' | translate">
         @for (opt of recurrenceOptions; track opt.value) {
           <ion-select-option [value]="opt.value">{{ opt.display }}</ion-select-option>
         }
@@ -103,11 +103,11 @@
     <!-- ── Employee (salary / commission / training) ─────── -->
     @if (showEmployeeField) {
       <ion-item>
-        <ion-label position="stacked">Employee</ion-label>
+        <ion-label position="stacked">{{ 'EXP_EMPLOYEE_LABEL' | translate }}</ion-label>
         <ion-select
           formControlName="employee"
           interface="action-sheet"
-          placeholder="Select employee"
+          [placeholder]="'EXP_SELECT_EMPLOYEE' | translate"
         >
           @for (emp of employees(); track emp._id) {
             <ion-select-option [value]="emp._id">{{ emp.fullName }}</ion-select-option>
@@ -117,7 +117,7 @@
       @if (employeeHasMore) {
         <div class="load-more-hint">
           <ion-button fill="clear" size="small" color="medium" (click)="loadMoreEmployees()">
-            Load more employees…
+            {{ 'EXP_LOAD_MORE_EMPLOYEES' | translate }}
           </ion-button>
         </div>
       }
@@ -126,11 +126,11 @@
     <!-- ── Product (inventory) ────────────────────────────── -->
     @if (showProductField) {
       <ion-item>
-        <ion-label position="stacked">Product</ion-label>
+        <ion-label position="stacked">{{ 'EXP_PRODUCT_LABEL' | translate }}</ion-label>
         <ion-select
           formControlName="product"
           interface="action-sheet"
-          placeholder="Select product"
+          [placeholder]="'SELECT_PRODUCT' | translate"
         >
           @for (prod of products(); track prod._id) {
             <ion-select-option [value]="prod._id">{{ prod.name }}</ion-select-option>
@@ -140,7 +140,7 @@
       @if (productHasMore) {
         <div class="load-more-hint">
           <ion-button fill="clear" size="small" color="medium" (click)="loadMoreProducts()">
-            Load more products…
+            {{ 'EXP_LOAD_MORE_PRODUCTS' | translate }}
           </ion-button>
         </div>
       }
@@ -148,15 +148,14 @@
 
     <!-- ── Description ────────────────────────────────────── -->
     <ion-item>
-      <ion-label position="stacked">Description</ion-label>
+      <ion-label position="stacked">{{ 'DESCRIPTION' | translate }}</ion-label>
       <ion-textarea
         formControlName="description"
-        rows="3"
-        placeholder="Optional notes about this expense..."
+        [rows]="3"
+        [placeholder]="'EXP_DESC_PLACEHOLDER' | translate"
       ></ion-textarea>
     </ion-item>
 
   </form>
 </ion-content>
-
 

@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Filters
+      {{ 'FILTERS' | translate }}
       @if (activeFiltersCount > 0) {
         <ion-badge color="primary" class="filters-modal__title-badge">{{ activeFiltersCount }}</ion-badge>
       }
@@ -18,7 +18,7 @@
   <!-- Department section (admin only) -->
   @if (!isManager && departments.length > 0) {
     <div class="filters-modal__section">
-      <div class="filters-modal__section-title">Department</div>
+      <div class="filters-modal__section-title">{{ 'FILTER_DEPARTMENT' | translate }}</div>
       <ion-list lines="none">
         <!-- All departments -->
         <ion-item
@@ -28,7 +28,7 @@
           [class.filters-modal__item--selected]="!currentDepartmentId()"
           (click)="selectDepartment('')"
         >
-          <ion-label><strong>All departments</strong></ion-label>
+          <ion-label><strong>{{ 'ALL_DEPARTMENTS' | translate }}</strong></ion-label>
           @if (!currentDepartmentId()) {
             <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
           } @else {
@@ -59,7 +59,7 @@
 
   <!-- Employees section -->
   <div class="filters-modal__section">
-    <div class="filters-modal__section-title">Employees</div>
+    <div class="filters-modal__section-title">{{ 'EMPLOYEES_SECTION' | translate }}</div>
     <ion-list lines="none">
       <!-- All employees -->
       <ion-item
@@ -69,7 +69,7 @@
         [class.filters-modal__item--selected]="currentEmployeeIds().length === 0"
         (click)="clearAllEmployees()"
       >
-        <ion-label><strong>All employees</strong></ion-label>
+        <ion-label><strong>{{ 'ALL_EMPLOYEES' | translate }}</strong></ion-label>
         @if (currentEmployeeIds().length === 0) {
           <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
         } @else {
@@ -108,7 +108,7 @@
       }
       @if (employees.length === 0) {
         <ion-item>
-          <ion-label color="medium">No employees found</ion-label>
+          <ion-label color="medium">{{ 'NO_EMPLOYEES_FOUND' | translate }}</ion-label>
         </ion-item>
       }
     </ion-list>
@@ -118,7 +118,7 @@
 
   <!-- Status section -->
   <div class="filters-modal__section">
-    <div class="filters-modal__section-title">Appointment Status</div>
+    <div class="filters-modal__section-title">{{ 'APPOINTMENT_STATUS' | translate }}</div>
     <ion-list lines="none">
       @for (s of statusList; track s.value) {
         <ion-item
@@ -129,7 +129,7 @@
           (click)="toggleStatus(s.value)"
         >
           <div slot="start" class="filters-modal__status-dot" [class]="'filters-modal__status-dot--' + s.value"></div>
-          <ion-label>{{ s.label }}</ion-label>
+          <ion-label>{{ s.label | translate }}</ion-label>
           @if (isStatusSelected(s.value)) {
             <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
           } @else {
@@ -144,8 +144,8 @@
 <ion-footer>
   <ion-toolbar>
     <div class="filters-modal__actions">
-      <ion-button fill="outline" color="medium" expand="block" (click)="reset()">Reset all</ion-button>
-      <ion-button color="primary" expand="block" (click)="apply()">Apply filters</ion-button>
+      <ion-button fill="outline" color="medium" expand="block" (click)="reset()">{{ 'RESET_ALL' | translate }}</ion-button>
+      <ion-button color="primary" expand="block" (click)="apply()">{{ 'APPLY_FILTERS' | translate }}</ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

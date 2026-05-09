@@ -45,14 +45,14 @@ export class DashboardPage implements OnInit {
   );
 
   private allTabs: IDashboardTab[] = [
-    { value: 'revenue',     display: 'Revenue',     icon: 'trending-up-outline' },
-    { value: 'clients',     display: 'Clients',     icon: 'people-outline',       feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
-    { value: 'employees',   display: 'Employees',   icon: 'trophy-outline',       feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
-    { value: 'schedule',    display: 'Schedule',    icon: 'calendar-outline',     feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
-    { value: 'inventory',   display: 'Inventory',   icon: 'cube-outline',         feature: 'warehouse',       minLevel: EFeatureLevel.BASIC },
-    { value: 'expenses',    display: 'Expenses',    icon: 'cash-outline',         feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
-    { value: 'promo-codes', display: 'Promos',      icon: 'pricetag-outline',     feature: 'promoCodes' },
-    { value: 'reports',     display: 'Reports',     icon: 'bar-chart-outline',    feature: 'analytics',       minLevel: EFeatureLevel.ADVANCED },
+    { value: 'revenue',     display: 'REVENUE',    icon: 'trending-up-outline' },
+    { value: 'clients',     display: 'CLIENTS',    icon: 'people-outline',       feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
+    { value: 'employees',   display: 'EMPLOYEES',  icon: 'trophy-outline',       feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
+    { value: 'schedule',    display: 'SCHEDULE',   icon: 'calendar-outline',     feature: 'analytics',       minLevel: EFeatureLevel.BASIC },
+    { value: 'inventory',   display: 'INVENTORY',  icon: 'cube-outline',         feature: 'warehouse',       minLevel: EFeatureLevel.BASIC },
+    { value: 'expenses',    display: 'EXPENSES',   icon: 'cash-outline',         feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
+    { value: 'promo-codes', display: 'PROMO',      icon: 'pricetag-outline',     feature: 'promoCodes' },
+    { value: 'reports',     display: 'REPORTS',    icon: 'bar-chart-outline',    feature: 'analytics',       minLevel: EFeatureLevel.ADVANCED },
   ];
 
   public availableTabs = computed<IDashboardTab[]>(() => {

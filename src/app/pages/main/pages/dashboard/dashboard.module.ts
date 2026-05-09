@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { DashboardPage } from './dashboard.page';
 import { RevenueTabComponent } from './components/revenue-tab/revenue-tab.component';
@@ -23,6 +24,7 @@ const routes: Routes = [{ path: '', component: DashboardPage }];
     IonicModule,
     RouterModule.forChild(routes),
     NgApexchartsModule,
+    TranslateModule,
     // Standalone tab components
     RevenueTabComponent,
     ClientsTabComponent,

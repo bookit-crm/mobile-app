@@ -12,6 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DashboardService } from '@core/services/dashboard.service';
 import { IBaseQueries } from '@core/models/application.interface';
 import { IBusiestHoursResponse, IScheduleOccupancyResponse } from '@core/models/dashboard.interface';
@@ -26,8 +27,8 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     <div class="tab-content">
       <!-- KPI Cards -->
       @if (occupancyLoading()) {
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
-        <ion-skeleton-text animated style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
+        <ion-skeleton-text [animated]="true" style="height:80px;border-radius:12px;margin-bottom:12px"></ion-skeleton-text>
       } @else {
         <div class="kpi-grid">
           @for (card of occupancyCards(); track card.title) {
@@ -46,7 +47,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Slots Donut -->
       @if (slotsDonutChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Slot Occupancy</h3>
+          <h3 class="chart-title">{{ 'DASH_SLOT_OCCUPANCY_TITLE' | translate }}</h3>
           <apx-chart
             [series]="slotsDonutChart()!.series"
             [chart]="slotsDonutChart()!.chart"
@@ -64,7 +65,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
       <!-- Busiest Hours Heatmap -->
       @if (!busiestHoursLoading() && busiestHoursChart()) {
         <div class="chart-card">
-          <h3 class="chart-title">Busiest Hours</h3>
+          <h3 class="chart-title">{{ 'DASH_BUSIEST_HOURS_TITLE' | translate }}</h3>
           <apx-chart
             [series]="busiestHoursChart()!.series"
             [chart]="busiestHoursChart()!.chart"
@@ -91,7 +92,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .chart-card { background: var(--ion-card-background, #fff); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .chart-title { margin: 0 0 12px; font-size: 15px; font-weight: 600; }
   `],
-  imports: [CommonModule, IonicModule, NgApexchartsModule],
+  imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ScheduleTabComponent implements OnInit {
@@ -99,6 +100,7 @@ export class ScheduleTabComponent implements OnInit {
   private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
   public occupancyLoading = signal(true);
   public occupancyCards = signal<KpiCard[]>([]);
@@ -153,10 +155,10 @@ export class ScheduleTabComponent implements OnInit {
 
   private buildOccupancyCards(data: IScheduleOccupancyResponse): KpiCard[] {
     return [
-      { title: 'Booking Rate', value: `${data.bookingPercentage}%`, subtitle: `${data.bookedSlots} of ${data.totalSlots} slots`, icon: 'calendar', colorVar: '--blue-500', bgVar: '--blue-50' },
-      { title: 'Cancellation Rate', value: `${data.cancellationRate}%`, subtitle: `${data.canceledAppointments} canceled`, icon: 'fi_x_circle', colorVar: '--orange-500', bgVar: '--orange-50' },
-      { title: 'No-Show Rate', value: `${data.noShowRate}%`, subtitle: `${data.noShowAppointments} no-shows`, icon: 'fi_alert_circle', colorVar: '--red-500', bgVar: '--red-50' },
-      { title: 'Completed', value: data.completedAppointments.toString(), subtitle: `of ${data.totalAppointments} total`, icon: 'fi_check_circle', colorVar: '--green-600', bgVar: '--green-50' },
+      { title: this.t.instant('DASH_KPI_BOOKING_RATE_TITLE'), value: `${data.bookingPercentage}%`, subtitle: this.t.instant('DASH_BOOKED_OF_TOTAL_SLOTS', { booked: data.bookedSlots, total: data.totalSlots }), icon: 'calendar', colorVar: '--blue-500', bgVar: '--blue-50' },
+      { title: this.t.instant('DASH_KPI_CANCELLATION_RATE_TITLE'), value: `${data.cancellationRate}%`, subtitle: this.t.instant('DASH_N_CANCELED', { count: data.canceledAppointments }), icon: 'fi_x_circle', colorVar: '--orange-500', bgVar: '--orange-50' },
+      { title: this.t.instant('DASH_KPI_NO_SHOW_RATE_TITLE'), value: `${data.noShowRate}%`, subtitle: this.t.instant('DASH_N_NO_SHOWS', { count: data.noShowAppointments }), icon: 'fi_alert_circle', colorVar: '--red-500', bgVar: '--red-50' },
+      { title: this.t.instant('DASH_KPI_COMPLETED_TITLE'), value: data.completedAppointments.toString(), subtitle: this.t.instant('DASH_OF_N_TOTAL', { total: data.totalAppointments }), icon: 'fi_check_circle', colorVar: '--green-600', bgVar: '--green-50' },
     ];
   }
 
@@ -165,19 +167,23 @@ export class ScheduleTabComponent implements OnInit {
     return {
       series: [data.bookedSlots, data.freeSlots],
       chart: { type: 'donut', height: 260, fontFamily: 'inherit' },
-      labels: ['Booked Slots', 'Free Slots'],
+      labels: [this.t.instant('DASH_BOOKED_SLOTS'), this.t.instant('DASH_FREE_SLOTS')],
       colors: ['#6366f1', '#e2e8f0'],
       legend: { position: 'bottom', fontSize: '13px', markers: { shape: 'circle' } },
       dataLabels: { enabled: true, formatter: (val: number) => `${Math.round(val)}%`, style: { fontSize: '12px' } },
-      tooltip: { y: { formatter: (val: number) => `${val} slots` } },
-      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: 'Total Slots', formatter: (w: { globals: { seriesTotals: number[] } }): string => w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0).toString() } } } } },
+      tooltip: { y: { formatter: (val: number) => this.t.instant('DASH_N_SLOTS', { count: val }) } },
+      plotOptions: { pie: { donut: { size: '60%', labels: { show: true, total: { show: true, label: this.t.instant('DASH_TOTAL_SLOTS'), formatter: (w: { globals: { seriesTotals: number[] } }): string => w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0).toString() } } } } },
       responsive: [{ breakpoint: 480, options: { chart: { height: 240 }, legend: { position: 'bottom' } } }],
     };
   }
 
   private buildHeatmapChart(data: IBusiestHoursResponse): HeatmapChartOptions | null {
     if (!data.data.length) return null;
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayNames = [
+      this.t.instant('DASH_DAY_MON'), this.t.instant('DASH_DAY_TUE'), this.t.instant('DASH_DAY_WED'),
+      this.t.instant('DASH_DAY_THU'), this.t.instant('DASH_DAY_FRI'), this.t.instant('DASH_DAY_SAT'),
+      this.t.instant('DASH_DAY_SUN'),
+    ];
     let minHour = 24, maxHour = 0;
     for (const cell of data.data) {
       if (cell.value > 0) {
@@ -203,8 +209,13 @@ export class ScheduleTabComponent implements OnInit {
       xaxis: { labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#64748b' } } },
       dataLabels: { enabled: false },
-      tooltip: { y: { formatter: (val: number) => `${val} appointment${val !== 1 ? 's' : ''}` } },
-      plotOptions: { heatmap: { shadeIntensity: 0.5, radius: 4, colorScale: { ranges: [{ from: 0, to: 0, color: '#f1f5f9', name: 'None' }, { from: 1, to: 3, color: '#bfdbfe', name: 'Low' }, { from: 4, to: 7, color: '#60a5fa', name: 'Medium' }, { from: 8, to: 100, color: '#2563eb', name: 'High' }] } } },
+      tooltip: { y: { formatter: (val: number) => this.t.instant('DASH_N_APPOINTMENTS', { count: val }) } },
+      plotOptions: { heatmap: { shadeIntensity: 0.5, radius: 4, colorScale: { ranges: [
+        { from: 0, to: 0, color: '#f1f5f9', name: this.t.instant('DASH_HEATMAP_NONE') },
+        { from: 1, to: 3, color: '#bfdbfe', name: this.t.instant('DASH_HEATMAP_LOW') },
+        { from: 4, to: 7, color: '#60a5fa', name: this.t.instant('DASH_HEATMAP_MEDIUM') },
+        { from: 8, to: 100, color: '#2563eb', name: this.t.instant('DASH_HEATMAP_HIGH') },
+      ] } } },
       colors: ['#2563eb'],
     };
   }

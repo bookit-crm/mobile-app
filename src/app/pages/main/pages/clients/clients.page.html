@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Clients</ion-title>
+    <ion-title>{{ "CLIENTS" | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openFilterModal()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
@@ -15,7 +15,7 @@
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar
-      placeholder="Search by name, phone, email..."
+      [placeholder]="'CLIENTS_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -32,7 +32,7 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ "FILTERS" | translate }}</ion-title>
         <ion-buttons slot="end">
           <ion-button fill="clear" color="medium" (click)="showFilterModal.set(false)">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
@@ -43,11 +43,11 @@
     <ion-content class="filter-modal-content">
       <ion-list lines="full">
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Last Visit From</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ "FILTER_DATE_FROM" | translate }}</ion-label>
           <input type="date" class="filter-date-input" [(ngModel)]="tempLastVisitFrom" />
         </ion-item>
         <ion-item>
-          <ion-label position="stacked" class="filter-label">Last Visit To</ion-label>
+          <ion-label position="stacked" class="filter-label">{{ "FILTER_DATE_TO" | translate }}</ion-label>
           <input type="date" class="filter-date-input" [(ngModel)]="tempLastVisitTo" />
         </ion-item>
       </ion-list>
@@ -55,8 +55,8 @@
     <ion-footer>
       <ion-toolbar class="filter-footer-toolbar">
         <div class="filter-modal-footer">
-          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">Reset All</ion-button>
-          <ion-button expand="block" color="primary" (click)="applyFilters()">Apply Filters</ion-button>
+          <ion-button expand="block" fill="outline" color="medium" (click)="resetFilters()">{{ "RESET_ALL" | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="applyFilters()">{{ "APPLY_FILTERS" | translate }}</ion-button>
         </div>
       </ion-toolbar>
     </ion-footer>
@@ -72,28 +72,28 @@
   } @else if (!isLoading() && clients().length === 0) {
     <div class="clients-empty">
       <ion-icon name="people-outline" class="clients-empty__icon"></ion-icon>
-      <h3 class="clients-empty__title">No clients yet</h3>
-      <p class="clients-empty__text">Add your first client or import from Excel.</p>
+      <h3 class="clients-empty__title">{{ "NO_CLIENTS" | translate }}</h3>
+      <p class="clients-empty__text">{{ "NO_CLIENTS_HINT" | translate }}</p>
       @if (canManageClients()) {
         <ion-button color="primary" (click)="openCreateModal()">
           <ion-icon name="add-outline" slot="start"></ion-icon>
-          Add Client
+          {{ "ADD_CLIENT" | translate }}
         </ion-button>
       }
     </div>
   } @else {
     <div class="clients-meta">
       <p class="clients-count">
-        {{ totalCount() }} client(s)
+        {{ "CLIENT_COUNT" | translate: { count: totalCount() } }}
         @if (activeFiltersCount() > 0) {
-          <span class="clients-filters-active"> · {{ activeFiltersCount() }} filter(s) active</span>
+          <span class="clients-filters-active"> · {{ "FILTERS_ACTIVE" | translate: { count: activeFiltersCount() } }}</span>
         }
       </p>
     </div>
 
     <div class="swipe-hint">
       <ion-icon name="swap-horizontal-outline"></ion-icon>
-      <span>Swipe left on a card for options</span>
+      <span>{{ "SWIPE_LEFT_FOR_OPTIONS" | translate }}</span>
     </div>
 
     <ion-list lines="none">
@@ -126,7 +126,7 @@
               @if (client.lastVisitDate) {
                 <p class="client-info client-info--last-visit">
                   <ion-icon name="time-outline"></ion-icon>
-                  Last visit: {{ formatDate(client.lastVisitDate) }}
+                  {{ "LAST_VISIT" | translate }}: {{ formatDate(client.lastVisitDate) }}
                 </p>
               }
             </ion-label>
@@ -145,26 +145,26 @@
                 <!-- Edit -->
                 <ion-item-option color="primary" (click)="openEditModal(client, $event)">
                   <ion-icon name="create-outline" slot="top"></ion-icon>
-                  <span class="option-label">Edit</span>
+                  <span class="option-label">{{ "EDIT" | translate }}</span>
                 </ion-item-option>
                 <!-- New Appointment -->
                 <ion-item-option color="success" (click)="openNewAppointment(client, $event)">
                   <ion-icon name="calendar-outline" slot="top"></ion-icon>
-                  <span class="option-label">Book</span>
+                  <span class="option-label">{{ "BOOK_APPOINTMENT" | translate }}</span>
                 </ion-item-option>
               }
               @if (canViewHistory()) {
                 <!-- History -->
                 <ion-item-option color="secondary" (click)="viewHistory(client, $event)">
                   <ion-icon name="time-outline" slot="top"></ion-icon>
-                  <span class="option-label">History</span>
+                  <span class="option-label">{{ "HISTORY" | translate }}</span>
                 </ion-item-option>
               }
               @if (canManageClients()) {
                 <!-- Delete -->
                 <ion-item-option color="danger" (click)="confirmDelete(client, $event)">
                   <ion-icon name="trash-outline" slot="top"></ion-icon>
-                  <span class="option-label">Delete</span>
+                  <span class="option-label">{{ "DELETE" | translate }}</span>
                 </ion-item-option>
               }
             </ion-item-options>

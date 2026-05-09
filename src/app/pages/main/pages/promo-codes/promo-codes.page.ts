@@ -11,6 +11,7 @@
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { debounceTime, Subject, take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { IPromoCode, IPromoCodeService } from '@core/models/promo-code.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { EUserRole } from '@core/enums/e-user-role';
@@ -38,6 +39,7 @@ export class PromoCodesPage implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   // ── State ──────────────────────────────────────────────────────────────────
   public isLoading = signal(false);
@@ -69,9 +71,9 @@ export class PromoCodesPage implements OnInit {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   public readonly visibilityOptions = [
-    { value: 'all' as const, label: 'All' },
-    { value: 'true' as const, label: 'Visible' },
-    { value: 'false' as const, label: 'Hidden' },
+    { value: 'all' as const, label: 'PC_ALL' },
+    { value: 'true' as const, label: 'PC_VISIBLE' },
+    { value: 'false' as const, label: 'PC_HIDDEN' },
   ];
 
   ngOnInit(): void {
@@ -158,12 +160,12 @@ export class PromoCodesPage implements OnInit {
   public async confirmDelete(promoCode: IPromoCode, event: Event): Promise<void> {
     event.stopPropagation();
     const alert = await this.alertCtrl.create({
-      header: 'Delete Promo Code',
-      message: `Delete "${promoCode.name}"?`,
+      header: this.t.instant('PC_DELETE_TITLE'),
+      message: this.t.instant('PC_DELETE_MSG', { name: promoCode.name }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.t.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deletePromoCode(promoCode._id),
         },
@@ -180,7 +182,11 @@ export class PromoCodesPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadPromoCodes();
-          void this.showToast(promoCode.isVisible ? 'Hidden from clients' : 'Now visible to clients');
+          void this.showToast(
+            promoCode.isVisible
+              ? this.t.instant('PC_VISIBILITY_HIDDEN')
+              : this.t.instant('PC_VISIBILITY_VISIBLE'),
+          );
         },
       });
   }
@@ -259,7 +265,7 @@ export class PromoCodesPage implements OnInit {
       .subscribe({
         next: () => {
           this.loadPromoCodes();
-          void this.showToast('Promo code deleted');
+          void this.showToast(this.t.instant('PC_DELETED'));
         },
       });
   }
@@ -282,14 +288,14 @@ export class PromoCodesPage implements OnInit {
 
     const depts = this.departments();
     if (!depts.length) {
-      await this.showToast('No departments found. Create a department first.', 'warning');
+      await this.showToast(this.t.instant('PC_NO_DEPTS_MSG'), 'warning');
       return null;
     }
     if (depts.length === 1) return depts[0];
 
     return new Promise(async (resolve) => {
       const alert = await this.alertCtrl.create({
-        header: 'Select Department',
+        header: this.t.instant('PC_SELECT_DEPT_HEADER'),
         inputs: depts.map((d, i) => ({
           type: 'radio' as const,
           label: d.name,
@@ -297,8 +303,8 @@ export class PromoCodesPage implements OnInit {
           checked: i === 0,
         })),
         buttons: [
-          { text: 'Cancel', role: 'cancel', handler: () => resolve(null) },
-          { text: 'Select', handler: (data: IDepartment) => resolve(data) },
+          { text: this.t.instant('CANCEL'), role: 'cancel', handler: () => resolve(null) },
+          { text: this.t.instant('SELECT'), handler: (data: IDepartment) => resolve(data) },
         ],
       });
       await alert.present();
@@ -307,9 +313,9 @@ export class PromoCodesPage implements OnInit {
 
   private async showUpgradeAlert(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Feature not available',
-      message: 'Promo codes are not available on your current plan. Upgrade to use this feature.',
-      buttons: [{ text: 'OK', role: 'cancel' }],
+      header: this.t.instant('PC_FEATURE_NOT_AVAILABLE_TITLE'),
+      message: this.t.instant('PC_FEATURE_NOT_AVAILABLE_MSG'),
+      buttons: [{ text: this.t.instant('OK'), role: 'cancel' }],
     });
     await alert.present();
   }

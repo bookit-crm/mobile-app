@@ -5,46 +5,46 @@
       <img src="assets/icon/favicon.png" alt="BookIt" class="hero__logo-img" />
       <span class="hero__logo-title">BookIt</span>
     </div>
-    <p class="hero__tagline">Manage your business with ease</p>
+    <p class="hero__tagline">{{ 'MANAGE_YOUR_BUSINESS_WITH_EASE' | translate }}</p>
     <div class="hero__features">
-      <span class="hero__feature">Multi-location management</span>
-      <span class="hero__feature">Smart scheduling</span>
-      <span class="hero__feature">Role-based access</span>
+      <span class="hero__feature">{{ 'MULTI_LOCATION_MANAGEMENT' | translate }}</span>
+      <span class="hero__feature">{{ 'SMART_SCHEDULING' | translate }}</span>
+      <span class="hero__feature">{{ 'ROLE_BASED_ACCESS' | translate }}</span>
     </div>
   </div>
 
   <div class="card">
     <div class="card__header">
-      <h2 class="card__title">Welcome back</h2>
-      <p class="card__subtitle">Log in to your account to continue</p>
+      <h2 class="card__title">{{ 'WELCOME_BACK' | translate }}</h2>
+      <p class="card__subtitle">{{ 'LOG_IN_TO_YOUR_ACCOUNT_TO_CONTINUE' | translate }}</p>
     </div>
 
     <form class="form" [formGroup]="loginForm" (ngSubmit)="handleLogin()">
 
       <div class="field" [class.field--error]="emailHasError">
-        <label class="field__label">Email</label>
+        <label class="field__label">{{ 'EMAIL' | translate }}</label>
         <div class="field__input-wrap">
           <ion-input
             type="text"
             inputmode="email"
-            placeholder="Enter email"
+            [placeholder]="'ENTER_EMAIL' | translate"
             formControlName="email"
             autocomplete="email"
             class="field__input"
           ></ion-input>
         </div>
         <span class="field__error" *ngIf="emailHasError">
-          <span *ngIf="emailControl?.errors?.['required']">Email is required</span>
-          <span *ngIf="emailControl?.errors?.['pattern']">Enter a valid email address</span>
+          <span *ngIf="emailControl?.errors?.['required']">{{ 'ERROR_EMAIL_REQUIRED' | translate }}</span>
+          <span *ngIf="emailControl?.errors?.['pattern']">{{ 'ERROR_EMAIL_PATTERN' | translate }}</span>
         </span>
       </div>
 
       <div class="field" [class.field--error]="passwordHasError">
-        <label class="field__label">Password</label>
+        <label class="field__label">{{ 'PASSWORD' | translate }}</label>
         <div class="field__input-wrap">
           <ion-input
             [type]="showPassword ? 'text' : 'password'"
-            placeholder="Enter password"
+            [placeholder]="'ENTER_PASSWORD' | translate"
             formControlName="password"
             autocomplete="current-password"
             class="field__input"
@@ -53,14 +53,14 @@
             <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
           </ion-button>
         </div>
-        <span class="field__error" *ngIf="passwordHasError">Password is required</span>
+        <span class="field__error" *ngIf="passwordHasError">{{ 'ERROR_PASSWORD_REQUIRED' | translate }}</span>
       </div>
 
       <div class="row">
         <ion-checkbox formControlName="remember_me" labelPlacement="end" class="row__checkbox">
-          Remember me
+          {{ 'REMEMBER_ME' | translate }}
         </ion-checkbox>
-        <button type="button" class="row__forgot">Forgot password?</button>
+        <button type="button" class="row__forgot">{{ 'FORGOT_PASSWORD' | translate }}</button>
       </div>
 
       <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
@@ -72,7 +72,7 @@
         (click)="handleLogin()"
       >
         <ion-spinner *ngIf="isLoading" name="crescent" class="btn-primary__spinner"></ion-spinner>
-        <span *ngIf="!isLoading">Log In</span>
+        <span *ngIf="!isLoading">{{ 'LOGIN' | translate }}</span>
       </button>
 
     </form>

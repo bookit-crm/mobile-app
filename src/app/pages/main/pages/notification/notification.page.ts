@@ -22,6 +22,7 @@ import {
 import { NotificationsService } from '@core/services/notifications.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 interface INotificationSetting {
   key: string;
@@ -45,6 +46,7 @@ export class NotificationPage implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly t = inject(TranslateService);
 
   // ── Tab state ─────────────────────────────────────────────────────────────
   public activeTab = signal<TTab>('inbox');
@@ -75,42 +77,42 @@ export class NotificationPage implements OnInit {
       const all: INotificationCategoryItem[] = [
         {
           key: ENotificationCategory.All,
-          label: 'All',
+          label: this.t.instant('NOTIF_CAT_ALL'),
           icon: 'list-outline',
         },
         {
           key: ENotificationCategory.NewBookings,
-          label: 'New bookings',
+          label: this.t.instant('NOTIF_CAT_NEW_BOOKINGS'),
           icon: 'calendar-outline',
         },
         {
           key: ENotificationCategory.Cancellations,
-          label: 'Cancellations',
+          label: this.t.instant('NOTIF_CAT_CANCELLATIONS'),
           icon: 'close-circle-outline',
         },
         {
           key: ENotificationCategory.EmployeeUpdates,
-          label: 'Employees',
+          label: this.t.instant('NOTIF_CAT_EMPLOYEES'),
           icon: 'people-outline',
         },
         {
           key: ENotificationCategory.ClientUpdates,
-          label: 'Clients',
+          label: this.t.instant('NOTIF_CAT_CLIENTS'),
           icon: 'person-outline',
         },
         {
           key: ENotificationCategory.SystemSecurity,
-          label: 'System',
+          label: this.t.instant('NOTIF_CAT_SYSTEM'),
           icon: 'lock-closed-outline',
         },
         {
           key: ENotificationCategory.ReviewsFeedback,
-          label: 'Reviews',
+          label: this.t.instant('NOTIF_CAT_REVIEWS'),
           icon: 'star-outline',
         },
         {
           key: ENotificationCategory.StockAlerts,
-          label: 'Stock',
+          label: this.t.instant('NOTIF_CAT_STOCK'),
           icon: 'cube-outline',
         },
       ];
@@ -143,11 +145,11 @@ export class NotificationPage implements OnInit {
     const appointmentsOnly =
       this.subscriptionService.isNotificationsAppointmentsOnly();
     return [
-      { key: ENotificationFilter.All, label: 'All' },
-      { key: ENotificationFilter.Unread, label: 'Unread' },
+      { key: ENotificationFilter.All, label: this.t.instant('NOTIF_FILTER_ALL') },
+      { key: ENotificationFilter.Unread, label: this.t.instant('NOTIF_FILTER_UNREAD') },
       ...(appointmentsOnly
         ? []
-        : [{ key: ENotificationFilter.System, label: 'System' }]),
+        : [{ key: ENotificationFilter.System, label: this.t.instant('NOTIF_FILTER_SYSTEM') }]),
     ];
   });
 
@@ -162,38 +164,38 @@ export class NotificationPage implements OnInit {
     const all: INotificationSetting[] = [
       {
         key: 'new_bookings',
-        label: 'New bookings',
-        description: 'Get notified when a new booking is created.',
+        label: this.t.instant('NOTIF_SET_NEW_BOOKINGS_LABEL'),
+        description: this.t.instant('NOTIF_SET_NEW_BOOKINGS_DESC'),
         enabled: true,
       },
       {
         key: 'cancellations',
-        label: 'Cancellations',
-        description: 'Get notified when an appointment is cancelled.',
+        label: this.t.instant('NOTIF_SET_CANCELLATIONS_LABEL'),
+        description: this.t.instant('NOTIF_SET_CANCELLATIONS_DESC'),
         enabled: true,
       },
       {
         key: 'client_updates',
-        label: 'Client updates',
-        description: 'Updates from your clients.',
+        label: this.t.instant('NOTIF_SET_CLIENT_UPDATES_LABEL'),
+        description: this.t.instant('NOTIF_SET_CLIENT_UPDATES_DESC'),
         enabled: true,
       },
       {
         key: 'employee_updates',
-        label: 'Employee updates',
-        description: 'Schedule and profile changes.',
+        label: this.t.instant('NOTIF_SET_EMPLOYEE_UPDATES_LABEL'),
+        description: this.t.instant('NOTIF_SET_EMPLOYEE_UPDATES_DESC'),
         enabled: true,
       },
       {
         key: 'system_security',
-        label: 'System & security',
-        description: 'Logins, payments and security alerts.',
+        label: this.t.instant('NOTIF_SET_SYSTEM_SECURITY_LABEL'),
+        description: this.t.instant('NOTIF_SET_SYSTEM_SECURITY_DESC'),
         enabled: true,
       },
       {
         key: 'reviews_feedback',
-        label: 'Reviews & feedback',
-        description: 'New reviews from clients.',
+        label: this.t.instant('NOTIF_SET_REVIEWS_LABEL'),
+        description: this.t.instant('NOTIF_SET_REVIEWS_DESC'),
         enabled: true,
       },
     ];
@@ -201,8 +203,8 @@ export class NotificationPage implements OnInit {
     if (this.subscriptionService.hasFeature('productsStockAlerts')) {
       all.push({
         key: 'stock_alerts',
-        label: 'Stock alerts',
-        description: 'Low-stock and out-of-stock alerts.',
+        label: this.t.instant('NOTIF_SET_STOCK_LABEL'),
+        description: this.t.instant('NOTIF_SET_STOCK_DESC'),
         enabled: true,
       });
     }
@@ -309,11 +311,11 @@ export class NotificationPage implements OnInit {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMin < 1) return 'Just now';
-    if (diffMin < 60) return `${diffMin} min ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffMin < 1) return this.t.instant('NOTIF_TIME_JUST_NOW');
+    if (diffMin < 60) return this.t.instant('NOTIF_TIME_MIN_AGO', { count: diffMin });
+    if (diffHours < 24) return this.t.instant('NOTIF_TIME_H_AGO', { count: diffHours });
+    if (diffDays === 1) return this.t.instant('NOTIF_TIME_YESTERDAY');
+    if (diffDays < 7) return this.t.instant('NOTIF_TIME_DAYS_AGO', { count: diffDays });
 
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',

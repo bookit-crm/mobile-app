@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Employees</ion-title>
+    <ion-title>{{ 'EMPLOYEES' | translate }}</ion-title>
   </ion-toolbar>
 
   <!-- Tabs: только для Admin/Owner -->
@@ -11,10 +11,10 @@
     <ion-toolbar>
       <ion-segment [value]="activeTab()" (ionChange)="onTabChange($any($event.detail.value))">
         <ion-segment-button value="employees">
-          <ion-label>Employees ({{ employeesTotal() }})</ion-label>
+          <ion-label>{{ 'EMP_TAB_EMPLOYEES' | translate:{ count: employeesTotal() } }}</ion-label>
         </ion-segment-button>
         <ion-segment-button value="managers">
-          <ion-label>Managers ({{ managersTotal() }})</ion-label>
+          <ion-label>{{ 'EMP_TAB_MANAGERS' | translate:{ count: managersTotal() } }}</ion-label>
         </ion-segment-button>
       </ion-segment>
     </ion-toolbar>
@@ -22,7 +22,7 @@
 
   <ion-toolbar>
     <ion-searchbar
-      [placeholder]="activeTab() === 'employees' ? 'Search employees...' : 'Search managers...'"
+      [placeholder]="(activeTab() === 'employees' ? 'EMP_SEARCH_PLACEHOLDER' : 'MGR_SEARCH_PLACEHOLDER') | translate"
       [debounce]="0"
       (ionInput)="onSearchChange($event)"
     ></ion-searchbar>
@@ -43,14 +43,14 @@
     @if (employees().length === 0) {
       <div class="employees-empty">
         <ion-icon name="people-outline" class="employees-empty__icon"></ion-icon>
-        <h3>No employees yet</h3>
-        <p>Add your first employee to get started.</p>
+        <h3>{{ 'EMP_EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'EMP_EMPTY_TEXT' | translate }}</p>
       </div>
     } @else {
       <!-- Подсказка о свайпе — показываем один раз над списком -->
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left on a card for options</span>
+        <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
       </div>
 
       <ion-list lines="none">
@@ -76,7 +76,7 @@
                 @if (emp.services?.length) {
                   <p>
                     <ion-icon name="cut-outline"></ion-icon>
-                    {{ emp.services!.length }} service(s)
+                    {{ 'EMP_N_SERVICES' | translate:{ count: emp.services!.length } }}
                   </p>
                 }
               </ion-label>
@@ -105,9 +105,9 @@
     @if (!isManager) {
       <div class="employees-meta ion-padding-horizontal">
         <p class="employees-count">
-          {{ employeesTotal() }} employee(s)
+          {{ 'EMP_COUNT' | translate:{ count: employeesTotal() } }}
           @if (subscriptionService.getLimit('employees') !== -1) {
-             / {{ subscriptionService.getLimit('employees') }} max
+            {{ 'EMP_COUNT_MAX' | translate:{ max: subscriptionService.getLimit('employees') } }}
           }
         </p>
       </div>
@@ -131,14 +131,14 @@
     @if (managers().length === 0) {
       <div class="employees-empty">
         <ion-icon name="shield-outline" class="employees-empty__icon"></ion-icon>
-        <h3>No managers yet</h3>
-        <p>Create a manager to assign them to a department.</p>
+        <h3>{{ 'MGR_EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'MGR_EMPTY_TEXT' | translate }}</p>
       </div>
     } @else {
       <!-- Подсказка о свайпе -->
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
-        <span>Swipe left on a card for options</span>
+        <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
       </div>
 
       <ion-list lines="none">
@@ -164,7 +164,7 @@
                 [color]="isManagerAssigned(mgr) ? 'success' : 'warning'"
                 class="status-badge"
               >
-                {{ isManagerAssigned(mgr) ? 'Assigned' : 'Unassigned' }}
+                {{ (isManagerAssigned(mgr) ? 'MGR_ASSIGNED' : 'MGR_UNASSIGNED') | translate }}
               </ion-badge>
               <!-- Индикатор свайпа -->
               <ion-icon

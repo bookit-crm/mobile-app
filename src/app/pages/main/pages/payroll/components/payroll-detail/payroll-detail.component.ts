@@ -14,6 +14,7 @@ import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators } 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { forkJoin, switchMap, take } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EPaymentMethod, EPayrollLineItemStatus, EPayrollPeriodStatus } from '@core/enums/e-payroll';
 import { IPayrollLineItem, IPayrollPeriod, IPayrollPeriodSummary, IPayoutPayload } from '@core/models/payroll.interface';
 import { PayrollService, IPaginatedPayrollLineItems } from '@core/services/payroll.service';
@@ -21,7 +22,7 @@ import { PayrollService, IPaginatedPayrollLineItems } from '@core/services/payro
 @Component({
   selector: 'app-payroll-detail',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule, CurrencyPipe, DatePipe, TranslateModule],
   templateUrl: './payroll-detail.component.html',
   styleUrls: ['./payroll-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +36,7 @@ export class PayrollDetailComponent implements OnInit {
   private readonly payrollService = inject(PayrollService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public readonly EPayrollPeriodStatus = EPayrollPeriodStatus;
   public readonly EPayrollLineItemStatus = EPayrollLineItemStatus;
@@ -57,18 +59,22 @@ export class PayrollDetailComponent implements OnInit {
 
   public readonly isSupervisorPeriod = computed(() => !!this.period()?.supervisor);
 
-  public readonly statusOptions: { value: EPayrollLineItemStatus | ''; label: string }[] = [
-    { value: '', label: 'All statuses' },
-    { value: EPayrollLineItemStatus.Pending, label: 'Pending' },
-    { value: EPayrollLineItemStatus.Paid, label: 'Paid' },
-    { value: EPayrollLineItemStatus.Reversed, label: 'Reversed' },
-  ];
+  public get statusOptions(): { value: EPayrollLineItemStatus | ''; label: string }[] {
+    return [
+      { value: '', label: this.t.instant('PAY_STATUS_ALL') },
+      { value: EPayrollLineItemStatus.Pending, label: this.t.instant('PAY_STATUS_PENDING') },
+      { value: EPayrollLineItemStatus.Paid, label: this.t.instant('PAY_STATUS_PAID') },
+      { value: EPayrollLineItemStatus.Reversed, label: this.t.instant('PAY_STATUS_REVERSED') },
+    ];
+  }
 
-  public readonly paymentMethodOptions: { value: EPaymentMethod; label: string }[] = [
-    { value: EPaymentMethod.Cash, label: 'Cash' },
-    { value: EPaymentMethod.BankTransfer, label: 'Bank Transfer' },
-    { value: EPaymentMethod.Card, label: 'Card' },
-  ];
+  public get paymentMethodOptions(): { value: EPaymentMethod; label: string }[] {
+    return [
+      { value: EPaymentMethod.Cash, label: this.t.instant('PAY_METHOD_CASH') },
+      { value: EPaymentMethod.BankTransfer, label: this.t.instant('PAY_METHOD_BANK') },
+      { value: EPaymentMethod.Card, label: this.t.instant('PAY_METHOD_CARD') },
+    ];
+  }
 
   private readonly LIMIT = 25;
 
@@ -140,12 +146,15 @@ export class PayrollDetailComponent implements OnInit {
     const employeeName = `${staff?.firstName ?? ''} ${staff?.lastName ?? ''}`.trim();
 
     const alert = await this.alertCtrl.create({
-      header: 'Confirm Payout',
-      message: `Pay ${employeeName} — $${summary?.totalPayout?.toFixed(2) ?? '0.00'}?`,
+      header: this.t.instant('PAY_CONFIRM_PAYOUT_TITLE'),
+      message: this.t.instant('PAY_CONFIRM_PAYOUT_MSG', {
+        name: employeeName,
+        amount: summary?.totalPayout?.toFixed(2) ?? '0.00',
+      }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.t.instant('PAY_CANCEL'), role: 'cancel' },
         {
-          text: 'Confirm Payout',
+          text: this.t.instant('PAY_CONFIRM_PAYOUT_BTN'),
           handler: () => {
             const fv = this.payoutForm.getRawValue();
             const payload: IPayoutPayload = {
@@ -159,7 +168,7 @@ export class PayrollDetailComponent implements OnInit {
               .subscribe({
                 next: async () => {
                   const toast = await this.toastCtrl.create({
-                    message: 'Payout recorded successfully',
+                    message: this.t.instant('PAY_PAYOUT_RECORDED'),
                     duration: 2000,
                     color: 'success',
                   });

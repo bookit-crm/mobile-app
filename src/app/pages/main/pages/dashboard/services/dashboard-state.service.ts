@@ -47,12 +47,12 @@ export class DashboardStateService {
   public selectedEmployees = signal<IEmployee[]>([]);
 
   public readonly datePresets: IKeyValuePair[] = [
-    { value: 'this_month',   display: 'This Month' },
-    { value: 'last_month',   display: 'Last Month' },
-    { value: 'last_3_months', display: 'Last 3 Months' },
-    { value: 'last_6_months', display: 'Last 6 Months' },
-    { value: 'last_year',    display: 'Last Year' },
-    { value: 'custom',       display: 'Custom' },
+    { value: 'this_month',    display: 'DASH_PRESET_THIS_MONTH' },
+    { value: 'last_month',    display: 'DASH_PRESET_LAST_MONTH' },
+    { value: 'last_3_months', display: 'DASH_PRESET_LAST_3M' },
+    { value: 'last_6_months', display: 'DASH_PRESET_LAST_6M' },
+    { value: 'last_year',     display: 'DASH_PRESET_LAST_YEAR' },
+    { value: 'custom',        display: 'DASH_PRESET_CUSTOM' },
   ];
 
   // Supervisor role helpers

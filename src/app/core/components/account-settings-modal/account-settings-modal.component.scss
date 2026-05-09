@@ -135,6 +135,47 @@
 }
 
 // ──────────────────────────────────────────────
+//  Language switcher
+// ──────────────────────────────────────────────
+.acc-modal__lang-section {
+  padding: 4px 0 0;
+}
+
+.acc-modal__lang-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+.acc-modal__lang-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.acc-modal__lang-btn {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--ion-color-light-shade);
+  background: var(--ion-color-light);
+  color: var(--ion-color-medium-shade);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &--active {
+    border-color: var(--ion-color-dark);
+    background: var(--ion-color-dark);
+    color: #fff;
+    font-weight: 600;
+  }
+}
+
+// ──────────────────────────────────────────────
 //  Footer
 // ──────────────────────────────────────────────
 .acc-modal__footer {

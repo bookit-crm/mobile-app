@@ -15,6 +15,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { AlertController, IonItemSliding, ModalController, ToastController } from '@ionic/angular';
 import { debounceTime, Subject, take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 import { IAppointment, AppointmentStatus } from '@core/models/appointment.interface';
 import { IDepartment } from '@core/models/department.interface';
@@ -55,6 +56,7 @@ export class AppointmentsPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly websocketService = inject(WebsocketService);
+  private readonly translate = inject(TranslateService);
 
   /** Помечаем страницу активной только между ionViewWillEnter / WillLeave,
    *  чтобы real-time refresh не дёргал API когда юзер на другом табе. */
@@ -162,10 +164,10 @@ export class AppointmentsPage {
   public readonly AppointmentStatus = AppointmentStatus;
 
   public readonly statusOptions = [
-    { value: 'all',       label: 'All' },
-    { value: 'new',       label: 'New' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'canceled',  label: 'Canceled' },
+    { value: 'all',       label: 'STATUS_ALL' },
+    { value: 'new',       label: 'STATUS_NEW' },
+    { value: 'completed', label: 'STATUS_COMPLETED' },
+    { value: 'canceled',  label: 'STATUS_CANCELED' },
   ];
 
   /** Count of active advanced filters (not counting search/status).
@@ -312,7 +314,7 @@ export class AppointmentsPage {
     event.stopPropagation();
     if (!this.canViewHistory()) {
       const toast = await this.toastCtrl.create({
-        message: 'Upgrade your plan to view appointment history.',
+        message: this.translate.instant('UPGRADE_FOR_HISTORY'),
         duration: 3000,
         color: 'warning',
         icon: 'lock-closed-outline',
@@ -330,12 +332,12 @@ export class AppointmentsPage {
       return;
     }
     const alert = await this.alertCtrl.create({
-      header: 'Delete Appointment',
-      message: `Are you sure you want to delete this appointment?`,
+      header: this.translate.instant('DELETE_APPOINTMENT_TITLE'),
+      message: this.translate.instant('DELETE_APPOINTMENT_MESSAGE'),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.translate.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.translate.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteAppointment(appt._id),
         },
@@ -509,16 +511,16 @@ export class AppointmentsPage {
       .subscribe({
         next: () => {
           this.refresh();
-          void this.showToast('Appointment deleted');
+          void this.showToast(this.translate.instant('APPOINTMENT_DELETED'));
         },
       });
   }
 
   private async showSubscriptionAlert(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Subscription Required',
-      message: 'Your subscription is not active. Please renew your plan to manage appointments.',
-      buttons: ['OK'],
+      header: this.translate.instant('SUBSCRIPTION_REQUIRED'),
+      message: this.translate.instant('SUBSCRIPTION_REQUIRED_MSG'),
+      buttons: [this.translate.instant('OK')],
     });
     await alert.present();
   }

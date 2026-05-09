@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Dashboard</ion-title>
+    <ion-title>{{ 'ANALYTICS' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openFilterModal()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
@@ -22,7 +22,7 @@
           [class.preset-active]="state.selectedDatePreset() === preset.value"
           (click)="onDatePresetChange(preset.value)"
         >
-          {{ preset.display }}
+          {{ preset.display | translate }}
         </ion-chip>
       }
     </div>
@@ -38,7 +38,7 @@
           (click)="onTabChange(tab.value)"
         >
           <ion-icon [name]="tab.icon"></ion-icon>
-          <span>{{ tab.display }}</span>
+          <span>{{ tab.display | translate }}</span>
         </button>
       }
     </div>
@@ -77,11 +77,11 @@
   <ng-template>
     <ion-header>
       <ion-toolbar>
-        <ion-title>Filters</ion-title>
+        <ion-title>{{ 'FILTERS' | translate }}</ion-title>
         <ion-buttons slot="start">
           @if (activeFiltersCount() > 0) {
             <ion-button (click)="selectAllDepartments(); selectAllEmployees()" color="medium">
-              Reset
+              {{ 'RESET' | translate }}
             </ion-button>
           }
         </ion-buttons>
@@ -98,7 +98,7 @@
       @if (!state.singleDepartmentMode() && state.departments()) {
         <ion-list>
           <ion-list-header>
-            <ion-label>Departments</ion-label>
+            <ion-label>{{ 'BRANCHES' | translate }}</ion-label>
           </ion-list-header>
 
           <!-- All Departments option -->
@@ -109,7 +109,7 @@
               (click)="$event.stopPropagation()"
               (ionChange)="selectAllDepartments()"
             ></ion-checkbox>
-            <ion-label><strong>All Departments</strong></ion-label>
+            <ion-label><strong>{{ 'ALL_BRANCHES' | translate }}</strong></ion-label>
           </ion-item>
 
           @for (dept of state.departments()!.results; track dept._id) {
@@ -130,7 +130,7 @@
       @if (state.employeeOptions() && state.employeeOptions()!.results.length) {
         <ion-list>
           <ion-list-header>
-            <ion-label>Employees</ion-label>
+            <ion-label>{{ 'EMPLOYEES' | translate }}</ion-label>
           </ion-list-header>
 
           <!-- All Employees option -->
@@ -141,7 +141,7 @@
               (click)="$event.stopPropagation()"
               (ionChange)="selectAllEmployees()"
             ></ion-checkbox>
-            <ion-label><strong>All Employees</strong></ion-label>
+            <ion-label><strong>{{ 'ALL_EMPLOYEES' | translate }}</strong></ion-label>
           </ion-item>
 
           @for (emp of state.employeeOptions()!.results; track emp._id) {
@@ -162,10 +162,10 @@
       @if (state.isCustomDateSelected) {
         <div class="custom-range-section">
           <ion-list-header>
-            <ion-label>Custom Date Range</ion-label>
+            <ion-label>{{ 'CUSTOM_PERIOD' | translate }}</ion-label>
           </ion-list-header>
           <ion-item>
-            <ion-label>From</ion-label>
+            <ion-label>{{ 'FROM_TIME' | translate }}</ion-label>
             <ion-input
               type="date"
               [value]="state.customFrom() || ''"
@@ -173,7 +173,7 @@
             ></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label>To</ion-label>
+            <ion-label>{{ 'TO_TIME' | translate }}</ion-label>
             <ion-input
               type="date"
               [value]="state.customTo() || ''"
@@ -181,7 +181,7 @@
             ></ion-input>
           </ion-item>
           <div class="ion-padding-top">
-            <ion-button expand="block" (click)="applyCustomRange()">Apply Range</ion-button>
+            <ion-button expand="block" (click)="applyCustomRange()">{{ 'APPLY' | translate }}</ion-button>
           </div>
         </div>
       }

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>Notifications</ion-title>
+    <ion-title>{{ 'NOTIF_TITLE' | translate }}</ion-title>
     <ion-buttons slot="end">
       @if (activeTab() === 'inbox') {
         <ion-button
@@ -23,11 +23,11 @@
     >
       <ion-segment-button value="inbox">
         <ion-icon name="mail-outline"></ion-icon>
-        <ion-label>Inbox</ion-label>
+        <ion-label>{{ 'NOTIF_TAB_INBOX' | translate }}</ion-label>
       </ion-segment-button>
       <ion-segment-button value="settings">
         <ion-icon name="options-outline"></ion-icon>
-        <ion-label>Settings</ion-label>
+        <ion-label>{{ 'NOTIF_TAB_SETTINGS' | translate }}</ion-label>
       </ion-segment-button>
     </ion-segment>
   </ion-toolbar>
@@ -81,7 +81,7 @@
 
     <!-- Search -->
     <ion-searchbar
-      placeholder="Search notifications"
+      [placeholder]="'NOTIF_SEARCH_PLACEHOLDER' | translate"
       [debounce]="0"
       [formControl]="searchControl"
     ></ion-searchbar>
@@ -110,7 +110,7 @@
                 <span class="notif-card__title">{{ item.title }}</span>
                 @if (!item.isRead) {
                   <ion-badge color="warning" class="notif-card__pill">
-                    Unread
+                    {{ 'NOTIF_UNREAD_BADGE' | translate }}
                   </ion-badge>
                 }
               </div>
@@ -131,7 +131,7 @@
           name="notifications-off-outline"
           class="notif-empty__icon"
         ></ion-icon>
-        <p class="notif-empty__text">No notifications yet</p>
+        <p class="notif-empty__text">{{ 'NOTIF_EMPTY_TEXT' | translate }}</p>
       </div>
     }
   }
@@ -139,8 +139,8 @@
   <!-- ── SETTINGS TAB ───────────────────────────────────────────────── -->
   @if (activeTab() === 'settings') {
     <div class="settings-header">
-      <h2>Notification preferences</h2>
-      <p>Choose which categories you want to receive notifications for.</p>
+      <h2>{{ 'NOTIF_SETTINGS_HEADER' | translate }}</h2>
+      <p>{{ 'NOTIF_SETTINGS_DESC' | translate }}</p>
     </div>
 
     @if (settings().length === 0) {
@@ -149,7 +149,7 @@
           name="hourglass-outline"
           class="notif-empty__icon"
         ></ion-icon>
-        <p class="notif-empty__text">Loading your plan…</p>
+        <p class="notif-empty__text">{{ 'NOTIF_LOADING_PLAN' | translate }}</p>
       </div>
     } @else {
       <ion-list lines="full">

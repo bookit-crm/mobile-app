@@ -3,6 +3,7 @@ import {
   DestroyRef, effect, ElementRef, inject, input, output, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { isSameDay, parse } from 'date-fns';
 import { IAppointment, INewAppointmentPayload } from '@core/models/appointment.interface';
 import { IEmployee } from '@core/models/employee.interface';
@@ -19,7 +20,7 @@ import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 @Component({
   selector: 'app-day-view',
   standalone: true,
-  imports: [CommonModule, CalendarEventCardComponent],
+  imports: [CommonModule, TranslateModule, CalendarEventCardComponent],
   templateUrl: './day-view.component.html',
   styleUrls: ['./day-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

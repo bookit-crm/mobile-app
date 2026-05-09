@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { RouterModule, Routes } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 
 import { ProductsPage } from './products.page';
 import { ProductModalComponent } from './components/product-modal/product-modal.component';
@@ -21,6 +22,7 @@ const routes: Routes = [{ path: '', component: ProductsPage }];
     FormsModule,
     ReactiveFormsModule,
     IonicModule,
+    TranslateModule,
     RouterModule.forChild(routes),
   ],
 })

@@ -11,6 +11,7 @@
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, IonItemSliding, ModalController, ToastController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { debounceTime, Subject, take } from 'rxjs';
 
 import { IClient } from '@core/models/client.interface';
@@ -37,6 +38,7 @@ export class ClientsPage {
   private readonly modalCtrl = inject(ModalController);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
+  private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -175,7 +177,7 @@ export class ClientsPage {
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
     if (data?.saved) {
-      void this.showToast('Appointment created');
+      void this.showToast(this.translate.instant('APPOINTMENT_CREATED'));
     }
   }
 
@@ -191,7 +193,7 @@ export class ClientsPage {
     event.stopPropagation();
     if (!this.canViewHistory()) {
       const toast = await this.toastCtrl.create({
-        message: 'Upgrade your plan to view client visit history.',
+        message: this.translate.instant('UPGRADE_FOR_CLIENT_HISTORY'),
         duration: 3000,
         color: 'warning',
         icon: 'lock-closed-outline',
@@ -214,12 +216,12 @@ export class ClientsPage {
       return;
     }
     const alert = await this.alertCtrl.create({
-      header: 'Delete Client',
-      message: `Are you sure you want to delete "${client.fullName}"? This action cannot be undone.`,
+      header: this.translate.instant('DELETE_CLIENT_TITLE'),
+      message: this.translate.instant('DELETE_CLIENT_MSG', { name: client.fullName }),
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: this.translate.instant('CANCEL'), role: 'cancel' },
         {
-          text: 'Delete',
+          text: this.translate.instant('DELETE'),
           role: 'destructive',
           handler: () => this.deleteClient(client._id),
         },
@@ -331,16 +333,16 @@ export class ClientsPage {
       .subscribe({
         next: () => {
           this.refresh();
-          void this.showToast('Client deleted');
+          void this.showToast(this.translate.instant('CLIENT_DELETED'));
         },
       });
   }
 
   private async showSubscriptionAlert(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Subscription Required',
-      message: 'Your subscription is not active. Please renew your plan to manage clients.',
-      buttons: ['OK'],
+      header: this.translate.instant('SUBSCRIPTION_REQUIRED'),
+      message: this.translate.instant('CLIENTS_SUBSCRIPTION_MSG'),
+      buttons: [this.translate.instant('OK')],
     });
     await alert.present();
   }

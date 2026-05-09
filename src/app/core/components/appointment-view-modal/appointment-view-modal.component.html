@@ -11,9 +11,9 @@
         <div class="view-status-text">
           <p class="view-status-title">
             @switch (appointment()!.status) {
-              @case (AppointmentStatus.New) { New }
-              @case (AppointmentStatus.Completed) { Completed }
-              @case (AppointmentStatus.Canceled) { Canceled }
+              @case (AppointmentStatus.New) { {{ 'STATUS_NEW' | translate }} }
+              @case (AppointmentStatus.Completed) { {{ 'STATUS_COMPLETED' | translate }} }
+              @case (AppointmentStatus.Canceled) { {{ 'STATUS_CANCELED' | translate }} }
             }
           </p>
           <p class="view-status-sub">
@@ -48,7 +48,7 @@
       </div>
       <div class="view-client__info">
         <span class="view-client__name">
-          {{ appt.client?.fullName || appt.clientName || 'Unknown client' }}
+          {{ appt.client?.fullName || appt.clientName || ('UNKNOWN_CLIENT' | translate) }}
         </span>
         @if (appt.client?.phone || appt.clientPhone) {
           <span class="view-client__phone">{{ appt.client?.phone || appt.clientPhone }}</span>
@@ -63,7 +63,7 @@
           (click)="openClientProfile(appt.client!._id)"
         >
           <ion-icon slot="start" name="person-outline"></ion-icon>
-          Profile
+          {{ 'PROFILE' | translate }}
         </ion-button>
       }
     </div>
@@ -71,7 +71,7 @@
     <!-- Details grid -->
     <div class="view-details">
       <div class="view-details__row">
-        <span class="view-details__label">Date</span>
+        <span class="view-details__label">{{ 'DATE' | translate }}</span>
         <span class="view-details__value view-details__value--bold">
           {{ appt.startDate | date: 'EEE, d MMM' }}&nbsp;&middot;&nbsp;
           {{ appt.startDate | date: 'HH:mm' }}&ndash;{{ appt.endDate | date: 'HH:mm' }}
@@ -79,7 +79,7 @@
       </div>
       @if (servicesText()) {
         <div class="view-details__row">
-          <span class="view-details__label">Services</span>
+          <span class="view-details__label">{{ 'SERVICES' | translate }}</span>
           <span class="view-details__value">
             {{ servicesText() }}
             @if (servicesDuration()) {
@@ -90,13 +90,13 @@
       }
       @if (appt.employee) {
         <div class="view-details__row">
-          <span class="view-details__label">Employee</span>
+          <span class="view-details__label">{{ 'EMPLOYEE' | translate }}</span>
           <span class="view-details__value">{{ appt.employee.firstName + ' ' + appt.employee.lastName }}</span>
         </div>
       }
       @if (departmentName()) {
         <div class="view-details__row">
-          <span class="view-details__label">Department</span>
+          <span class="view-details__label">{{ 'DEPARTMENT' | translate }}</span>
           <span class="view-details__value">{{ departmentName() }}</span>
         </div>
       }
@@ -106,13 +106,13 @@
     @if (appt.totalPrice !== null && appt.totalPrice !== undefined) {
       <div class="view-pricing">
         <div class="view-pricing__left">
-          <span class="view-pricing__label">Payment</span>
+          <span class="view-pricing__label">{{ 'PAYMENT' | translate }}</span>
           @if (appt.promoCode) {
             <span class="view-pricing__promo">
               @if (typeof appt.promoCode === 'object') {
                 {{ appt.promoCode.name }}
               } @else {
-                Promo code
+                {{ 'PROMO_CODE_LABEL' | translate }}
               }
               @if (appt.discountAmount) {
                 &nbsp;&middot;&nbsp;-{{ appt.discountAmount | currency: 'USD' }}
@@ -127,7 +127,7 @@
     <!-- Notes -->
     @if (appt.comment) {
       <div class="view-notes">
-        <span class="view-notes__label">Notes</span>
+        <span class="view-notes__label">{{ 'NOTES' | translate }}</span>
         <p class="view-notes__text">{{ appt.comment }}</p>
       </div>
     }
@@ -137,17 +137,17 @@
       @if (appt.client?.phone || appt.clientPhone) {
         <a class="view-actions__btn" [href]="'tel:' + (appt.client?.phone || appt.clientPhone)">
           <ion-icon name="call-outline" class="view-actions__icon"></ion-icon>
-          <span>Call</span>
+          <span>{{ 'CALL' | translate }}</span>
         </a>
         <a class="view-actions__btn" [href]="'sms:' + (appt.client?.phone || appt.clientPhone)">
           <ion-icon name="chatbubble-outline" class="view-actions__icon"></ion-icon>
-          <span>SMS</span>
+          <span>{{ 'SMS' | translate }}</span>
         </a>
       }
       @if (!isCanceled()) {
         <button class="view-actions__btn" (click)="openEdit()">
           <ion-icon name="pencil-outline" class="view-actions__icon"></ion-icon>
-          <span>Edit</span>
+          <span>{{ 'EDIT' | translate }}</span>
         </button>
       }
     </div>
@@ -158,21 +158,21 @@
   <div class="view-footer">
     @if (!isCanceled() && !isCompleted()) {
       <button class="view-footer__cancel" (click)="cancelAppointment()">
-        Cancel appointment
+        {{ 'CANCEL_APPOINTMENT' | translate }}
       </button>
       <div class="view-footer__actions">
         <ion-button fill="outline" color="medium" (click)="markNoShow()">
-          No-show
+          {{ 'NO_SHOW' | translate }}
         </ion-button>
         <ion-button fill="solid" color="dark" (click)="completeVisit()">
           <ion-icon slot="start" name="checkmark-outline"></ion-icon>
-          Complete
+          {{ 'COMPLETE' | translate }}
         </ion-button>
       </div>
     } @else {
       <span></span>
       <ion-button fill="outline" color="medium" (click)="closeModal()">
-        Close
+        {{ 'CLOSE' | translate }}
       </ion-button>
     }
   </div>

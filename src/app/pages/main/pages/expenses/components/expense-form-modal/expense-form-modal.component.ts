@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { distinctUntilChanged, filter, take } from 'rxjs';
 
@@ -29,7 +30,7 @@ import { PaginatedResponseModel } from '@core/models/paginated-response.model';
 @Component({
   selector: 'app-expense-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './expense-form-modal.component.html',
   styleUrls: ['./expense-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,6 +47,7 @@ export class ExpenseFormModalComponent implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public isEditMode = false;
   public isSubmitting = false;
@@ -67,20 +69,16 @@ export class ExpenseFormModalComponent implements OnInit {
   private productLoading = false;
   private productDeptId: string | null = null;
 
-  public readonly categoryOptions: IKeyValuePair[] = Object.values(EExpenseCategory).map((v) => ({
-    value: v,
-    display: this.categoryLabel(v),
-  }));
-
-  public readonly statusOptions: IKeyValuePair[] = Object.values(EExpenseStatus).map((v) => ({
-    value: v,
-    display: this.statusLabel(v),
-  }));
-
-  public readonly recurrenceOptions: IKeyValuePair[] = Object.values(EExpenseRecurrence).map((v) => ({
-    value: v,
-    display: this.recurrenceLabel(v),
-  }));
+  // ── Label options (getters for live translation) ──────────────────────────
+  get categoryOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseCategory).map((v) => ({ value: v, display: this.categoryLabel(v) }));
+  }
+  get statusOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseStatus).map((v) => ({ value: v, display: this.statusLabel(v) }));
+  }
+  get recurrenceOptions(): IKeyValuePair[] {
+    return Object.values(EExpenseRecurrence).map((v) => ({ value: v, display: this.recurrenceLabel(v) }));
+  }
 
   public form!: FormGroup;
 
@@ -203,7 +201,7 @@ export class ExpenseFormModalComponent implements OnInit {
         this.isSubmitting = false;
         this.cdr.markForCheck();
         const toast = await this.toastCtrl.create({
-          message: this.isEditMode ? 'Expense updated' : 'Expense created',
+          message: this.t.instant(this.isEditMode ? 'EXP_UPDATED' : 'EXP_CREATED_OK'),
           duration: 2000,
           color: 'success',
         });
@@ -214,7 +212,7 @@ export class ExpenseFormModalComponent implements OnInit {
         this.isSubmitting = false;
         this.cdr.markForCheck();
         const toast = await this.toastCtrl.create({
-          message: 'An error occurred. Please try again.',
+          message: this.t.instant('ERROR_OCCURRED'),
           duration: 3000,
           color: 'danger',
         });
@@ -348,43 +346,43 @@ export class ExpenseFormModalComponent implements OnInit {
 
   // ── Label helpers ──────────────────────────────────────────────────────────
 
-  public categoryLabel(val: EExpenseCategory): string {
-    const labels: Record<EExpenseCategory, string> = {
-      [EExpenseCategory.Rent]:        'Rent',
-      [EExpenseCategory.Salary]:      'Salary',
-      [EExpenseCategory.Commission]:  'Commission',
-      [EExpenseCategory.Utilities]:   'Utilities',
-      [EExpenseCategory.Inventory]:   'Inventory',
-      [EExpenseCategory.Equipment]:   'Equipment',
-      [EExpenseCategory.Marketing]:   'Marketing',
-      [EExpenseCategory.Software]:    'Software',
-      [EExpenseCategory.Maintenance]: 'Maintenance',
-      [EExpenseCategory.Tax]:         'Tax',
-      [EExpenseCategory.Insurance]:   'Insurance',
-      [EExpenseCategory.Training]:    'Training',
-      [EExpenseCategory.Other]:       'Other',
+  public categoryLabel(val: EExpenseCategory | string): string {
+    const map: Record<string, string> = {
+      [EExpenseCategory.Rent]:        'EXP_CAT_RENT',
+      [EExpenseCategory.Salary]:      'EXP_CAT_SALARY',
+      [EExpenseCategory.Commission]:  'EXP_CAT_COMMISSION',
+      [EExpenseCategory.Utilities]:   'EXP_CAT_UTILITIES',
+      [EExpenseCategory.Inventory]:   'EXP_CAT_INVENTORY',
+      [EExpenseCategory.Equipment]:   'EXP_CAT_EQUIPMENT',
+      [EExpenseCategory.Marketing]:   'EXP_CAT_MARKETING',
+      [EExpenseCategory.Software]:    'EXP_CAT_SOFTWARE',
+      [EExpenseCategory.Maintenance]: 'EXP_CAT_MAINTENANCE',
+      [EExpenseCategory.Tax]:         'EXP_CAT_TAX',
+      [EExpenseCategory.Insurance]:   'EXP_CAT_INSURANCE',
+      [EExpenseCategory.Training]:    'EXP_CAT_TRAINING',
+      [EExpenseCategory.Other]:       'EXP_CAT_OTHER',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
-  public statusLabel(val: EExpenseStatus): string {
-    const labels: Record<EExpenseStatus, string> = {
-      [EExpenseStatus.Pending]:  'Pending',
-      [EExpenseStatus.Approved]: 'Approved',
-      [EExpenseStatus.Rejected]: 'Rejected',
+  public statusLabel(val: EExpenseStatus | string): string {
+    const map: Record<string, string> = {
+      [EExpenseStatus.Pending]:  'EXP_STATUS_PENDING',
+      [EExpenseStatus.Approved]: 'EXP_STATUS_APPROVED',
+      [EExpenseStatus.Rejected]: 'EXP_STATUS_REJECTED',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
-  public recurrenceLabel(val: EExpenseRecurrence): string {
-    const labels: Record<EExpenseRecurrence, string> = {
-      [EExpenseRecurrence.OneTime]: 'One time',
-      [EExpenseRecurrence.Daily]:   'Daily',
-      [EExpenseRecurrence.Weekly]:  'Weekly',
-      [EExpenseRecurrence.Monthly]: 'Monthly',
-      [EExpenseRecurrence.Yearly]:  'Yearly',
+  public recurrenceLabel(val: EExpenseRecurrence | string): string {
+    const map: Record<string, string> = {
+      [EExpenseRecurrence.OneTime]: 'EXP_REC_ONE_TIME',
+      [EExpenseRecurrence.Daily]:   'EXP_REC_DAILY',
+      [EExpenseRecurrence.Weekly]:  'EXP_REC_WEEKLY',
+      [EExpenseRecurrence.Monthly]: 'EXP_REC_MONTHLY',
+      [EExpenseRecurrence.Yearly]:  'EXP_REC_YEARLY',
     };
-    return labels[val] ?? val;
+    return map[val] ? this.t.instant(map[val]) : String(val);
   }
 
   public statusColor(status: EExpenseStatus): string {
@@ -393,6 +391,5 @@ export class ExpenseFormModalComponent implements OnInit {
     return 'warning';
   }
 }
-
 
 

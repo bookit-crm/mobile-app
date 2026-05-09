@@ -11,6 +11,7 @@ import {
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { take } from 'rxjs';
 
 import {
@@ -40,7 +41,7 @@ const CLIENT_AVATAR_COLORS = [
 @Component({
   selector: 'app-appointment-view-modal',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, DatePipe, IonicModule],
+  imports: [CommonModule, CurrencyPipe, DatePipe, IonicModule, TranslateModule],
   templateUrl: './appointment-view-modal.component.html',
   styleUrls: ['./appointment-view-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

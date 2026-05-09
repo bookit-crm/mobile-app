@@ -1,4 +1,5 @@
 import { Component, effect, inject, untracked } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { AppLifecycleService } from '@core/services/app-lifecycle.service';
 import { PushNotificationService } from '@core/services/push-notification.service';
 import { SupervisorService } from '@core/services/supervisor.service';
@@ -15,8 +16,13 @@ export class AppComponent {
   private readonly websocketService = inject(WebsocketService);
   private readonly appLifecycle = inject(AppLifecycleService);
   private readonly pushNotificationService = inject(PushNotificationService);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
+    const savedLang = localStorage.getItem('app_lang') ?? 'en';
+    this.translate.setDefaultLang('en');
+    this.translate.use(savedLang);
+
     this.appLifecycle.init();
 
     effect(() => {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
+import { TranslateModule } from '@ngx-translate/core';
 import { IEmployee } from '@core/models/employee.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { AppointmentStatus } from '@core/models/appointment.interface';
@@ -14,7 +15,7 @@ export interface ICalendarFilterResult {
 @Component({
   selector: 'app-calendar-filters-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, TranslateModule],
   templateUrl: './calendar-filters-modal.component.html',
   styleUrls: ['./calendar-filters-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,9 +37,9 @@ export class CalendarFiltersModalComponent implements OnInit {
   public currentStatuses = signal<Set<AppointmentStatus>>(new Set());
 
   public readonly statusList: { value: AppointmentStatus; label: string }[] = [
-    { value: AppointmentStatus.New, label: 'New' },
-    { value: AppointmentStatus.Completed, label: 'Completed' },
-    { value: AppointmentStatus.Canceled, label: 'Canceled' },
+    { value: AppointmentStatus.New,       label: 'STATUS_NEW' },
+    { value: AppointmentStatus.Completed, label: 'STATUS_COMPLETED' },
+    { value: AppointmentStatus.Canceled,  label: 'STATUS_CANCELED' },
   ];
 
   ngOnInit(): void {

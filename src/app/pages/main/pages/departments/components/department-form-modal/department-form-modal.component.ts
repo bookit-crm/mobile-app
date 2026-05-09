@@ -9,6 +9,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { IDepartment } from '@core/models/department.interface';
 import { DepartmentService } from '@core/services/department.service';
@@ -16,7 +17,7 @@ import { DepartmentService } from '@core/services/department.service';
 @Component({
   selector: 'app-department-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './department-form-modal.component.html',
   styleUrls: ['./department-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,6 +29,7 @@ export class DepartmentFormModalComponent implements OnInit {
   private readonly toastCtrl = inject(ToastController);
   private readonly departmentService = inject(DepartmentService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public isSubmitting = false;
 
@@ -84,7 +86,7 @@ export class DepartmentFormModalComponent implements OnInit {
       next: async () => {
         this.isSubmitting = false;
         const toast = await this.toastCtrl.create({
-          message: this.isEditMode ? 'Department updated' : 'Department created',
+          message: this.isEditMode ? this.t.instant('DEPT_UPDATED') : this.t.instant('DEPT_CREATED_OK'),
           duration: 2000,
           color: 'success',
         });
@@ -95,7 +97,7 @@ export class DepartmentFormModalComponent implements OnInit {
         this.isSubmitting = false;
         this.cdr.markForCheck();
         const toast = await this.toastCtrl.create({
-          message: 'An error occurred. Please try again.',
+          message: this.t.instant('ERROR_OCCURRED'),
           duration: 3000,
           color: 'danger',
         });

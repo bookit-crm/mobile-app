@@ -16,6 +16,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { IPromoCode, IPromoCodeService, DiscountType } from '@core/models/promo-code.interface';
 import { IDepartment } from '@core/models/department.interface';
@@ -26,7 +27,7 @@ import { ServicesService } from '@core/services/services.service';
 @Component({
   selector: 'app-promo-code-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './promo-code-form-modal.component.html',
   styleUrls: ['./promo-code-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,14 +41,15 @@ export class PromoCodeFormModalComponent implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly toastCtrl = inject(ToastController);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly t = inject(TranslateService);
 
   public isSubmitting = false;
   public isEditMode = false;
   public availableServices: IService[] = [];
 
   public readonly discountTypeOptions: { value: DiscountType; label: string }[] = [
-    { value: 'percentage', label: 'Percentage (%)' },
-    { value: 'fixed', label: 'Fixed price ($)' },
+    { value: 'percentage', label: 'PC_DISCOUNT_PERCENTAGE' },
+    { value: 'fixed', label: 'PC_DISCOUNT_FIXED' },
   ];
 
   public form = new FormGroup({
@@ -141,7 +143,7 @@ export class PromoCodeFormModalComponent implements OnInit {
         this.isSubmitting = false;
         this.cdr.markForCheck();
         const toast = await this.toastCtrl.create({
-          message: this.isEditMode ? 'Promo code updated' : 'Promo code created',
+          message: this.t.instant(this.isEditMode ? 'PC_UPDATED_TOAST' : 'PC_CREATED_TOAST'),
           duration: 2000,
           color: 'success',
         });
@@ -152,7 +154,7 @@ export class PromoCodeFormModalComponent implements OnInit {
         this.isSubmitting = false;
         this.cdr.markForCheck();
         const toast = await this.toastCtrl.create({
-          message: 'An error occurred. Please try again.',
+          message: this.t.instant('PC_ERROR_TOAST'),
           duration: 3000,
           color: 'danger',
         });

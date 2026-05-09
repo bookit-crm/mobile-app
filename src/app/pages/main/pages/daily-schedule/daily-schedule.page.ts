@@ -11,6 +11,7 @@
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 import { IDepartment } from '@core/models/department.interface';
 import {
   IDailyEmployeeSchedule,
@@ -37,13 +38,13 @@ const AVATAR_COLORS = [
 interface DayEntry { value: number; display: string; }
 
 const DAY_NAMES: DayEntry[] = [
-  { value: 0, display: 'Mon' },
-  { value: 1, display: 'Tue' },
-  { value: 2, display: 'Wed' },
-  { value: 3, display: 'Thu' },
-  { value: 4, display: 'Fri' },
-  { value: 5, display: 'Sat' },
-  { value: 6, display: 'Sun' },
+  { value: 0, display: 'DAY_MON' },
+  { value: 1, display: 'DAY_TUE' },
+  { value: 2, display: 'DAY_WED' },
+  { value: 3, display: 'DAY_THU' },
+  { value: 4, display: 'DAY_FRI' },
+  { value: 5, display: 'DAY_SAT' },
+  { value: 6, display: 'DAY_SUN' },
 ];
 
 @Component({
@@ -59,6 +60,7 @@ export class DailySchedulePage implements OnInit, OnDestroy {
   private departmentService = inject(DepartmentService);
   private supervisorService = inject(SupervisorService);
   private subscriptionService = inject(SubscriptionService);
+  private translate = inject(TranslateService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
@@ -187,6 +189,10 @@ export class DailySchedulePage implements OnInit, OnDestroy {
     });
     return map;
   });
+
+  public get selectDeptHeader(): string {
+    return this.translate.instant('DS_SELECT_DEPARTMENT');
+  }
 
   private nowTimer: ReturnType<typeof setInterval> | null = null;
 

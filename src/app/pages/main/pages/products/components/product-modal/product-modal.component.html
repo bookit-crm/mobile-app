@@ -11,7 +11,7 @@
         @if (isSaving) {
           <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
         }
-        {{ isEditMode ? 'Save' : 'Add' }}
+        {{ isEditMode ? ('PROD_SAVE' | translate) : ('PROD_ADD' | translate) }}
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -23,23 +23,23 @@
 
       <!-- Name -->
       <ion-item>
-        <ion-label position="stacked">Name <span class="required">*</span></ion-label>
-        <ion-input formControlName="name" type="text" placeholder="Product name"></ion-input>
+        <ion-label position="stacked">{{ 'PROD_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="name" type="text" [placeholder]="'PROD_NAME_PLACEHOLDER' | translate"></ion-input>
       </ion-item>
       @if (hasError('name', 'required')) {
-        <ion-note color="danger" class="field-error">Name is required</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PROD_NAME_REQUIRED' | translate }}</ion-note>
       }
 
       <!-- SKU -->
       <ion-item>
-        <ion-label position="stacked">SKU / Barcode</ion-label>
-        <ion-input formControlName="sku" type="text" placeholder="e.g. PROD-001"></ion-input>
+        <ion-label position="stacked">{{ 'PROD_SKU_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="sku" type="text" [placeholder]="'PROD_SKU_PLACEHOLDER' | translate"></ion-input>
       </ion-item>
 
       <!-- Unit -->
       <ion-item>
-        <ion-label position="stacked">Unit</ion-label>
-        <ion-select formControlName="unit" interface="action-sheet" placeholder="Select unit">
+        <ion-label position="stacked">{{ 'PROD_UNIT_LABEL' | translate }}</ion-label>
+        <ion-select formControlName="unit" interface="action-sheet" [placeholder]="'PROD_UNIT_SELECT' | translate">
           @for (opt of unitOptions; track opt.value) {
             <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
           }
@@ -48,52 +48,52 @@
 
       <!-- Purchase Price -->
       <ion-item>
-        <ion-label position="stacked">Purchase Price <span class="required">*</span></ion-label>
+        <ion-label position="stacked">{{ 'PROD_PURCHASE_LABEL' | translate }}</ion-label>
         <ion-input formControlName="purchasePrice" type="number" placeholder="0.00" min="0"></ion-input>
       </ion-item>
       @if (hasError('purchasePrice', 'required')) {
-        <ion-note color="danger" class="field-error">Purchase price is required</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PROD_PURCHASE_REQUIRED' | translate }}</ion-note>
       }
       @if (hasError('purchasePrice', 'min')) {
-        <ion-note color="danger" class="field-error">Must be ≥ 0</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PROD_MIN_VALUE_ERROR' | translate }}</ion-note>
       }
 
       <!-- Sale Price -->
       <ion-item>
-        <ion-label position="stacked">Sale Price <span class="required">*</span></ion-label>
+        <ion-label position="stacked">{{ 'PROD_SALE_PRICE_LABEL' | translate }}</ion-label>
         <ion-input formControlName="salePrice" type="number" placeholder="0.00" min="0"></ion-input>
       </ion-item>
       @if (hasError('salePrice', 'required')) {
-        <ion-note color="danger" class="field-error">Sale price is required</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PROD_SALE_REQUIRED' | translate }}</ion-note>
       }
       @if (hasError('salePrice', 'min')) {
-        <ion-note color="danger" class="field-error">Must be ≥ 0</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PROD_MIN_VALUE_ERROR' | translate }}</ion-note>
       }
 
       <!-- Stock -->
       <ion-item>
-        <ion-label position="stacked">Current Stock</ion-label>
+        <ion-label position="stacked">{{ 'PROD_CURRENT_STOCK_LABEL' | translate }}</ion-label>
         <ion-input formControlName="stock" type="number" placeholder="0" min="0"></ion-input>
       </ion-item>
 
       <!-- Min Stock -->
       <ion-item>
-        <ion-label position="stacked">Min Stock (alert threshold)</ion-label>
-        <ion-input formControlName="minStock" type="number" placeholder="Optional" min="0"></ion-input>
+        <ion-label position="stacked">{{ 'PROD_MIN_STOCK_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="minStock" type="number" [placeholder]="'PROD_STOCK_OPTIONAL' | translate" min="0"></ion-input>
       </ion-item>
 
       <!-- Max Stock -->
       <ion-item>
-        <ion-label position="stacked">Max Stock</ion-label>
-        <ion-input formControlName="maxStock" type="number" placeholder="Optional" min="0"></ion-input>
+        <ion-label position="stacked">{{ 'PROD_MAX_STOCK_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="maxStock" type="number" [placeholder]="'PROD_STOCK_OPTIONAL' | translate" min="0"></ion-input>
       </ion-item>
 
       <!-- Description -->
       <ion-item>
-        <ion-label position="stacked">Description</ion-label>
+        <ion-label position="stacked">{{ 'PROD_DESC_LABEL' | translate }}</ion-label>
         <ion-textarea
           formControlName="description"
-          placeholder="Product description..."
+          [placeholder]="'PROD_DESC_PLACEHOLDER' | translate"
           [rows]="3"
           autoGrow="true"
         ></ion-textarea>
@@ -103,28 +103,27 @@
       @if (!isEditMode && !singleDepartmentMode()) {
         <ion-item [button]="true" (click)="pickDepartment()">
           <ion-label position="stacked">
-            Department <span class="required">*</span>
+            {{ 'PROD_DEPT_LABEL' | translate }}
           </ion-label>
           <ion-text slot="end" [color]="selectedDepartmentId ? 'dark' : 'medium'">
-            {{ selectedDepartmentName || 'Select department' }}
+            {{ selectedDepartmentName || ('PROD_DEPT_SELECT' | translate) }}
           </ion-text>
           <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
         </ion-item>
         @if (!selectedDepartmentId) {
-          <ion-note color="medium" class="field-error">Required for creating a product</ion-note>
+          <ion-note color="medium" class="field-error">{{ 'PROD_DEPT_REQUIRED' | translate }}</ion-note>
         }
       }
 
       <!-- Comment (edit only) -->
       @if (isEditMode) {
         <ion-item>
-          <ion-label position="stacked">Change Comment</ion-label>
-          <ion-input formControlName="comment" type="text" placeholder="Optional note about this change"></ion-input>
+          <ion-label position="stacked">{{ 'PROD_CHANGE_COMMENT_LABEL' | translate }}</ion-label>
+          <ion-input formControlName="comment" type="text" [placeholder]="'PROD_CHANGE_COMMENT_PLACEHOLDER' | translate"></ion-input>
         </ion-item>
       }
 
     </ion-list>
   </form>
 </ion-content>
-
 
