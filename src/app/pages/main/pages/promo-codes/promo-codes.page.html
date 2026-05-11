@@ -54,6 +54,10 @@
   <!-- ── List ─────────────────────────────────────────────────── -->
   @if (!isLoading() && hasPromoCodesFeature() && promoCodes().length > 0) {
 
+    <div class="pc-meta ion-padding-horizontal">
+      <p class="pc-count">{{ 'PC_COUNT' | translate: { count: promoCodesTotal() } }}</p>
+    </div>
+
     <div class="swipe-hint">
       <ion-icon name="swap-horizontal-outline"></ion-icon>
       <span>{{ 'PC_SWIPE_HINT' | translate }}</span>
@@ -125,9 +129,6 @@
       }
     </ion-list>
 
-    <div class="pc-meta ion-padding-horizontal">
-      <p class="pc-count">{{ 'PC_COUNT' | translate: { count: promoCodesTotal() } }}</p>
-    </div>
   }
 
   <!-- ── FAB ──────────────────────────────────────────────────── -->

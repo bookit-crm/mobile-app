@@ -47,6 +47,18 @@
         <p>{{ 'EMP_EMPTY_TEXT' | translate }}</p>
       </div>
     } @else {
+      <!-- Limit info -->
+      @if (!isManager) {
+        <div class="employees-meta ion-padding-horizontal">
+          <p class="employees-count">
+            {{ 'EMP_COUNT' | translate:{ count: employeesTotal() } }}
+            @if (subscriptionService.getLimit('employees') !== -1) {
+              {{ 'EMP_COUNT_MAX' | translate:{ max: subscriptionService.getLimit('employees') } }}
+            }
+          </p>
+        </div>
+      }
+
       <!-- Подсказка о свайпе — показываем один раз над списком -->
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
@@ -101,17 +113,6 @@
       </ion-list>
     }
 
-    <!-- Limit info -->
-    @if (!isManager) {
-      <div class="employees-meta ion-padding-horizontal">
-        <p class="employees-count">
-          {{ 'EMP_COUNT' | translate:{ count: employeesTotal() } }}
-          @if (subscriptionService.getLimit('employees') !== -1) {
-            {{ 'EMP_COUNT_MAX' | translate:{ max: subscriptionService.getLimit('employees') } }}
-          }
-        </p>
-      </div>
-    }
 
     <!-- FAB (только Admin/Owner) -->
     @if (!isManager) {
@@ -136,6 +137,10 @@
       </div>
     } @else {
       <!-- Подсказка о свайпе -->
+      <div class="employees-meta ion-padding-horizontal">
+        <p class="employees-count">{{ 'MGR_COUNT' | translate:{ count: managersTotal() } }}</p>
+      </div>
+
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
         <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>

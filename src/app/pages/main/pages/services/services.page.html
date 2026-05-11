@@ -57,10 +57,17 @@
         }
       </div>
     } @else {
-      <!-- Count bar -->
-      <div class="count-bar">
-        <span>{{ 'SVC_SHOWING' | translate: { shown: services().length, total: totalCount() } }}</span>
+      <div class="svc-meta">
+        <p class="svc-count">{{ 'SVC_COUNT' | translate: { count: totalCount() } }}</p>
       </div>
+
+      <!-- Swipe hint (only when user can manage) -->
+      @if (canManage()) {
+        <div class="swipe-hint">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+          <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
+        </div>
+      }
 
       @for (service of services(); track service._id) {
         <ion-item-sliding>
@@ -93,6 +100,14 @@
                 </p>
               }
             </ion-label>
+            @if (canManage()) {
+              <!-- Индикатор свайпа -->
+              <ion-icon
+                name="chevron-back-outline"
+                slot="end"
+                class="swipe-indicator"
+              ></ion-icon>
+            }
           </ion-item>
 
           @if (canManage()) {
@@ -123,7 +138,6 @@
         </div>
       }
       @if (!hasMore()) {
-        <p class="end-of-list">{{ 'SVC_ALL_LOADED' | translate: { count: totalCount() } }}</p>
       }
     }
   }

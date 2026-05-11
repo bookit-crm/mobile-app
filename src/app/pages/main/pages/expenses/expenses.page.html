@@ -161,6 +161,10 @@
 
     <!-- ── List ──────────────────────────────────────────────────────────── -->
     @if (expenses().length > 0) {
+      <div class="expenses-meta ion-padding-horizontal">
+        <p class="expenses-count">{{ 'EXP_COUNT' | translate: { count: totalCount() } }}</p>
+      </div>
+
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
         <span>{{ 'SWIPE_LEFT_FOR_OPTIONS' | translate }}</span>
@@ -217,10 +221,6 @@
         }
       </ion-list>
 
-      <!-- Meta info -->
-      <div class="expenses-meta ion-padding-horizontal">
-        <p class="expenses-count">{{ 'EXP_COUNT' | translate: { count: totalCount() } }}</p>
-      </div>
     }
 
     <!-- ── Infinite scroll ────────────────────────────────────────────────── -->
