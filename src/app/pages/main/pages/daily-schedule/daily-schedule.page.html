@@ -85,6 +85,7 @@
     <ion-content>
       <ion-datetime
         presentation="date"
+        [locale]="datePickerLocale()"
         [value]="selectedDateString()"
         (ionChange)="onDatePickerChange($event.detail.value)"
       ></ion-datetime>
@@ -136,10 +137,17 @@
   <!-- Grid -->
   @if (!loading() && employees().length) {
     <div class="ds-grid-wrapper">
-      <div class="ds-grid">
+      <div class="ds-grid" [class.ds-grid--collapsed]="collapsed()">
         <!-- Header row (hours) -->
         <div class="ds-grid__row ds-grid__row--header">
-          <div class="ds-grid__label">{{ "EMPLOYEES" | translate }}</div>
+          <div class="ds-grid__label ds-grid__label--header-cell">
+            <button class="ds-toggle-btn" (click)="toggleCollapsed()" [title]="collapsed() ? ('DS_EXPAND' | translate) : ('DS_COLLAPSE' | translate)">
+              <ion-icon [name]="collapsed() ? 'chevron-forward-outline' : 'chevron-back-outline'"></ion-icon>
+            </button>
+            @if (!collapsed()) {
+              <span class="ds-label-title">{{ "EMPLOYEES" | translate }}</span>
+            }
+          </div>
           @for (hour of hours; track hour) {
             <div class="ds-grid__hour-header">
               {{ hour === 24 ? '0' : hour }}:00
@@ -155,6 +163,7 @@
                 [employee]="emp.employee"
                 [color]="colorMap().get(emp.employee._id) ?? '#C8B6FF'"
                 [isManager]="managerIds().has(emp.employee._id)"
+                [compact]="collapsed()"
               ></app-employee-avatar>
             </div>
             @for (hour of hours; track hour) {
@@ -169,11 +178,10 @@
         @if (isTodaySignal() && nowHourPosition() !== null) {
           <div
             class="ds-grid__now-line"
-            [style.left]="'calc(' + labelWidth + 'px + (100% - ' + labelWidth + 'px) * ' + (nowHourPosition()! / 100) + ')'"
+            [style.left]="'calc(' + labelWidth() + 'px + (100% - ' + labelWidth() + 'px) * ' + (nowHourPosition()! / 100) + ')'"
           ></div>
         }
       </div>
     </div>
   }
 </ion-content>
-

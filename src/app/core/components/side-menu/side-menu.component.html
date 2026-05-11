@@ -24,7 +24,7 @@
             class="menu-item"
           >
             <ion-icon slot="start" [name]="item.icon"></ion-icon>
-            <ion-label>{{ item.title }}</ion-label>
+            <ion-label>{{ item.title | translate }}</ion-label>
             @if (item.badgeSignal && item.badgeSignal() > 0) {
               <ion-badge slot="end" color="warning">{{ item.badgeSignal() }}</ion-badge>
             }
@@ -54,7 +54,7 @@
 
         <div class="profile-block__info">
           <p class="profile-block__name">{{ user.firstName }} {{ user.lastName }}</p>
-          <p class="profile-block__role">{{ user.role }}</p>
+          <p class="profile-block__role">{{ ('ROLE_' + user.role) | translate }}</p>
         </div>
 
         <ion-icon name="settings-outline" class="profile-block__settings-icon"></ion-icon>

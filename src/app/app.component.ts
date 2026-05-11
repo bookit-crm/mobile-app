@@ -29,6 +29,12 @@ export class AppComponent {
       const user = this.supervisorService.authUserSignal();
       if (!user) return;
       untracked(() => {
+        // Синхронизируем язык из профиля бэкенда
+        const backendLang = user.lang;
+        if (backendLang && backendLang !== this.translate.currentLang) {
+          this.translate.use(backendLang);
+          localStorage.setItem('app_lang', backendLang);
+        }
         this.websocketService.connectSocket();
         // Запрашиваем разрешение на нотификации и подписываемся на WS-события
         void this.pushNotificationService.init();

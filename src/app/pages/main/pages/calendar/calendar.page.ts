@@ -2,9 +2,12 @@
   ChangeDetectionStrategy, ChangeDetectorRef, Component, computed,
   DestroyRef, effect, inject, NgZone, OnInit, signal, untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ModalController } from '@ionic/angular';
+import { TranslateService } from '@ngx-translate/core';
 import { format, parse, startOfWeek, endOfWeek } from 'date-fns';
+import { uk, enUS } from 'date-fns/locale';
+import { map, startWith } from 'rxjs/operators';
 import { BehaviorSubject, take } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { IAppointment, AppointmentStatus, INewAppointmentPayload } from '@core/models/appointment.interface';
@@ -50,6 +53,15 @@ export class CalendarPage implements OnInit {
   private readonly supervisorService = inject(SupervisorService);
   private readonly modalCtrl = inject(ModalController);
   private readonly websocketService = inject(WebsocketService);
+  private readonly t = inject(TranslateService);
+
+  private readonly currentLang = toSignal(
+    this.t.onLangChange.pipe(
+      map((e) => e.lang),
+      startWith(this.t.currentLang),
+    ),
+    { initialValue: this.t.currentLang },
+  );
 
   constructor() {
     // Real-time: новый appointment пришёл по WebSocket → добавляем в список,
@@ -146,16 +158,18 @@ export class CalendarPage implements OnInit {
   // ── Computed ──────────────────────────────────────────────────────────────
   public readonly dateLabel = computed(() => {
     const d = parse(this.currentDate(), 'yyyy-MM-dd', new Date());
+    const locale = this.currentLang() === 'ua' ? uk : enUS;
+    const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
     switch (this.viewType()) {
       case SchedulerViewType.Day:
-        return format(d, 'EEEE, d MMMM yyyy');
+        return capitalize(format(d, 'EEEE, d MMMM yyyy', { locale }));
       case SchedulerViewType.Week: {
         const mon = startOfWeek(d, { weekStartsOn: 1 });
         const sun = endOfWeek(d, { weekStartsOn: 1 });
-        return `${format(mon, 'd MMM')} – ${format(sun, 'd MMM yyyy')}`;
+        return `${format(mon, 'd MMM', { locale })} – ${format(sun, 'd MMM yyyy', { locale })}`;
       }
       case SchedulerViewType.Month:
-        return format(d, 'MMMM yyyy');
+        return capitalize(format(d, 'MMMM yyyy', { locale }));
       default:
         return '';
     }

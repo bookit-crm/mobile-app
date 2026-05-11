@@ -17,6 +17,7 @@ export interface ISupervisor {
   salaryRateType?: ESalaryRateType;
   baseAmount?: number;
   commissionPercent?: number;
+  lang?: string;
 }
 
 export interface ISupervisorList {

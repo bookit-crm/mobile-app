@@ -169,17 +169,18 @@
       <!-- ── LANGUAGE ─────────────────────────────── -->
       <div class="acc-modal__lang-section">
         <p class="acc-modal__lang-label">{{ 'LANGUAGE' | translate }}</p>
-        <div class="acc-modal__lang-buttons">
-          @for (lang of languages; track lang.code) {
-            <button
-              class="acc-modal__lang-btn"
-              [class.acc-modal__lang-btn--active]="currentLang() === lang.code"
-              (click)="switchLanguage(lang.code)"
-            >
-              {{ lang.labelKey | translate }}
-            </button>
-          }
-        </div>
+        <ion-item class="acc-modal__field acc-modal__lang-select">
+          <ion-select
+            [value]="currentLang()"
+            interface="action-sheet"
+            [cancelText]="'CANCEL' | translate"
+            (ionChange)="currentLang.set($any($event.detail.value))"
+          >
+            @for (lang of languages; track lang.code) {
+              <ion-select-option [value]="lang.code">{{ lang.label }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
       </div>
 
     </div>

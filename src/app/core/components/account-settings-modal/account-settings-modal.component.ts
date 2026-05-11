@@ -75,11 +75,13 @@ export class AccountSettingsModalComponent implements OnInit {
     return ((u.firstName?.[0] ?? '') + (u.lastName?.[0] ?? '')).toUpperCase() || '?';
   });
 
-  public readonly currentLang = signal<string>(localStorage.getItem('app_lang') ?? 'en');
+  public readonly currentLang = signal<string>(
+    this.supervisorSvc.authUserSignal()?.lang ?? localStorage.getItem('app_lang') ?? 'en',
+  );
 
   public readonly languages = [
-    { code: 'en', labelKey: 'LANG_EN' },
-    { code: 'ua', labelKey: 'LANG_UA' },
+    { code: 'en', label: 'English' },
+    { code: 'ua', label: 'Українська' },
   ];
 
   constructor() {
@@ -131,10 +133,16 @@ export class AccountSettingsModalComponent implements OnInit {
 
     this.isSavingProfile.set(true);
     const payload = this.profileForm.getRawValue() as Partial<ISupervisor>;
+    // Добавляем выбранный язык в payload профиля
+    const selectedLang = this.currentLang();
+    payload.lang = selectedLang;
 
     this.patchProfile(payload).pipe(take(1)).subscribe({
       next: () => {
         this.isSavingProfile.set(false);
+        // Применяем язык только после успешного сохранения
+        this.translate.use(selectedLang);
+        localStorage.setItem('app_lang', selectedLang);
         this.showToast('Profile updated successfully', 'success');
       },
       error: () => {
@@ -270,8 +278,6 @@ export class AccountSettingsModalComponent implements OnInit {
 
   switchLanguage(code: string): void {
     this.currentLang.set(code);
-    localStorage.setItem('app_lang', code);
-    this.translate.use(code);
   }
 }
 

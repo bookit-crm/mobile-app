@@ -3,6 +3,7 @@ import {
   DestroyRef, effect, ElementRef, inject, input, output, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { addDays, format, isSameDay, parse, startOfWeek } from 'date-fns';
 import { IAppointment, INewAppointmentPayload } from '@core/models/appointment.interface';
 import { ISchedule } from '@core/models/schedule.interface';
@@ -27,7 +28,7 @@ export interface IWeekDayColumn {
 @Component({
   selector: 'app-week-view',
   standalone: true,
-  imports: [CommonModule, CalendarEventCardComponent],
+  imports: [CommonModule, CalendarEventCardComponent, TranslateModule],
   templateUrl: './week-view.component.html',
   styleUrls: ['./week-view.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -385,7 +386,7 @@ export class WeekViewComponent {
       this.weekDays.push({
         date: dayDate,
         dateStr: format(dayDate, 'yyyy-MM-dd'),
-        dayName: format(dayDate, 'EEE'),
+        dayName: ['DAY_SUN', 'DAY_MON', 'DAY_TUE', 'DAY_WED', 'DAY_THU', 'DAY_FRI', 'DAY_SAT'][dayDate.getDay()],
         dayNumber: dayDate.getDate(),
         isToday: isSameDay(dayDate, today),
         slots: daySlots,

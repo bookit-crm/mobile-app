@@ -19,7 +19,7 @@
     @for (day of weekDays; track day.dateStr; let colIdx = $index) {
       <div class="week-view__column" [class.week-view__column--today]="day.isToday">
         <div class="week-view__column-header" [class.week-view__column-header--today]="day.isToday">
-          <span class="week-view__day-name">{{ day.dayName }}</span>
+          <span class="week-view__day-name">{{ day.dayName | translate }}</span>
           <span class="week-view__day-number" [class.week-view__day-number--today]="day.isToday">{{ day.dayNumber }}</span>
         </div>
 

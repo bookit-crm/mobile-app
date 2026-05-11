@@ -20,11 +20,12 @@ import { ISideMenuItem } from './models/side-menu-item.interface';
 import { ADMIN_MENU_CONFIG, MANAGER_MENU_CONFIG } from './constants/side-menu-config';
 import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-side-menu',
   standalone: true,
-  imports: [IonicModule, RouterLink, RouterLinkActive, CommonModule],
+  imports: [IonicModule, RouterLink, RouterLinkActive, CommonModule, TranslateModule],
   templateUrl: './side-menu.component.html',
   styleUrls: ['./side-menu.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +60,7 @@ export class SideMenuComponent implements OnInit {
     );
 
     const withBadges = base.map((item) =>
-      item.title === 'NOTIFICATION'
+      item.title === 'MENU_NOTIFICATION'
         ? { ...item, badgeSignal: this.notificationsService.unreadCountSignal }
         : item,
     );

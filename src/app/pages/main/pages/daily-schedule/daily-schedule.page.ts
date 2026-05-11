@@ -9,7 +9,8 @@
   OnInit,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { map, startWith } from 'rxjs';
 import { take } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { IDepartment } from '@core/models/department.interface';
@@ -64,9 +65,29 @@ export class DailySchedulePage implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
 
+  /** Реактивний BCP-47 locale для ion-datetime (ua → uk-UA, en → en-US) */
+  private readonly LOCALE_MAP: Record<string, string> = { ua: 'uk-UA', en: 'en-US' };
+  private readonly currentLang = toSignal(
+    this.translate.onLangChange.pipe(
+      map(e => e.lang),
+      startWith(this.translate.currentLang ?? 'en'),
+    ),
+    { initialValue: this.translate.currentLang ?? 'en' },
+  );
+  public readonly datePickerLocale = computed(
+    () => this.LOCALE_MAP[this.currentLang()] ?? 'en-US',
+  );
+
   public hours = HOURS;
   public dayNames = DAY_NAMES;
-  public labelWidth = 160;
+
+  /** Свёрнутый режим — показываем только аватар */
+  public readonly collapsed = signal<boolean>(true);
+  public readonly labelWidth = computed(() => this.collapsed() ? 52 : 180);
+
+  public toggleCollapsed(): void {
+    this.collapsed.update(v => !v);
+  }
 
   public selectedDate = signal<Date>(new Date());
   public departments = signal<IDepartment[]>([]);
@@ -133,7 +154,7 @@ export class DailySchedulePage implements OnInit, OnDestroy {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       const day = d.getDate();
-      const month = d.toLocaleDateString('en-US', { month: 'short' });
+      const month = this.translate.instant(`MONTH_${d.getMonth() + 1}`);
       return `${day} ${month}`;
     });
   });

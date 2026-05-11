@@ -18,7 +18,7 @@ import { IEmployee } from '@core/models/employee.interface';
           </ng-template>
         </div>
       </div>
-      <div class="ea-info">
+      <div class="ea-info" *ngIf="!compact">
         <span class="ea-info__name">{{ displayName }}</span>
         <span *ngIf="isManager" class="ea-info__badge">
           <ion-icon name="shield-checkmark" class="ea-badge-icon"></ion-icon>
@@ -74,9 +74,13 @@ import { IEmployee } from '@core/models/employee.interface';
       font-size: 13px;
       font-weight: 500;
       color: var(--ion-text-color, #333);
-      white-space: nowrap;
+      white-space: normal;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
       line-height: 1.2;
     }
 
@@ -107,6 +111,8 @@ export class EmployeeAvatarComponent {
   @Input() employee!: IEmployee;
   @Input() color: string = '#C8B6FF';
   @Input() isManager: boolean = false;
+  /** Compact mode — show only avatar, hide name and badge */
+  @Input() compact: boolean = false;
 
   get avatarUrl(): string | null {
     return this.employee?.avatar?.url ?? null;

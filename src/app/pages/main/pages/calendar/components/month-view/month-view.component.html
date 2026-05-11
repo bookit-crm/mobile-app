@@ -1,7 +1,7 @@
 <div class="month-view">
   <div class="month-view__header">
     @for (name of dayNames; track name) {
-      <div class="month-view__header-cell">{{ name }}</div>
+      <div class="month-view__header-cell">{{ name | translate }}</div>
     }
   </div>
   <div class="month-view__body">
