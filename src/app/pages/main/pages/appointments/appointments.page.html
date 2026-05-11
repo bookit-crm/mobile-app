@@ -33,9 +33,8 @@
 
 <!-- ── Advanced Filter Modal ───────────────────────────────────────────── -->
 <ion-modal
+  class="filter-modal"
   [isOpen]="showFilterModal()"
-  [breakpoints]="[0, 0.85, 1]"
-  [initialBreakpoint]="0.85"
   (didDismiss)="showFilterModal.set(false)"
 >
   <ng-template>

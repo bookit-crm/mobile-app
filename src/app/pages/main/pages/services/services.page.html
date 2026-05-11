@@ -155,9 +155,8 @@
 <!-- Filter Modal -->
 @if (!singleDepartmentMode()) {
   <ion-modal
+    class="filter-modal"
     [isOpen]="showFilterModal()"
-    [breakpoints]="[0, 0.5, 1]"
-    [initialBreakpoint]="0.5"
     (didDismiss)="showFilterModal.set(false)"
   >
     <ng-template>

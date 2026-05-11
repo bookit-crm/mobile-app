@@ -73,20 +73,17 @@
 </ion-content>
 
 <!-- Filter Modal -->
-<ion-modal [isOpen]="showFilterModal()" (willDismiss)="closeFilterModal()">
+<ion-modal
+  class="filter-modal"
+  [isOpen]="showFilterModal()"
+  (willDismiss)="closeFilterModal()"
+>
   <ng-template>
     <ion-header>
       <ion-toolbar>
         <ion-title>{{ 'FILTERS' | translate }}</ion-title>
-        <ion-buttons slot="start">
-          @if (activeFiltersCount() > 0) {
-            <ion-button (click)="selectAllDepartments(); selectAllEmployees()" color="medium">
-              {{ 'RESET' | translate }}
-            </ion-button>
-          }
-        </ion-buttons>
         <ion-buttons slot="end">
-          <ion-button (click)="closeFilterModal()">
+          <ion-button fill="clear" color="medium" (click)="closeFilterModal()">
             <ion-icon name="close-outline" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-buttons>
@@ -186,5 +183,14 @@
         </div>
       }
     </ion-content>
+
+    <ion-footer>
+      <ion-toolbar class="filter-footer-toolbar">
+        <div class="filter-modal-footer">
+          <ion-button expand="block" fill="outline" color="medium" (click)="selectAllDepartments(); selectAllEmployees()">{{ 'RESET_ALL' | translate }}</ion-button>
+          <ion-button expand="block" color="primary" (click)="closeFilterModal()">{{ 'APPLY_FILTERS' | translate }}</ion-button>
+        </div>
+      </ion-toolbar>
+    </ion-footer>
   </ng-template>
 </ion-modal>

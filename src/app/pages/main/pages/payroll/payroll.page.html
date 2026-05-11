@@ -17,9 +17,8 @@
 
 <!-- ── Filter bottom sheet ──────────────────────────────────────────────── -->
 <ion-modal
+  class="filter-modal"
   [isOpen]="showFilterSheet()"
-  [breakpoints]="[0, 0.65, 1]"
-  [initialBreakpoint]="0.65"
   (didDismiss)="showFilterSheet.set(false)"
 >
   <ng-template>
@@ -137,6 +136,11 @@
 
     <!-- ── List ──────────────────────────────────────────────────────────── -->
     @if (periods().length > 0) {
+      <!-- Meta -->
+      <div class="payroll-meta ion-padding-horizontal">
+        <p class="payroll-count">{{ 'PAY_COUNT' | translate:{ count: totalCount() } }}</p>
+      </div>
+
       <div class="swipe-hint">
         <ion-icon name="swap-horizontal-outline"></ion-icon>
         <span>{{ 'PAY_SWIPE_HINT' | translate }}</span>
@@ -192,10 +196,6 @@
         }
       </ion-list>
 
-      <!-- Meta -->
-      <div class="payroll-meta ion-padding-horizontal">
-        <p class="payroll-count">{{ 'PAY_COUNT' | translate:{ count: totalCount() } }}</p>
-      </div>
     }
 
     <!-- ── Infinite scroll ────────────────────────────────────────────────── -->

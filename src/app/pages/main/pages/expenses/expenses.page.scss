@@ -148,6 +148,13 @@
 }
 
 // ── Filter bottom sheet ───────────────────────────────────────────────────────
+ion-modal.filter-modal {
+  --height: 75%;
+  --width: 100%;
+  --border-radius: 16px 16px 0 0;
+  align-items: flex-end;
+}
+
 .filter-label {
   font-size: 12px;
   font-weight: 600;
@@ -175,6 +182,11 @@
   padding-bottom: max(12px, env(safe-area-inset-bottom));
   border-top: 1px solid var(--ion-color-light-shade);
   background: var(--ion-background-color, #fff);
+
+  ion-button {
+    flex: 1;
+    margin: 0;
+  }
 }
 
 // ── Ion list items ─────────────────────────────────────────────────────────────
