@@ -143,11 +143,11 @@ export class AccountSettingsModalComponent implements OnInit {
         // Применяем язык только после успешного сохранения
         this.translate.use(selectedLang);
         localStorage.setItem('app_lang', selectedLang);
-        this.showToast('Profile updated successfully', 'success');
+        this.showToast(this.translate.instant('ACC_PROFILE_UPDATED'), 'success');
       },
       error: () => {
         this.isSavingProfile.set(false);
-        this.showToast('Failed to update profile', 'danger');
+        this.showToast(this.translate.instant('ACC_PROFILE_FAILED'), 'danger');
       },
     });
   }
@@ -168,11 +168,11 @@ export class AccountSettingsModalComponent implements OnInit {
       ).subscribe({
         next: () => {
           this.isUploadingAvatar.set(false);
-          this.showToast('Avatar updated', 'success');
+          this.showToast(this.translate.instant('ACC_AVATAR_UPDATED'), 'success');
         },
         error: () => {
           this.isUploadingAvatar.set(false);
-          this.showToast('Failed to upload avatar', 'danger');
+          this.showToast(this.translate.instant('ACC_AVATAR_UPLOAD_FAILED'), 'danger');
         },
       });
     };
@@ -181,8 +181,8 @@ export class AccountSettingsModalComponent implements OnInit {
 
   removeAvatar(): void {
     this.patchProfile({ avatar: null }).pipe(take(1)).subscribe({
-      next: () => this.showToast('Avatar removed', 'success'),
-      error: () => this.showToast('Failed to remove avatar', 'danger'),
+      next: () => this.showToast(this.translate.instant('ACC_AVATAR_REMOVED'), 'success'),
+      error: () => this.showToast(this.translate.instant('ACC_AVATAR_REMOVE_FAILED'), 'danger'),
     });
   }
 
@@ -211,7 +211,7 @@ export class AccountSettingsModalComponent implements OnInit {
     ).subscribe(() => {
       this.isSavingSecurity.set(false);
       this.changePasswordStep.set(EChangePasswordStep.Otp);
-      this.showToast('Verification code sent', 'success');
+      this.showToast(this.translate.instant('ACC_CODE_SENT'), 'success');
     });
   }
 
@@ -232,7 +232,7 @@ export class AccountSettingsModalComponent implements OnInit {
       email: string; otpCode: string; password: string; confirmPassword: string;
     };
     if (v.password !== v.confirmPassword) {
-      this.showToast('Passwords do not match', 'danger');
+      this.showToast(this.translate.instant('ACC_PASSWORDS_MISMATCH'), 'danger');
       return;
     }
     this.isSavingSecurity.set(true);
@@ -243,7 +243,7 @@ export class AccountSettingsModalComponent implements OnInit {
       this.isSavingSecurity.set(false);
       this.changePasswordStep.set(EChangePasswordStep.Email);
       this.securityForm.reset();
-      this.showToast('Password changed successfully', 'success');
+      this.showToast(this.translate.instant('ACC_PASSWORD_CHANGED'), 'success');
     });
   }
 
@@ -276,8 +276,5 @@ export class AccountSettingsModalComponent implements OnInit {
     await toast.present();
   }
 
-  switchLanguage(code: string): void {
-    this.currentLang.set(code);
-  }
 }
 

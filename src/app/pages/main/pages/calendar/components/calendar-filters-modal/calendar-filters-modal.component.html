@@ -22,8 +22,8 @@
       <ion-list lines="none">
         <!-- All departments -->
         <ion-item
-          button
-          detail="false"
+          [button]="true"
+          [detail]="false"
           class="filters-modal__item"
           [class.filters-modal__item--selected]="!currentDepartmentId()"
           (click)="selectDepartment('')"
@@ -37,8 +37,8 @@
         </ion-item>
         @for (dept of departments; track dept._id) {
           <ion-item
-            button
-            detail="false"
+            [button]="true"
+            [detail]="false"
             class="filters-modal__item"
             [class.filters-modal__item--selected]="isDepartmentSelected(dept._id)"
             (click)="selectDepartment(dept._id)"
@@ -63,8 +63,8 @@
     <ion-list lines="none">
       <!-- All employees -->
       <ion-item
-        button
-        detail="false"
+        [button]="true"
+        [detail]="false"
         class="filters-modal__item"
         [class.filters-modal__item--selected]="currentEmployeeIds().length === 0"
         (click)="clearAllEmployees()"
@@ -78,8 +78,8 @@
       </ion-item>
       @for (emp of employees; track emp._id) {
         <ion-item
-          button
-          detail="false"
+          [button]="true"
+          [detail]="false"
           class="filters-modal__item"
           [class.filters-modal__item--selected]="isEmployeeSelected(emp._id)"
           (click)="toggleEmployee(emp._id)"
@@ -122,8 +122,8 @@
     <ion-list lines="none">
       @for (s of statusList; track s.value) {
         <ion-item
-          button
-          detail="false"
+          [button]="true"
+          [detail]="false"
           class="filters-modal__item"
           [class.filters-modal__item--selected]="isStatusSelected(s.value)"
           (click)="toggleStatus(s.value)"
@@ -143,7 +143,7 @@
 
 <ion-footer>
   <ion-toolbar class="filter-footer-toolbar">
-    <div class="filters-modal__actions">
+    <div class="filter-modal-footer">
       <ion-button fill="outline" color="medium" expand="block" (click)="reset()">{{ 'RESET_ALL' | translate }}</ion-button>
       <ion-button color="primary" expand="block" (click)="apply()">{{ 'APPLY_FILTERS' | translate }}</ion-button>
     </div>

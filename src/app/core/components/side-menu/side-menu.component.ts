@@ -89,10 +89,8 @@ export class SideMenuComponent implements OnInit {
   public async openAccountSettings(): Promise<void> {
     await this.menuController.close();
     const modal = await this.modalController.create({
+      cssClass: 'modal-account-settings',
       component: AccountSettingsModalComponent,
-      breakpoints: [0, 0.92, 1],
-      initialBreakpoint: 0.92,
-      handle: true,
     });
     await modal.present();
   }

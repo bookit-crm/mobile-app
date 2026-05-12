@@ -23,6 +23,7 @@ import { SchedulesService } from '@core/services/schedules.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { WebsocketService } from '@core/services/websocket.service';
+import { SubscriptionService } from '@core/services/subscription.service';
 import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 import {
   CalendarFiltersModalComponent,
@@ -54,6 +55,7 @@ export class CalendarPage implements OnInit {
   private readonly modalCtrl = inject(ModalController);
   private readonly websocketService = inject(WebsocketService);
   private readonly t = inject(TranslateService);
+  private readonly subscriptionService = inject(SubscriptionService);
 
   private readonly currentLang = toSignal(
     this.t.onLangChange.pipe(
@@ -117,6 +119,11 @@ export class CalendarPage implements OnInit {
   // ── Роли и режим ─────────────────────────────────────────────────────────
   public readonly isManager = computed(
     () => this.supervisorService.authUserSignal()?.role === EUserRole.MANAGER,
+  );
+
+  /** Create/edit/delete requires active subscription */
+  public readonly canCreateAppointment = computed(
+    () => this.subscriptionService.isActive(),
   );
 
   /** Manager или admin с одним департаментом — скрываем выбор департамента */
@@ -273,6 +280,7 @@ export class CalendarPage implements OnInit {
   // ── Filters modal ─────────────────────────────────────────────────────────
   public async openFilters(): Promise<void> {
     const modal = await this.modalCtrl.create({
+      cssClass: 'calendar-filter-modal',
       component: CalendarFiltersModalComponent,
       componentProps: {
         employees: this.employees(),
@@ -282,8 +290,6 @@ export class CalendarPage implements OnInit {
         selectedDepartmentId: this.selectedDepartmentId(),
         selectedStatuses: this.selectedStatuses(),
       },
-      breakpoints: [0, 0.7, 1],
-      initialBreakpoint: 0.7,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<ICalendarFilterResult | null>();

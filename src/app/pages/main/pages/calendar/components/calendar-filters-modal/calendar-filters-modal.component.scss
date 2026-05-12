@@ -2,6 +2,28 @@ ion-item.filters-modal__item--selected {
   --background: rgba(var(--ion-color-primary-rgb), 0.06);
 }
 
+::ng-deep ion-modal.calendar-filter-modal {
+  --height: 75%;
+  --width: 100%;
+  --border-radius: 16px 16px 0 0;
+  align-items: flex-end;
+}
+
+.filter-modal-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--ion-color-light-shade);
+  background: var(--ion-background-color, #fff);
+
+  ion-button {
+    flex: 1;
+    margin: 0;
+  }
+}
+
 .filter-footer-toolbar {
   --padding-start: 0;
   --padding-end: 0;
@@ -69,19 +91,5 @@ ion-item.filters-modal__item--selected {
     &--new { background: #4a9fd5; }
     &--completed { background: #1be885; }
     &--canceled { background: #d92d20; }
-  }
-
-  &__actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
-    border-top: 1px solid var(--ion-color-light-shade);
-    background: var(--ion-background-color, #fff);
-
-    ion-button {
-      margin: 0;
-    }
   }
 }

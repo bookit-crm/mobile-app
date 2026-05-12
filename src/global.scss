@@ -46,3 +46,16 @@ ion-skeleton-text {
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import "@ionic/angular/css/palettes/dark.system.css";
+
+/**
+ * Modal footer actions — shared layout for all form/view modals
+ */
+.modal-footer-actions {
+  display: flex;
+  gap: 12px;
+  padding: 8px 16px 12px;
+
+  ion-button {
+    flex: 1;
+  }
+}

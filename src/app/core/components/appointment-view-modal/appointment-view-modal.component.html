@@ -1,26 +1,30 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="view-toolbar">
     @if (appointment()) {
-      <div class="view-status-row" slot="start">
-        <span
-          class="view-status-dot"
-          [class.view-status-dot--new]="appointment()!.status === AppointmentStatus.New"
-          [class.view-status-dot--completed]="appointment()!.status === AppointmentStatus.Completed"
-          [class.view-status-dot--canceled]="appointment()!.status === AppointmentStatus.Canceled"
-        ></span>
-        <div class="view-status-text">
-          <p class="view-status-title">
-            @switch (appointment()!.status) {
-              @case (AppointmentStatus.New) { {{ 'STATUS_NEW' | translate }} }
-              @case (AppointmentStatus.Completed) { {{ 'STATUS_COMPLETED' | translate }} }
-              @case (AppointmentStatus.Canceled) { {{ 'STATUS_CANCELED' | translate }} }
-            }
-          </p>
-          <p class="view-status-sub">
-            {{ appointment()!.startDate | date: 'd MMM yyyy, HH:mm' }}
-          </p>
+      <ion-title class="view-header-title">
+        <div class="view-status-row">
+          <span
+            class="view-status-dot"
+            [class.view-status-dot--new]="appointment()!.status === AppointmentStatus.New"
+            [class.view-status-dot--completed]="appointment()!.status === AppointmentStatus.Completed"
+            [class.view-status-dot--canceled]="appointment()!.status === AppointmentStatus.Canceled"
+          ></span>
+          <div class="view-status-text">
+            <p class="view-status-title">
+              @switch (appointment()!.status) {
+                @case (AppointmentStatus.New) { {{ 'STATUS_NEW' | translate }} }
+                @case (AppointmentStatus.Completed) { {{ 'STATUS_COMPLETED' | translate }} }
+                @case (AppointmentStatus.Canceled) { {{ 'STATUS_CANCELED' | translate }} }
+              }
+            </p>
+            <p class="view-status-sub">
+              {{ appointment()!.startDate | date: 'd MMM yyyy, HH:mm' }}
+            </p>
+          </div>
         </div>
-      </div>
+      </ion-title>
+    } @else {
+      <ion-title></ion-title>
     }
     <ion-buttons slot="end">
       <ion-button fill="clear" (click)="closeModal()">

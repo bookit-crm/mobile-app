@@ -146,6 +146,16 @@
   "CONFIRM_NEW_PASSWORD": "Підтвердіть новий пароль",
   "LOG_OUT": "Вийти",
 
+  "ACC_PROFILE_UPDATED": "Профіль успішно оновлено",
+  "ACC_PROFILE_FAILED": "Не вдалося оновити профіль",
+  "ACC_AVATAR_UPDATED": "Аватар оновлено",
+  "ACC_AVATAR_UPLOAD_FAILED": "Не вдалося завантажити аватар",
+  "ACC_AVATAR_REMOVED": "Аватар видалено",
+  "ACC_AVATAR_REMOVE_FAILED": "Не вдалося видалити аватар",
+  "ACC_CODE_SENT": "Код підтвердження надіслано",
+  "ACC_PASSWORDS_MISMATCH": "Паролі не збігаються",
+  "ACC_PASSWORD_CHANGED": "Пароль успішно змінено",
+
   "LANGUAGE": "Мова",
   "LANG_EN": "English",
   "LANG_UA": "Українська",

@@ -129,4 +129,14 @@
     }
   }
 
+  <!-- FAB -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button
+      [color]="canCreateAppointment() ? 'primary' : 'medium'"
+      (click)="openAppointmentModal()"
+    >
+      <ion-icon [name]="canCreateAppointment() ? 'add' : 'lock-closed-outline'"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

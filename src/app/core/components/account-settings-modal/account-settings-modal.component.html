@@ -1,59 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar>
-    <ion-buttons slot="start">
+    <ion-title>{{ 'MY_ACCOUNT' | translate }}</ion-title>
+    <ion-buttons slot="end">
       <ion-button fill="clear" (click)="dismiss()">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
-    </ion-buttons>
-    <ion-title>{{ 'MY_ACCOUNT' | translate }}</ion-title>
-    <ion-buttons slot="end">
-
-      <!-- Profile tab: Save -->
-      @if (activeTab() === 'profile') {
-        <ion-button fill="solid" color="primary"
-          [disabled]="isSavingProfile() || profileForm.invalid"
-          (click)="saveProfile()">
-          @if (isSavingProfile()) {
-            <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
-          }
-          {{ 'SAVE' | translate }}
-        </ion-button>
-      }
-
-      <!-- Security tab -->
-      @if (activeTab() === 'security') {
-        @if (changePasswordStep() === EChangePasswordStep.Email) {
-          <ion-button fill="solid" color="primary"
-            [disabled]="!securityForm.get('email')?.value || isSavingSecurity()"
-            (click)="sendVerificationCode()">
-            @if (isSavingSecurity()) {
-              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
-            }
-            {{ 'SEND_CODE' | translate }}
-          </ion-button>
-        }
-        @if (changePasswordStep() === EChangePasswordStep.Otp) {
-          <ion-button fill="solid" color="primary"
-            [disabled]="securityForm.get('otpCode')?.invalid || isSavingSecurity()"
-            (click)="confirmOtp()">
-            @if (isSavingSecurity()) {
-              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
-            }
-            {{ 'CONFIRM' | translate }}
-          </ion-button>
-        }
-        @if (changePasswordStep() === EChangePasswordStep.Password) {
-          <ion-button fill="solid" color="primary"
-            [disabled]="securityForm.get('password')?.invalid || isSavingSecurity()"
-            (click)="confirmNewPassword()">
-            @if (isSavingSecurity()) {
-              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
-            }
-            {{ 'SAVE' | translate }}
-          </ion-button>
-        }
-      }
-
     </ion-buttons>
   </ion-toolbar>
 
@@ -263,18 +214,71 @@
 
 </ion-content>
 
-<!-- Footer — Logout only -->
 <ion-footer class="ion-no-border acc-modal__footer">
-  <ion-button
-    expand="block"
-    fill="clear"
-    color="danger"
-    class="acc-modal__logout-btn"
-    (click)="logout()"
-  >
-    <ion-icon slot="start" name="log-out-outline"></ion-icon>
-    {{ 'LOG_OUT' | translate }}
-  </ion-button>
+  <ion-toolbar>
 
+    <!-- Profile tab: Logout + Cancel + Save in one row -->
+    @if (activeTab() === 'profile') {
+      <div class="modal-footer-actions">
+        <ion-button fill="clear" color="danger" (click)="logout()">
+          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
+          {{ 'CANCEL' | translate }}
+        </ion-button>
+        <ion-button fill="solid" color="primary" expand="block"
+          [disabled]="isSavingProfile() || profileForm.invalid"
+          (click)="saveProfile()">
+          @if (isSavingProfile()) {
+            <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
+          }
+          {{ 'SAVE' | translate }}
+        </ion-button>
+      </div>
+    }
+
+    <!-- Security tab: Logout + Cancel + step-specific action in one row -->
+    @if (activeTab() === 'security') {
+      <div class="modal-footer-actions">
+        <ion-button fill="clear" color="danger" (click)="logout()">
+          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
+          {{ 'CANCEL' | translate }}
+        </ion-button>
+        @if (changePasswordStep() === EChangePasswordStep.Email) {
+          <ion-button fill="solid" color="primary" expand="block"
+            [disabled]="!securityForm.get('email')?.value || isSavingSecurity()"
+            (click)="sendVerificationCode()">
+            @if (isSavingSecurity()) {
+              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
+            }
+            {{ 'SEND_CODE' | translate }}
+          </ion-button>
+        }
+        @if (changePasswordStep() === EChangePasswordStep.Otp) {
+          <ion-button fill="solid" color="primary" expand="block"
+            [disabled]="securityForm.get('otpCode')?.invalid || isSavingSecurity()"
+            (click)="confirmOtp()">
+            @if (isSavingSecurity()) {
+              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
+            }
+            {{ 'CONFIRM' | translate }}
+          </ion-button>
+        }
+        @if (changePasswordStep() === EChangePasswordStep.Password) {
+          <ion-button fill="solid" color="primary" expand="block"
+            [disabled]="securityForm.get('password')?.invalid || isSavingSecurity()"
+            (click)="confirmNewPassword()">
+            @if (isSavingSecurity()) {
+              <ion-spinner slot="start" name="crescent" style="width:16px;height:16px"></ion-spinner>
+            }
+            {{ 'SAVE' | translate }}
+          </ion-button>
+        }
+      </div>
+    }
+
+  </ion-toolbar>
 </ion-footer>
 

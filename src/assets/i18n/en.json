@@ -146,6 +146,16 @@
   "CONFIRM_NEW_PASSWORD": "Confirm new password",
   "LOG_OUT": "Log Out",
 
+  "ACC_PROFILE_UPDATED": "Profile updated successfully",
+  "ACC_PROFILE_FAILED": "Failed to update profile",
+  "ACC_AVATAR_UPDATED": "Avatar updated",
+  "ACC_AVATAR_UPLOAD_FAILED": "Failed to upload avatar",
+  "ACC_AVATAR_REMOVED": "Avatar removed",
+  "ACC_AVATAR_REMOVE_FAILED": "Failed to remove avatar",
+  "ACC_CODE_SENT": "Verification code sent",
+  "ACC_PASSWORDS_MISMATCH": "Passwords do not match",
+  "ACC_PASSWORD_CHANGED": "Password changed successfully",
+
   "LANGUAGE": "Language",
   "LANG_EN": "English",
   "LANG_UA": "Українська",

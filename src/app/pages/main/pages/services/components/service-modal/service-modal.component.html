@@ -1,17 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="dismiss()">
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
     <ion-title>{{ (isEdit ? 'SVC_EDIT_TITLE' : 'SVC_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" color="primary" [disabled]="isLoading()" (click)="save()">
-        @if (isLoading()) {
-          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
-        }
-        {{ (isEdit ? 'SVC_SAVE' : 'SVC_CREATE') | translate }}
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -122,3 +114,18 @@
   }
 </ion-content>
 
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <div class="modal-footer-actions">
+      <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
+        {{ 'CANCEL' | translate }}
+      </ion-button>
+      <ion-button fill="solid" color="primary" expand="block" [disabled]="isLoading()" (click)="save()">
+        @if (isLoading()) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ (isEdit ? 'SVC_SAVE' : 'SVC_CREATE') | translate }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

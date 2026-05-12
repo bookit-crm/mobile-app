@@ -13,6 +13,16 @@
   padding: 8px 4px 4px;
 }
 
+.view-header-title {
+  --color: var(--ion-text-color);
+
+  .view-status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
 .view-status-row {
   display: flex;
   align-items: center;

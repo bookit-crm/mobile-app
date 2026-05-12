@@ -1,15 +1,9 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="dismiss()">
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
     <ion-title>{{ (isEditMode ? 'PC_EDIT_TITLE' : 'PC_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
-        <ion-spinner *ngIf="isSubmitting" name="crescent" slot="start"></ion-spinner>
-        {{ (isEditMode ? 'PC_SAVE' : 'PC_CREATE') | translate }}
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -114,3 +108,18 @@
   </form>
 </ion-content>
 
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <div class="modal-footer-actions">
+      <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
+        {{ 'CANCEL' | translate }}
+      </ion-button>
+      <ion-button fill="solid" color="primary" expand="block" [disabled]="isSubmitting || form.invalid" (click)="submit()">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ (isEditMode ? 'PC_SAVE' : 'PC_CREATE') | translate }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

@@ -1,3 +1,10 @@
+::ng-deep ion-modal.modal-account-settings {
+  --height: 85%;
+  --width: 100%;
+  --border-radius: 16px 16px 0 0;
+  align-items: flex-end;
+}
+
 // ──────────────────────────────────────────────
 //  Content area
 // ──────────────────────────────────────────────
