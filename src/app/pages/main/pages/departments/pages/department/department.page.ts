@@ -324,7 +324,7 @@ export class DepartmentPage implements OnInit {
   public get clientBookingLink(): string {
     const dept = this.department();
     if (!dept) return '';
-    return `${environment.client_url}/department?id=${dept._id}&dataBaseId=${environment.dataBaseId}`;
+    return `${environment.client_url}/department?id=${dept._id}&dataBaseId=${dept.dataBaseId}`;
   }
 
   public async shareClientLink(): Promise<void> {

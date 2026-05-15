@@ -21,6 +21,7 @@ export interface IDepartmentStats {
 
 export interface IDepartment {
   _id: string;
+  dataBaseId: string;
   name: string;
   phone?: string;
   status?: 'active' | 'inactive';

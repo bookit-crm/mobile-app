@@ -70,7 +70,6 @@ export class LoginPage implements OnInit {
     this.authService
       .login({
         ...this.loginForm.getRawValue(),
-        dataBaseId: environment.dataBaseId,
       })
       .pipe(take(1))
       .subscribe({
