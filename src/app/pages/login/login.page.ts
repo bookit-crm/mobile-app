@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { take } from 'rxjs';
+import { ViewWillEnter } from '@ionic/angular';
+import { switchMap, take } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { ValidatorsHelper } from '@core/helpers/validators.helper';
-import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +14,7 @@ import { environment } from '../../../environments/environment';
   standalone: false,
   host: { class: 'ion-page' },
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, ViewWillEnter {
   public loginForm!: FormGroup;
   public showPassword = false;
   public isLoading = false;
@@ -27,15 +27,16 @@ export class LoginPage implements OnInit {
   ) {}
 
   public ngOnInit(): void {
-    // TODO: DEV ONLY
-    // email: ['mabego8870@pmdeal.com', [Validators.required, Validators.pattern(ValidatorsHelper.userEmailReg)]],
-    // password: ['asdASD123!@#', [Validators.required]],
-
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.pattern(ValidatorsHelper.userEmailReg)]],
       password: ['', [Validators.required]],
       remember_me: [false],
     });
+  }
+
+  public ionViewWillEnter(): void {
+    this.isLoading = false;
+    this.errorMessage = '';
   }
 
   public get emailControl() {
@@ -67,11 +68,20 @@ export class LoginPage implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
+    const { email, password } = this.loginForm.getRawValue();
+
     this.authService
-      .login({
-        ...this.loginForm.getRawValue(),
-      })
-      .pipe(take(1))
+      .activate({ email, password })
+      .pipe(
+        switchMap((config) =>
+          this.authService.login({
+            email,
+            password,
+            dataBaseId: config.database_id,
+          }),
+        ),
+        take(1),
+      )
       .subscribe({
         next: (res) => {
           localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);

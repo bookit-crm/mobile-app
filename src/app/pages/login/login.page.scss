@@ -47,16 +47,9 @@ ion-content.login-content {
   }
 
   &__logo-img {
-    width: 32px;
-    height: 32px;
+    width: 120px;
+    height: auto;
     object-fit: contain;
-  }
-
-  &__logo-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: $basic-black;
-    letter-spacing: -0.2px;
   }
 
   &__tagline {
