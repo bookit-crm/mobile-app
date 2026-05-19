@@ -1,11 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpHelper } from '@core/helpers/http-helper';
-import { IAuthTokens } from '@core/models/auth.interface';
+import { IAuthTokens, IDesktopConfig } from '@core/models/auth.interface';
 import { LoginPayloadModel } from '@core/models/login-payload.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService extends HttpHelper {
+  public activate(payload: { email: string; password: string }): Observable<IDesktopConfig> {
+    return this.httpPostRequest('api/desktop/activate', payload);
+  }
+
   public login(payload: LoginPayloadModel): Observable<IAuthTokens> {
     return this.httpPostRequest('api/auth/login/', payload);
   }

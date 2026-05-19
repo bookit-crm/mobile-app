@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.bookit.mobile',
-  appName: 'Bookit',
+  appId: 'com.scheday.mobile',
+  appName: 'ScheDay',
   webDir: 'www',
   server: {
     androidScheme: 'https',

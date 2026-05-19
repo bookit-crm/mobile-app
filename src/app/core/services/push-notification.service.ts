@@ -64,8 +64,8 @@ export class PushNotificationService {
       if (this.permissionGranted) {
         // Канал (Android 8+)
         await LocalNotifications.createChannel({
-          id: 'bookit_notifications',
-          name: 'Bookit',
+          id: 'scheday_notifications',
+          name: 'ScheDay',
           importance: 4, // HIGH
           sound: 'default',
           vibration: true,
@@ -93,8 +93,8 @@ export class PushNotificationService {
           notifications: [
               {
                 id: notifId++,
-                channelId: 'bookit_notifications',
-                title: notification.title ?? 'Bookit',
+                channelId: 'scheday_notifications',
+                title: notification.title ?? 'ScheDay',
                 body: notification.message ?? '',
                 schedule: { at: new Date(Date.now() + 100) },
                 extra: {

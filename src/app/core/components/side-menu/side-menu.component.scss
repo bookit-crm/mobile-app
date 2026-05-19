@@ -1,4 +1,4 @@
-// ─── Ion-menu override: тёмный фон Bookit ───────────────────────────────────
+// ─── Ion-menu override ───────────────────────────────────────────────────────
 ion-menu {
   --background: var(--bk-sidebar-bg);
   --ion-background-color: var(--bk-sidebar-bg);
@@ -26,16 +26,9 @@ ion-menu {
   gap: 10px;
 
   &__img {
-    width: 28px;
-    height: 28px;
+    width: 100px;
+    height: auto;
     object-fit: contain;
-  }
-
-  &__title {
-    font-size: 20px;
-    font-weight: 600;
-    letter-spacing: 0.07px;
-    color: var(--bk-basic-white);
   }
 }
 
