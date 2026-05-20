@@ -15,6 +15,9 @@
   "ERROR_EMAIL_REQUIRED": "Email is required",
   "ERROR_EMAIL_PATTERN": "Enter a valid email address",
   "ERROR_PASSWORD_REQUIRED": "Password is required",
+  "NO_SUBSCRIPTION_TITLE": "No active subscription",
+  "NO_SUBSCRIPTION_TEXT": "Your account doesn't have an active subscription. Purchase a plan on the Bookit website to continue.",
+  "NO_SUBSCRIPTION_CTA": "View pricing plans →",
 
   "APPOINTMENTS": "Appointments",
   "FILTERS": "Filters",

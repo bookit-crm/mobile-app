@@ -260,3 +260,59 @@ ion-content.login-content {
     color: $basic-white;
   }
 }
+
+// ── No subscription banner ─────────────────────────────────────────────────
+.no-sub-banner {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 116, 7, 0.07);
+  border: 1px solid rgba(255, 116, 7, 0.2);
+  margin-top: 4px;
+
+  &__icon-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 1px;
+  }
+
+  &__icon {
+    font-size: 22px;
+    color: $orange-500;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: $label;
+    margin: 0;
+  }
+
+  &__text {
+    font-size: 12px;
+    color: $grey-300;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $orange-500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { inject } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { switchMap, take } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { ValidatorsHelper } from '@core/helpers/validators.helper';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -19,12 +21,12 @@ export class LoginPage implements OnInit, ViewWillEnter {
   public showPassword = false;
   public isLoading = false;
   public errorMessage = '';
+  public noSubscription = false;
+  public readonly landingUrl = environment.landing_url;
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-  ) {}
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   public ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -37,6 +39,94 @@ export class LoginPage implements OnInit, ViewWillEnter {
   public ionViewWillEnter(): void {
     this.isLoading = false;
     this.errorMessage = '';
+    this.noSubscription = false;
+  }
+
+  public get emailControl() {
+    return this.loginForm.get('email');
+  }
+
+  public get passwordControl() {
+    return this.loginForm.get('password');
+  }
+
+  public get emailHasError(): boolean {
+    const c = this.emailControl;
+    return !!(c && c.invalid && c.touched);
+  }
+
+  public get passwordHasError(): boolean {
+    const c = this.passwordControl;
+    return !!(c && c.invalid && c.touched);
+  }
+
+  public togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  public handleLogin(): void {
+    this.loginForm.markAllAsTouched();
+    if (this.loginForm.invalid) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.noSubscription = false;
+
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.authService
+      .activate({ email, password })
+      .pipe(
+        switchMap(config => {
+          if (!config.access_allowed) {
+            this.isLoading = false;
+            this.noSubscription = true;
+            return [];
+          }
+          return this.authService.login({
+            email,
+            password,
+            dataBaseId: config.database_id,
+          });
+        }),
+        take(1),
+      )
+      .subscribe({
+        next: res => {
+          if (!res) {
+            return;
+          }
+          localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);
+          localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, res.refresh_token);
+          this.router.navigate(['/main']);
+        },
+        error: err => {
+          this.isLoading = false;
+          const status = err?.status;
+          const msg = err?.error?.message;
+          this.errorMessage = msg
+            ? `${status}: ${msg}`
+            : `Error ${status ?? '—'}: ${err?.message ?? 'Unknown error'}`;
+        },
+      });
+  }
+}
+
+
+  public ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.pattern(ValidatorsHelper.userEmailReg)]],
+      password: ['', [Validators.required]],
+      remember_me: [false],
+    });
+  }
+
+  public ionViewWillEnter(): void {
+    this.isLoading = false;
+    this.errorMessage = '';
+    this.noSubscription = false;
   }
 
   public get emailControl() {
@@ -67,30 +157,36 @@ export class LoginPage implements OnInit, ViewWillEnter {
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.noSubscription = false;
 
     const { email, password } = this.loginForm.getRawValue();
 
     this.authService
       .activate({ email, password })
       .pipe(
-        switchMap((config) =>
-          this.authService.login({
+        switchMap((config) => {
+          if (!config.access_allowed) {
+            this.isLoading = false;
+            this.noSubscription = true;
+            return [];
+          }
+          return this.authService.login({
             email,
             password,
             dataBaseId: config.database_id,
-          }),
-        ),
+          });
+        }),
         take(1),
       )
       .subscribe({
         next: (res) => {
+          if (!res) return;
           localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);
           localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, res.refresh_token);
           this.router.navigate(['/main']);
         },
         error: (err) => {
           this.isLoading = false;
-          console.error('[Login error]', err);
           const status = err?.status;
           const msg = err?.error?.message;
           this.errorMessage = msg

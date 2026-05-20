@@ -64,6 +64,24 @@
 
       <div class="error-banner" *ngIf="errorMessage">{{ errorMessage }}</div>
 
+      <div class="no-sub-banner" *ngIf="noSubscription">
+        <div class="no-sub-banner__icon-wrap">
+          <ion-icon name="alert-circle-outline" class="no-sub-banner__icon"></ion-icon>
+        </div>
+        <div class="no-sub-banner__body">
+          <p class="no-sub-banner__title">{{ 'NO_SUBSCRIPTION_TITLE' | translate }}</p>
+          <p class="no-sub-banner__text">{{ 'NO_SUBSCRIPTION_TEXT' | translate }}</p>
+          <a
+            class="no-sub-banner__link"
+            [href]="landingUrl + '/profile'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ 'NO_SUBSCRIPTION_CTA' | translate }}
+          </a>
+        </div>
+      </div>
+
       <button
         class="btn-primary"
         type="submit"
