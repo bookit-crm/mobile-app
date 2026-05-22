@@ -15,7 +15,10 @@
     "cap:ios": "ng build && npx cap sync ios && npx cap open ios",
     "cap:run:android": "ng build && npx cap sync android && npx cap run android",
     "cap:run:ios": "ng build && npx cap sync ios && npx cap run ios",
-    "kill-all-processes": "adb kill-server; adb start-server"
+    "kill-all-processes": "adb kill-server; adb start-server",
+    "e2e": "npx playwright test --config=playwright.config.ts",
+    "e2e:headed": "npx playwright test --config=playwright.config.ts --headed",
+    "e2e:report": "npx playwright show-report e2e-report"
   },
   "private": true,
   "dependencies": {
@@ -61,6 +64,7 @@
     "@angular/language-service": "^20.0.0",
     "@capacitor/cli": "6.2.1",
     "@ionic/angular-toolkit": "^12.1.0",
+    "@playwright/test": "^1.60.0",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",
     "@typescript-eslint/parser": "^8.18.0",
