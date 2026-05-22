@@ -152,9 +152,7 @@ export class CalendarPage implements OnInit {
   public readonly selectedStatuses = signal<AppointmentStatus[]>([]);
 
   public readonly activeFiltersCount = computed(
-    () => this.selectedEmployeeIds().length +
-      (this.selectedDepartmentId() ? 1 : 0) +
-      this.selectedStatuses().length,
+    () => (this.selectedDepartmentId() ? 1 : 0) + this.selectedStatuses().length,
   );
 
   // ── BehaviorSubject для filters — ресет → debounce → загрузка ────────────
@@ -283,10 +281,8 @@ export class CalendarPage implements OnInit {
       cssClass: 'calendar-filter-modal',
       component: CalendarFiltersModalComponent,
       componentProps: {
-        employees: this.employees(),
         departments: this.departments(),
         isManager: this.isManager(),
-        selectedEmployeeIds: this.selectedEmployeeIds(),
         selectedDepartmentId: this.selectedDepartmentId(),
         selectedStatuses: this.selectedStatuses(),
       },
@@ -296,12 +292,12 @@ export class CalendarPage implements OnInit {
     if (!data) return;
 
     const prevDept = this.selectedDepartmentId();
-    this.selectedEmployeeIds.set(data.selectedEmployeeIds);
     this.selectedStatuses.set(data.selectedStatuses);
 
     if (data.selectedDepartmentId !== prevDept) {
       this.selectedDepartmentId.set(data.selectedDepartmentId);
-      this.initEmployees(); // перезагружаем сотрудников при смене департамента
+      this.selectedEmployeeIds.set([]);
+      this.initEmployees(); // reload employees when department changes
     }
 
     this.pushFilters();

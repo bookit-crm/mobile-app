@@ -59,3 +59,28 @@ ion-skeleton-text {
     flex: 1;
   }
 }
+
+// ── Filter button badge — shared across all pages ──────────────────────────
+.filter-btn {
+  position: relative;
+}
+
+.filter-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #f04438;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  padding: 0 3px;
+  box-sizing: border-box;
+  line-height: 1;
+}

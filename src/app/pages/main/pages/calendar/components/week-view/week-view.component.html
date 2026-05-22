@@ -1,3 +1,25 @@
+<!-- Employee selector chips -->
+@if (employees().length > 0) {
+  <div class="week-view__emp-bar">
+    @for (emp of employees(); track emp._id) {
+      <button
+        class="week-view__emp-chip"
+        [class.week-view__emp-chip--active]="localEmployeeId() === emp._id"
+        (click)="selectEmployee(emp._id)"
+      >
+        <div class="week-view__emp-chip-avatar">
+          @if (emp.avatar?.url) {
+            <img [src]="emp.avatar!.url" [alt]="emp.firstName" />
+          } @else {
+            {{ emp.firstName[0] }}{{ emp.lastName[0] }}
+          }
+        </div>
+        <span class="week-view__emp-chip-name">{{ emp.firstName }}</span>
+      </button>
+    }
+  </div>
+}
+
 <div class="week-view">
   <div class="week-view__time-col">
     <div class="week-view__header-spacer"></div>

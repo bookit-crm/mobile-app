@@ -6,13 +6,13 @@
     <ion-title>{{ 'CALENDAR' | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
-        class="cal-filter-btn"
+        class="filter-btn"
         (click)="openFilters()"
-        [color]="activeFiltersCount() > 0 ? 'primary' : 'medium'"
+        color="medium"
       >
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
         @if (activeFiltersCount() > 0) {
-          <ion-badge color="danger" class="cal-filter-badge">{{ activeFiltersCount() }}</ion-badge>
+          <span class="filter-badge">{{ activeFiltersCount() }}</span>
         }
       </ion-button>
     </ion-buttons>
@@ -65,12 +65,6 @@
           <span>{{ 'CAL_1_DEPT' | translate }}</span>
         </div>
       }
-      @if (selectedEmployeeIds().length > 0) {
-        <div class="cal-filter-chip">
-          <ion-icon name="people-outline"></ion-icon>
-          <span>{{ 'CAL_EMP_COUNT' | translate: { count: selectedEmployeeIds().length } }}</span>
-        </div>
-      }
       @if (selectedStatuses().length > 0) {
         <div class="cal-filter-chip">
           <ion-icon name="funnel-outline"></ion-icon>
@@ -110,6 +104,7 @@
             [date]="currentDate()"
             [appointments]="filteredAppointments()"
             [schedules]="schedules()"
+            [employees]="employees()"
             [selectedEmployeeId]="selectedEmployeeIds().at(0) ?? ''"
             (slotClicked)="onSlotClicked($event)"
             (eventClicked)="onEventClicked($event)"

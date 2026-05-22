@@ -9,7 +9,7 @@
         <ion-button (click)="openFilterModal()" class="filter-btn">
           <ion-icon slot="icon-only" name="options-outline"></ion-icon>
           @if (activeFiltersCount() > 0) {
-            <ion-badge color="primary" class="filter-badge">{{ activeFiltersCount() }}</ion-badge>
+            <span class="filter-badge">{{ activeFiltersCount() }}</span>
           }
         </ion-button>
       }

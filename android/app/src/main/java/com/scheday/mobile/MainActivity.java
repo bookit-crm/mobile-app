@@ -1,4 +1,4 @@
-package com.bookit.mobile;
+package com.scheday.mobile;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -57,65 +57,6 @@
     <div class="filters-modal__divider"></div>
   }
 
-  <!-- Employees section -->
-  <div class="filters-modal__section">
-    <div class="filters-modal__section-title">{{ 'EMPLOYEES_SECTION' | translate }}</div>
-    <ion-list lines="none">
-      <!-- All employees -->
-      <ion-item
-        [button]="true"
-        [detail]="false"
-        class="filters-modal__item"
-        [class.filters-modal__item--selected]="currentEmployeeIds().length === 0"
-        (click)="clearAllEmployees()"
-      >
-        <ion-label><strong>{{ 'ALL_EMPLOYEES' | translate }}</strong></ion-label>
-        @if (currentEmployeeIds().length === 0) {
-          <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
-        } @else {
-          <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
-        }
-      </ion-item>
-      @for (emp of employees; track emp._id) {
-        <ion-item
-          [button]="true"
-          [detail]="false"
-          class="filters-modal__item"
-          [class.filters-modal__item--selected]="isEmployeeSelected(emp._id)"
-          (click)="toggleEmployee(emp._id)"
-        >
-          <ion-avatar slot="start" class="filters-modal__avatar">
-            @if (emp.avatar?.url) {
-              <img [src]="emp.avatar!.url" [alt]="emp.firstName" />
-            } @else {
-              <div class="filters-modal__avatar-placeholder">
-                {{ emp.firstName[0] }}{{ emp.lastName[0] }}
-              </div>
-            }
-          </ion-avatar>
-          <ion-label>
-            <h3>{{ emp.firstName }} {{ emp.lastName }}</h3>
-            @if (emp.position) {
-              <p>{{ emp.position }}</p>
-            }
-          </ion-label>
-          @if (isEmployeeSelected(emp._id)) {
-            <ion-icon name="checkmark-circle" slot="end" color="primary"></ion-icon>
-          } @else {
-            <ion-icon name="ellipse-outline" slot="end" color="medium"></ion-icon>
-          }
-        </ion-item>
-      }
-      @if (employees.length === 0) {
-        <ion-item>
-          <ion-label color="medium">{{ 'NO_EMPLOYEES_FOUND' | translate }}</ion-label>
-        </ion-item>
-      }
-    </ion-list>
-  </div>
-
-  <div class="filters-modal__divider"></div>
-
   <!-- Status section -->
   <div class="filters-modal__section">
     <div class="filters-modal__section-title">{{ 'APPOINTMENT_STATUS' | translate }}</div>

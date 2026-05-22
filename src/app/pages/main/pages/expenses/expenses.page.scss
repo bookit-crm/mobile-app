@@ -131,21 +131,6 @@
   margin: 0;
 }
 
-// ── Filter button with badge ──────────────────────────────────────────────────
-.filter-btn {
-  position: relative;
-}
-
-.filter-badge {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  font-size: 9px;
-  min-width: 16px;
-  height: 16px;
-  border-radius: 8px;
-  padding: 0 3px;
-}
 
 // ── Filter bottom sheet ───────────────────────────────────────────────────────
 ion-modal.filter-modal {

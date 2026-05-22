@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { addDays, format, isSameDay, parse, startOfWeek } from 'date-fns';
 import { IAppointment, INewAppointmentPayload } from '@core/models/appointment.interface';
+import { IEmployee } from '@core/models/employee.interface';
 import { ISchedule } from '@core/models/schedule.interface';
 import {
   generateTimeSlots, getEventTopAndHeight, isOutsideWorkingHours,
@@ -41,7 +42,10 @@ export class WeekViewComponent {
   public readonly date = input<string>('');
   public readonly appointments = input<IAppointment[]>([]);
   public readonly schedules = input<ISchedule[]>([]);
+  public readonly employees = input<IEmployee[]>([]);
   public readonly selectedEmployeeId = input<string>('');
+
+  public readonly localEmployeeId = signal<string>('');
 
   public readonly slotClicked = output<INewAppointmentPayload>();
   public readonly eventClicked = output<INewAppointmentPayload>();
@@ -63,6 +67,7 @@ export class WeekViewComponent {
 
   private readonly HEADER_HEIGHT = 56;
   private viewDate: Date = new Date();
+  private lastScrollDate = '';
 
   // ── Drag state ─────────────────────────────────────────────────────────────
   private dragAppt: IAppointment | null = null;
@@ -80,12 +85,31 @@ export class WeekViewComponent {
   private readonly boundMouseMove = (e: MouseEvent) => this.onDocMouseMove(e);
   private readonly boundMouseUp = (e: MouseEvent) => this.onDocMouseUp(e);
 
+  public selectEmployee(id: string): void {
+    this.localEmployeeId.set(id);
+  }
+
   constructor() {
+    // Sync selectedEmployeeId input → localEmployeeId
+    effect(() => {
+      const fromInput = this.selectedEmployeeId();
+      if (fromInput) this.localEmployeeId.set(fromInput);
+    });
+
+    // Auto-select first employee; also reset when dept changes and current ID is gone
+    effect(() => {
+      const emps = this.employees();
+      const current = this.localEmployeeId();
+      if (emps.length > 0 && !emps.some(e => e._id === current)) {
+        this.localEmployeeId.set(emps[0]._id);
+      }
+    });
+
     effect(() => {
       const date = this.date();
       this.appointments();
       this.schedules();
-      this.selectedEmployeeId();
+      this.localEmployeeId(); // react to chip selection
       this.viewDate = date ? parse(date, 'yyyy-MM-dd', new Date()) : new Date();
       this.buildGrid();
     });
@@ -102,7 +126,7 @@ export class WeekViewComponent {
   }
 
   public isSlotDisabled(slot: ITimeSlot, day: IWeekDayColumn): boolean {
-    const empId = this.selectedEmployeeId();
+    const empId = this.localEmployeeId();
     if (!empId || !this.schedules()?.length) return false;
     const slotDate = new Date(day.date);
     slotDate.setHours(slot.hour, slot.minute, 0, 0);
@@ -112,7 +136,7 @@ export class WeekViewComponent {
   public onSlotClick(slot: ITimeSlot, day: IWeekDayColumn): void {
     if (this.isSlotDisabled(slot, day)) return;
     this.slotClicked.emit({
-      employee: this.selectedEmployeeId() || '',
+      employee: this.localEmployeeId() || '',
       startDate: format(day.date, 'yyyy-MM-dd'),
       from: slot.time,
     });
@@ -364,7 +388,7 @@ export class WeekViewComponent {
     const monday = startOfWeek(this.viewDate, { weekStartsOn: 1 });
     const today = new Date();
     this.timeLabels = generateTimeSlots(monday);
-    const empId = this.selectedEmployeeId();
+    const empId = this.localEmployeeId();
     const allAppts = this.appointments();
 
     this.weekDays = [];
@@ -396,6 +420,27 @@ export class WeekViewComponent {
 
     this.updateCurrentTimeLine();
     this.cdr.detectChanges();
+    this.scrollToCurrentTime();
+  }
+
+  private scrollToCurrentTime(): void {
+    const dateStr = this.date();
+    if (this.lastScrollDate === dateStr) return;
+    this.lastScrollDate = dateStr;
+    let targetPx: number;
+    if (this.currentTimeTop !== null) {
+      targetPx = this.currentTimeTop;
+    } else {
+      const defaultHour = 8;
+      targetPx = this.HEADER_HEIGHT + (defaultHour - DAY_START_HOUR) * 60 * (SLOT_HEIGHT_PX / SLOT_DURATION_MINUTES);
+    }
+    requestAnimationFrame(() => {
+      const scrollEl = this.el.nativeElement.querySelector('.week-view') as HTMLElement | null;
+      if (!scrollEl) return;
+      const viewportHeight = scrollEl.clientHeight;
+      const scrollTop = Math.max(0, targetPx - viewportHeight * 0.6);
+      scrollEl.scrollTop = scrollTop;
+    });
   }
 
   private updateCurrentTimeLine(): void {

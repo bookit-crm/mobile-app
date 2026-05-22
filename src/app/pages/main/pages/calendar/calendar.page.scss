@@ -4,23 +4,15 @@
   height: 100%;
 }
 
-.cal-filter-btn {
-  position: relative;
+// Make ion-content's inner scroll container a flex column so .cal-content can use flex: 1
+ion-content::part(scroll) {
+  display: flex;
+  flex-direction: column;
 }
 
-.cal-filter-badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  font-size: 9px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  pointer-events: none;
-}
 
 .cal-view-switcher {
+  flex-shrink: 0;
   display: flex;
   background: #f2f2f2;
   border-radius: 10px;
@@ -50,6 +42,7 @@
 }
 
 .cal-nav {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   padding: 8px 4px;
@@ -96,6 +89,7 @@
 }
 
 .cal-filter-chips {
+  flex-shrink: 0;
   display: flex;
   gap: 6px;
   padding: 0 16px 8px;
@@ -117,6 +111,7 @@
 }
 
 .cal-loading {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -124,10 +119,13 @@
 }
 
 .cal-content {
-  height: calc(100% - 108px);
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
 
   &--month {
-    height: auto;
+    flex: unset;
+    min-height: unset;
+    overflow: visible;
   }
 }

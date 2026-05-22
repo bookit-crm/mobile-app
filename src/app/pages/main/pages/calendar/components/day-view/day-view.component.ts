@@ -57,6 +57,7 @@ export class DayViewComponent {
 
   private readonly HEADER_HEIGHT = 57;
   private viewDate: Date = new Date();
+  private lastScrollDate = '';
 
   // ── Drag state ─────────────────────────────────────────────────────────────
   private dragAppt: IAppointment | null = null;
@@ -408,6 +409,28 @@ export class DayViewComponent {
 
     this.updateCurrentTimeLine();
     this.cdr.detectChanges();
+    this.scrollToCurrentTime();
+  }
+
+  private scrollToCurrentTime(): void {
+    const dateStr = this.date();
+    if (this.lastScrollDate === dateStr) return;
+    this.lastScrollDate = dateStr;
+    const now = new Date();
+    const isToday = isSameDay(this.viewDate, now);
+    let targetPx: number;
+    if (isToday && this.currentTimeTop !== null) {
+      targetPx = this.currentTimeTop;
+    } else {
+      const defaultHour = 8;
+      targetPx = this.HEADER_HEIGHT + (defaultHour - DAY_START_HOUR) * 60 * (SLOT_HEIGHT_PX / SLOT_DURATION_MINUTES);
+    }
+    requestAnimationFrame(() => {
+      const scrollEl = this.el.nativeElement as HTMLElement;
+      const viewportHeight = scrollEl.clientHeight;
+      const scrollTop = Math.max(0, targetPx - viewportHeight * 0.6);
+      scrollEl.scrollTop = scrollTop;
+    });
   }
 
   private updateCurrentTimeLine(): void {

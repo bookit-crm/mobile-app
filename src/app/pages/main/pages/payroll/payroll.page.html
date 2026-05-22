@@ -8,7 +8,7 @@
       <ion-button (click)="openFilterSheet()" class="filter-btn">
         <ion-icon name="options-outline" slot="icon-only"></ion-icon>
         @if (activeFiltersCount() > 0) {
-          <ion-badge class="filter-badge" color="primary">{{ activeFiltersCount() }}</ion-badge>
+          <span class="filter-badge">{{ activeFiltersCount() }}</span>
         }
       </ion-button>
     </ion-buttons>
