@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.scheday.mobile"
+    namespace "app.scheday"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.scheday.mobile"
+        applicationId "app.scheday"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
