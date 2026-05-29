@@ -81,23 +81,15 @@ jobs:
         working-directory: mobile-app
         run: npm ci --prefer-offline
 
-      - name: Install system Chromium (Ubuntu 26.04 — Playwright bundled not supported)
+      - name: Install Google Chrome (Playwright bundled Chromium not supported on Ubuntu 26.04)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y chromium-browser 2>/dev/null \
-            || sudo apt-get install -y chromium 2>/dev/null \
-            || true
-          CHROME=$(which chromium-browser 2>/dev/null \
-                || which chromium 2>/dev/null \
-                || which google-chrome 2>/dev/null \
-                || echo "")
-          if [ -n "$CHROME" ]; then
-            echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${CHROME}" >> $GITHUB_ENV
-            echo "✅ System Chromium: ${CHROME} ($($CHROME --version 2>/dev/null))"
-          else
-            echo "❌ No system Chromium found — tests will likely fail"
-            exit 1
+          if ! which google-chrome > /dev/null 2>&1; then
+            echo "Installing Google Chrome..."
+            wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb
+            sudo dpkg -i /tmp/chrome.deb || sudo apt-get install -f -y
+            rm /tmp/chrome.deb
           fi
+          google-chrome --version && echo "✅ Google Chrome ready" || (echo "❌ Chrome not found" && exit 1)
 
       # ── 4. Start core-api ─────────────────────────────────────────────────────
       - name: Write core-api .env

@@ -40,9 +40,9 @@ export default defineConfig({
       name: 'mobile-chrome',
       use: {
         ...devices['Pixel 5'],
-        // Use system Google Chrome if available (fallback for servers where
-        // Playwright's bundled Chromium can't be installed, e.g. Ubuntu 26.04)
-        executablePath: process.env['PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH'] || undefined,
+        // Use installed Google Chrome (avoids Playwright bundled Chromium
+        // which is not supported on Ubuntu 26.04)
+        channel: 'chrome',
       },
     },
   ],
