@@ -81,21 +81,22 @@ jobs:
         working-directory: mobile-app
         run: npm ci --prefer-offline
 
-      - name: Install Playwright browsers
-        working-directory: mobile-app
-        run: npx playwright install chromium
-        env:
-          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
-        continue-on-error: true
-
-      - name: Verify Chrome available (fallback)
+      - name: Install system Chromium (Ubuntu 26.04 — Playwright bundled not supported)
         run: |
-          CHROME=$(which google-chrome || which chromium-browser || which chromium || echo "")
+          sudo apt-get update -qq
+          sudo apt-get install -y chromium-browser 2>/dev/null \
+            || sudo apt-get install -y chromium 2>/dev/null \
+            || true
+          CHROME=$(which chromium-browser 2>/dev/null \
+                || which chromium 2>/dev/null \
+                || which google-chrome 2>/dev/null \
+                || echo "")
           if [ -n "$CHROME" ]; then
             echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${CHROME}" >> $GITHUB_ENV
-            echo "✅ System Chrome found: $CHROME ($($CHROME --version 2>/dev/null))"
+            echo "✅ System Chromium: ${CHROME} ($($CHROME --version 2>/dev/null))"
           else
-            echo "Using Playwright bundled chromium"
+            echo "❌ No system Chromium found — tests will likely fail"
+            exit 1
           fi
 
       # ── 4. Start core-api ─────────────────────────────────────────────────────
