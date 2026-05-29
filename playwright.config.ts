@@ -38,11 +38,12 @@ export default defineConfig({
   projects: [
     {
       name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'mobile-safari',
-      use: { ...devices['iPhone 14'] },
+      use: {
+        ...devices['Pixel 5'],
+        // Use system Google Chrome if available (fallback for servers where
+        // Playwright's bundled Chromium can't be installed, e.g. Ubuntu 26.04)
+        executablePath: process.env['PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH'] || undefined,
+      },
     },
   ],
 

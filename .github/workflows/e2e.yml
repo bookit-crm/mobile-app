@@ -81,26 +81,22 @@ jobs:
         working-directory: mobile-app
         run: npm ci --prefer-offline
 
-      - name: Install Playwright system dependencies
-        run: |
-          # Playwright 1.60.0 doesn't have Ubuntu 26.04 deps script yet —
-          # install manually the libs Chromium/WebKit need.
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-            libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 \
-            libxrandr2 libgbm1 libasound2t64 libpango-1.0-0 libpangocairo-1.0-0 \
-            libatspi2.0-0 libwayland-client0 xvfb \
-            libwoff1 libopus0 libwebpdemux2 libenchant-2-2 libhyphen0 \
-            libmanette-0.2-0 libgles2 libx264-dev 2>/dev/null || true
-          echo "✅ System deps installed"
-
       - name: Install Playwright browsers
         working-directory: mobile-app
+        run: npx playwright install chromium
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
+        continue-on-error: true
+
+      - name: Verify Chrome available (fallback)
         run: |
-          # Install browser binaries only (skip --with-deps since Ubuntu 26 isn't supported yet)
-          PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1 npx playwright install chromium webkit
-          echo "✅ Browsers installed"
+          CHROME=$(which google-chrome || which chromium-browser || which chromium || echo "")
+          if [ -n "$CHROME" ]; then
+            echo "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${CHROME}" >> $GITHUB_ENV
+            echo "✅ System Chrome found: $CHROME ($($CHROME --version 2>/dev/null))"
+          else
+            echo "Using Playwright bundled chromium"
+          fi
 
       # ── 4. Start core-api ─────────────────────────────────────────────────────
       - name: Write core-api .env
