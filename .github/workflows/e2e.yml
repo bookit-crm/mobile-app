@@ -1,0 +1,218 @@
+name: Mobile E2E Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      test_filter:
+        description: 'Playwright test filter (e.g. "tests/calendar")'
+        required: false
+        default: ''
+
+concurrency:
+  group: mobile-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright Mobile E2E
+    runs-on: [self-hosted, linux, mobile, hetzner]
+    timeout-minutes: 30
+
+    env:
+      MONGO_SERV:           ${{ secrets.MONGO_SERV }}
+      MONGO_SERV_DYNAMIC:   ${{ secrets.MONGO_SERV_DYNAMIC }}
+      JWT_SECRET_KEY:       ${{ secrets.JWT_SECRET_KEY }}
+      TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
+      E2E_EMAIL:            ${{ secrets.E2E_ADMIN_EMAIL }}
+      E2E_PASSWORD:         ${{ secrets.E2E_ADMIN_PASSWORD }}
+      STRIPE_SECRET_KEY:    ${{ secrets.STRIPE_SECRET_KEY }}
+      STRIPE_PUBLISH_KEY:   ${{ secrets.STRIPE_PUBLISH_KEY }}
+      STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+
+    steps:
+      # ── 0. Cleanup ────────────────────────────────────────────────────────────
+      - name: Fix workspace permissions and kill leftover processes
+        run: |
+          sudo chown -R $(whoami):$(whoami) "${{ github.workspace }}" 2>/dev/null || true
+          pkill -f "ng serve"   2>/dev/null || true
+          pkill -f "nest start" 2>/dev/null || true
+          pkill -f "node.*main" 2>/dev/null || true
+          fuser -k 8100/tcp     2>/dev/null || true
+          fuser -k 3000/tcp     2>/dev/null || true
+          systemctl start nginx 2>/dev/null || true
+          ufw allow 80/tcp      2>/dev/null || true
+          sleep 2
+          echo "✅ Workspace clean, ports 3000 and 8100 are free"
+
+      # ── 1. Checkout ───────────────────────────────────────────────────────────
+      - name: Checkout mobile-app
+        uses: actions/checkout@v4
+        with:
+          path: mobile-app
+
+      - name: Checkout core-api
+        uses: actions/checkout@v4
+        with:
+          repository: bookit-crm/core-api
+          token: ${{ secrets.GH_TOKEN }}
+          path: core-api
+
+      # ── 2. Setup Node.js ──────────────────────────────────────────────────────
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: |
+            mobile-app/package-lock.json
+            core-api/package-lock.json
+
+      # ── 3. Install dependencies ───────────────────────────────────────────────
+      - name: Install core-api deps
+        working-directory: core-api
+        run: npm ci --prefer-offline --legacy-peer-deps
+
+      - name: Install mobile-app deps
+        working-directory: mobile-app
+        run: npm ci --prefer-offline
+
+      - name: Install Playwright browsers
+        working-directory: mobile-app
+        run: npx playwright install chromium webkit
+        continue-on-error: true
+
+      # ── 4. Start core-api ─────────────────────────────────────────────────────
+      - name: Write core-api .env
+        working-directory: core-api
+        run: |
+          printf '%s\n' \
+            "CORS_ALLOWED_URLS=http://localhost:8100,http://localhost:3000" \
+            "JWT_SECRET_KEY=${JWT_SECRET_KEY}" \
+            "MONGO_SERV=${MONGO_SERV}" \
+            "MONGO_SERV_DYNAMIC=${MONGO_SERV_DYNAMIC}" \
+            "TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}" \
+            "STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}" \
+            "STRIPE_PUBLISH_KEY=${STRIPE_PUBLISH_KEY}" \
+            "STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}" \
+            > .env
+          echo "✅ .env written ($(wc -l < .env) lines)"
+
+      - name: Build and start core-api
+        working-directory: core-api
+        run: |
+          npm run build
+          pkill -f "node dist/src/main" 2>/dev/null || true
+          kill $(lsof -ti:3000) 2>/dev/null || true
+          sleep 2
+          npm run start:prod &
+          echo $! > /tmp/api.pid
+          # Wait up to 60s for API to be ready
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:3000 > /dev/null 2>&1 && echo "✅ API ready after ${i}s" && break
+            sleep 2
+          done
+          curl -sf http://localhost:3000 || echo "❌ API failed to start"
+
+      # ── 5. Start Ionic/Angular dev server ─────────────────────────────────────
+      - name: Start mobile-app dev server
+        working-directory: mobile-app
+        run: |
+          npx ng serve --port 8100 &
+          echo $! > /tmp/app.pid
+          # Wait up to 120s for Angular to compile
+          for i in $(seq 1 120); do
+            curl -sf http://localhost:8100 > /dev/null 2>&1 && echo "✅ App ready after ${i}s" && break
+            sleep 2
+          done
+          curl -sf http://localhost:8100 || echo "❌ App failed to start"
+
+      # ── 6. Run E2E tests ──────────────────────────────────────────────────────
+      - name: Run Mobile E2E tests
+        working-directory: mobile-app
+        env:
+          CI: true
+        run: |
+          FILTER="${{ github.event.inputs.test_filter }}"
+          npx playwright test \
+            --config=playwright.config.ts \
+            ${FILTER} \
+            2>&1 | tee /tmp/e2e-output.txt || true
+          EXIT=${PIPESTATUS[0]}
+          echo "EXIT_CODE=${EXIT}" >> $GITHUB_ENV
+          echo "--- Last 20 lines ---"
+          tail -20 /tmp/e2e-output.txt
+        continue-on-error: true
+
+      # ── 7. Save JSON report ───────────────────────────────────────────────────
+      - name: Save Playwright JSON report
+        if: always()
+        run: |
+          REPORT="${{ github.workspace }}/mobile-app/e2e-report/results.json"
+          if [ -f "$REPORT" ]; then
+            echo "✅ Found report ($( wc -c < $REPORT) bytes)"
+            cp "$REPORT" /tmp/playwright-results.json
+          else
+            echo "⚠️ Report not found, using empty"
+            echo '{"stats":{"expected":0,"unexpected":0,"skipped":0,"flaky":0,"duration":0},"suites":[]}' \
+              > /tmp/playwright-results.json
+          fi
+
+      # ── 8. Upload HTML report to server ───────────────────────────────────────
+      - name: Upload HTML report
+        working-directory: mobile-app
+        run: |
+          REPORT_DIR="/opt/scheday/reports/mobile-run-${{ github.run_number }}"
+          mkdir -p "${REPORT_DIR}"
+          cp -r e2e-report/* "${REPORT_DIR}/" 2>/dev/null || true
+          IPV4=$(curl -4 -s ifconfig.me || echo "178.105.223.209")
+          echo "REPORT_URL=http://${IPV4}/mobile-run-${{ github.run_number }}/index.html" >> $GITHUB_ENV
+
+      # ── 9. Send Telegram notification ─────────────────────────────────────────
+      - name: Send Telegram report
+        working-directory: mobile-app
+        if: always()
+        run: |
+          node e2e/telegram-report.js \
+            --results /tmp/playwright-results.json \
+            --bot-token "${TELEGRAM_BOT_TOKEN}" \
+            --chat-id "${TELEGRAM_CHAT_ID}" \
+            --run-number "${{ github.run_number }}" \
+            --branch "${{ github.ref_name }}" \
+            --commit "${{ github.sha }}" \
+            --report-url "${REPORT_URL:-}" \
+            --actor "${{ github.actor }}"
+
+      # ── 10. Upload artifacts ──────────────────────────────────────────────────
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mobile-playwright-report-${{ github.run_number }}
+          path: |
+            mobile-app/e2e-report/
+            mobile-app/e2e-results/
+          retention-days: 14
+
+      # ── 11. Cleanup ───────────────────────────────────────────────────────────
+      - name: Stop services
+        if: always()
+        run: |
+          kill $(cat /tmp/api.pid) 2>/dev/null || true
+          kill $(cat /tmp/app.pid) 2>/dev/null || true
+          pkill -f "ng serve"   2>/dev/null || true
+          pkill -f "nest start" 2>/dev/null || true
+
+      # ── 12. Fail if tests failed ──────────────────────────────────────────────
+      - name: Check test results
+        if: always()
+        run: |
+          if [ "${EXIT_CODE:-0}" != "0" ]; then
+            echo "❌ Some tests failed — see report above"
+            exit 1
+          fi
+          echo "✅ All tests passed!"
