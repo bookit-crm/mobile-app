@@ -12,7 +12,7 @@ test.describe('Services', () => {
 
   test('should show service list', async ({ mobilePage: page }) => {
     await page.waitForTimeout(1000);
-    const count = await page.locator('ion-item, ion-card').count();
+    const count = await page.locator('ion-item, ion-card').filter({ visible: true }).count();
     expect(count).toBeGreaterThanOrEqual(0);
   });
 
@@ -21,6 +21,6 @@ test.describe('Services', () => {
     if (!(await bar.isVisible({ timeout: 2_000 }).catch(() => false))) { return; }
     await searchIn(page, 'zzz');
     await page.waitForTimeout(600);
-    await expect(page.locator('ion-content')).toBeVisible();
+    await expect(page.locator('ion-content').last()).toBeVisible();
   });
 });

@@ -12,7 +12,7 @@ test.describe('Payroll', () => {
 
   test('should render payroll content or empty state', async ({ mobilePage: page }) => {
     await page.waitForTimeout(1500);
-    await expect(page.locator('ion-content')).toBeVisible();
+    await expect(page.locator('ion-content').last()).toBeVisible();
   });
 
   test('should not crash on load', async ({ mobilePage: page }) => {

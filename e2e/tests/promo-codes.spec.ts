@@ -12,6 +12,6 @@ test.describe('Promo Codes', () => {
 
   test('should show promo codes list or empty state', async ({ mobilePage: page }) => {
     await page.waitForTimeout(1000);
-    await expect(page.locator('ion-content')).toBeVisible();
+    await expect(page.locator('ion-content').last()).toBeVisible();
   });
 });

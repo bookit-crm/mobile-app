@@ -12,7 +12,7 @@ test.describe('Products (Warehouse)', () => {
 
   test('should show product list or empty state', async ({ mobilePage: page }) => {
     await page.waitForTimeout(1000);
-    await expect(page.locator('ion-content')).toBeVisible();
+    await expect(page.locator('ion-content').last()).toBeVisible();
   });
 
   test('should search products', async ({ mobilePage: page }) => {
@@ -20,6 +20,6 @@ test.describe('Products (Warehouse)', () => {
     if (!(await bar.isVisible({ timeout: 2_000 }).catch(() => false))) { return; }
     await searchIn(page, 'zzz');
     await page.waitForTimeout(600);
-    await expect(page.locator('ion-content')).toBeVisible();
+    await expect(page.locator('ion-content').last()).toBeVisible();
   });
 });

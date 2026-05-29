@@ -60,9 +60,10 @@ export async function createMobileContext(browser: any): Promise<{ context: Brow
     route.continue({ url: route.request().url().replace(API_ORIGIN, 'localhost:3000') }),
   );
 
-  // Inject auth token on every page load
+  // Inject auth token and language on every page load
   await context.addInitScript((token: string) => {
     localStorage.setItem('auth_token', token);
+    localStorage.setItem('language', 'en');
   }, jwt);
 
   return { context, jwt };
