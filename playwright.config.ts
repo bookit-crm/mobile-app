@@ -46,8 +46,9 @@ export default defineConfig({
     },
   ],
 
-  // Start ng serve before tests if not already running
-  webServer: {
+  // In CI the dev server is started by the workflow — skip webServer to avoid conflicts.
+  // Locally: run `npx ng serve --port 8100` first, then `npm run e2e`.
+  webServer: process.env['CI'] ? undefined : {
     command: 'npx ng serve --port 8100',
     url: 'http://localhost:8100',
     reuseExistingServer: true,

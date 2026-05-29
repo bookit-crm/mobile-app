@@ -130,7 +130,15 @@ jobs:
           done
           curl -sf http://localhost:8100 || echo "❌ App failed to start"
 
-      # ── 6. Run E2E tests ──────────────────────────────────────────────────────
+      # ── 6. Verify servers are ready ───────────────────────────────────────────
+      - name: Verify API and app are reachable
+        run: |
+          echo "--- API check ---"
+          curl -sf http://localhost:3000 && echo "✅ API OK" || echo "❌ API not responding"
+          echo "--- App check ---"
+          curl -sf http://localhost:8100 && echo "✅ App OK" || echo "❌ App not responding"
+
+      # ── 7. Run E2E tests ──────────────────────────────────────────────────────
       - name: Run Mobile E2E tests
         working-directory: mobile-app
         env:
@@ -140,28 +148,31 @@ jobs:
           npx playwright test \
             --config=playwright.config.ts \
             ${FILTER} \
-            2>&1 | tee /tmp/e2e-output.txt || true
+            2>&1 | tee /tmp/e2e-output.txt
           EXIT=${PIPESTATUS[0]}
           echo "EXIT_CODE=${EXIT}" >> $GITHUB_ENV
-          echo "--- Last 20 lines ---"
-          tail -20 /tmp/e2e-output.txt
+          echo "--- Last 30 lines ---"
+          tail -30 /tmp/e2e-output.txt
+          exit 0
         continue-on-error: true
 
-      # ── 7. Save JSON report ───────────────────────────────────────────────────
+      # ── 8. Save JSON report ───────────────────────────────────────────────────
       - name: Save Playwright JSON report
         if: always()
         run: |
           REPORT="${{ github.workspace }}/mobile-app/e2e-report/results.json"
+          echo "Looking for report at: $REPORT"
+          ls -la "${{ github.workspace }}/mobile-app/e2e-report/" 2>/dev/null || echo "e2e-report dir missing"
           if [ -f "$REPORT" ]; then
-            echo "✅ Found report ($( wc -c < $REPORT) bytes)"
+            echo "✅ Found report ($(wc -c < $REPORT) bytes)"
             cp "$REPORT" /tmp/playwright-results.json
           else
-            echo "⚠️ Report not found, using empty"
+            echo "⚠️ Report not found — check e2e output above"
             echo '{"stats":{"expected":0,"unexpected":0,"skipped":0,"flaky":0,"duration":0},"suites":[]}' \
               > /tmp/playwright-results.json
           fi
 
-      # ── 8. Upload HTML report to server ───────────────────────────────────────
+      # ── 9. Upload HTML report to server ───────────────────────────────────────
       - name: Upload HTML report
         working-directory: mobile-app
         run: |
@@ -171,7 +182,7 @@ jobs:
           IPV4=$(curl -4 -s ifconfig.me || echo "178.105.223.209")
           echo "REPORT_URL=http://${IPV4}/mobile-run-${{ github.run_number }}/index.html" >> $GITHUB_ENV
 
-      # ── 9. Send Telegram notification ─────────────────────────────────────────
+      # ── 10. Send Telegram notification ────────────────────────────────────────
       - name: Send Telegram report
         working-directory: mobile-app
         if: always()
@@ -186,7 +197,7 @@ jobs:
             --report-url "${REPORT_URL:-}" \
             --actor "${{ github.actor }}"
 
-      # ── 10. Upload artifacts ──────────────────────────────────────────────────
+      # ── 11. Upload artifacts ──────────────────────────────────────────────────
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -197,7 +208,7 @@ jobs:
             mobile-app/e2e-results/
           retention-days: 14
 
-      # ── 11. Cleanup ───────────────────────────────────────────────────────────
+      # ── 12. Cleanup ───────────────────────────────────────────────────────────
       - name: Stop services
         if: always()
         run: |
@@ -206,7 +217,7 @@ jobs:
           pkill -f "ng serve"   2>/dev/null || true
           pkill -f "nest start" 2>/dev/null || true
 
-      # ── 12. Fail if tests failed ──────────────────────────────────────────────
+      # ── 13. Fail if tests failed ──────────────────────────────────────────────
       - name: Check test results
         if: always()
         run: |
