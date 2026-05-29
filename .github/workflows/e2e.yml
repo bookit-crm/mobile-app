@@ -81,10 +81,9 @@ jobs:
         working-directory: mobile-app
         run: npm ci --prefer-offline
 
-      - name: Install Playwright browsers
+      - name: Install Playwright browsers + system deps
         working-directory: mobile-app
-        run: npx playwright install chromium webkit
-        continue-on-error: true
+        run: npx playwright install --with-deps chromium webkit
 
       # ── 4. Start core-api ─────────────────────────────────────────────────────
       - name: Write core-api .env
