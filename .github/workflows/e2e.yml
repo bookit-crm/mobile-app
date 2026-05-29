@@ -178,6 +178,15 @@ jobs:
               > /tmp/playwright-results.json
           fi
 
+      # ── 8b. Generate human-readable single-file summary ───────────────────────
+      - name: Generate E2E summary file
+        if: always()
+        working-directory: mobile-app
+        run: |
+          node e2e/generate-summary.js /tmp/playwright-results.json e2e-summary.txt 2>/dev/null || true
+          echo "--- e2e-summary.txt ---"
+          cat e2e-summary.txt 2>/dev/null || echo "(no summary)"
+
       # ── 9. Upload HTML report to server ───────────────────────────────────────
       - name: Upload HTML report
         working-directory: mobile-app
@@ -185,6 +194,8 @@ jobs:
           REPORT_DIR="/opt/scheday/reports/mobile-run-${{ github.run_number }}"
           mkdir -p "${REPORT_DIR}"
           cp -r e2e-report/* "${REPORT_DIR}/" 2>/dev/null || true
+          # Copy summary alongside HTML report
+          cp e2e-summary.txt "${REPORT_DIR}/" 2>/dev/null || true
           IPV4=$(curl -4 -s ifconfig.me || echo "178.105.223.209")
           echo "REPORT_URL=http://${IPV4}/mobile-run-${{ github.run_number }}/index.html" >> $GITHUB_ENV
 
@@ -204,6 +215,8 @@ jobs:
             --actor "${{ github.actor }}"
 
       # ── 11. Upload artifacts ──────────────────────────────────────────────────
+      # Note: e2e-results/ (screenshots) excluded — videos are OFF in CI so
+      # the only large files were videos. Screenshots are in e2e-report/ already.
       - name: Upload test artifacts
         uses: actions/upload-artifact@v4
         if: always()
@@ -211,7 +224,7 @@ jobs:
           name: mobile-playwright-report-${{ github.run_number }}
           path: |
             mobile-app/e2e-report/
-            mobile-app/e2e-results/
+            mobile-app/e2e-summary.txt
           retention-days: 14
 
       # ── 12. Cleanup ───────────────────────────────────────────────────────────

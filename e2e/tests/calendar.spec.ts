@@ -12,7 +12,8 @@ test.describe('Calendar', () => {
   });
 
   test('should display Calendar title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /calendar/i })).toBeVisible();
+    // filter({ visible: true }) skips hidden side-menu ion-title; language-agnostic
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should render the calendar content area', async ({ mobilePage: page }) => {

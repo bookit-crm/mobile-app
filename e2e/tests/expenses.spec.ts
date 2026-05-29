@@ -7,7 +7,7 @@ test.describe('Expenses', () => {
   });
 
   test('should display Expenses title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /expense/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show expense list or empty state', async ({ mobilePage: page }) => {

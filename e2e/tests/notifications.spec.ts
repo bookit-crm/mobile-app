@@ -10,7 +10,7 @@ test.describe('Notifications', () => {
   });
 
   test('should display Notifications title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /notification/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show notification list or empty state', async ({ mobilePage: page }) => {

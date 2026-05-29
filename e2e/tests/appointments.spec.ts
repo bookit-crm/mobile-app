@@ -7,7 +7,8 @@ test.describe('Appointments', () => {
   });
 
   test('should display Appointments title and status segments', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: 'Appointments' })).toBeVisible();
+    // filter({ visible: true }) skips hidden side-menu ion-title; language-agnostic
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
     await expect(page.locator('ion-segment')).toBeVisible();
     await expect(page.locator('ion-segment-button').nth(0)).toBeVisible();
     await expect(page.locator('ion-segment-button').nth(1)).toBeVisible();

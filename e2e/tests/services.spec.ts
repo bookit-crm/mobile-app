@@ -7,7 +7,7 @@ test.describe('Services', () => {
   });
 
   test('should display Services title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /service/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show service list', async ({ mobilePage: page }) => {

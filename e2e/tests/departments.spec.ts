@@ -7,11 +7,8 @@ test.describe('Departments', () => {
   });
 
   test('should display Departments title', async ({ mobilePage: page }) => {
-    // Try ion-title first; fall back to any heading — some builds use h1/h2
-    const title = page.locator('ion-title, h1, h2').filter({ hasText: /department/i });
-    const found = await title.count() > 0;
-    expect(found || true).toBe(true); // non-crashing: page at least loaded
-    await expect(page.locator('ion-content').last()).toBeVisible();
+    // Language-agnostic: verify ion-title is present (text may be in any language)
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show department list or empty state', async ({ mobilePage: page }) => {

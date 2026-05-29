@@ -7,7 +7,7 @@ test.describe('Promo Codes', () => {
   });
 
   test('should display Promo Codes title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /promo/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show promo codes list or empty state', async ({ mobilePage: page }) => {

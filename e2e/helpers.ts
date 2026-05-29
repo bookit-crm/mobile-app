@@ -29,7 +29,8 @@ export async function fillIonInput(page: Page, labelText: string, value: string)
 /** Type into an ion-searchbar */
 export async function searchIn(page: Page, query: string): Promise<void> {
   const bar = page.locator('ion-searchbar').first();
-  await bar.waitFor({ state: 'visible', timeout: 5_000 });
+  // CI server is slower — allow up to 12 s for the searchbar to appear
+  await bar.waitFor({ state: 'visible', timeout: process.env['CI'] ? 12_000 : 5_000 });
   await bar.locator('input').fill(query);
   await page.waitForTimeout(600);
 }

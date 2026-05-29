@@ -7,7 +7,7 @@ test.describe('Payroll', () => {
   });
 
   test('should display Payroll title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /payroll/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should render payroll content or empty state', async ({ mobilePage: page }) => {

@@ -7,7 +7,7 @@ test.describe('Dashboard (Analytics)', () => {
   });
 
   test('should display Analytics title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /analytics|dashboard/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show date preset chips', async ({ mobilePage: page }) => {

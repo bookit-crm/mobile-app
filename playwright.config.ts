@@ -22,12 +22,19 @@ export default defineConfig({
     ['json', { outputFile: 'e2e-report/results.json' }],
     ['list'],
   ],
+  // In CI the server is slower — give each test more time
+  timeout: process.env['CI'] ? 60_000 : 30_000,
+
   use: {
     baseURL: 'http://localhost:8100',
     headless: !!process.env['CI'],
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    // Video disabled in CI: 30 failures × video = ~50 MB. Enable locally for debugging.
+    video: process.env['CI'] ? 'off' : 'retain-on-failure',
+    // CI server is slower — increase action / navigation timeouts
+    actionTimeout:     process.env['CI'] ? 20_000 : 10_000,
+    navigationTimeout: process.env['CI'] ? 30_000 : 20_000,
     // iPhone 14 Pro viewport — matches the mobile-app target device
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 3,

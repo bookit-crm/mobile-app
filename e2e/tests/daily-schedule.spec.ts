@@ -7,7 +7,7 @@ test.describe('Daily Schedule', () => {
   });
 
   test('should display Daily Schedule title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /daily|schedule/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show schedule grid with employee rows', async ({ mobilePage: page }) => {

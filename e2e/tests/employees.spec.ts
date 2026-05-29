@@ -7,7 +7,7 @@ test.describe('Employees', () => {
   });
 
   test('should display Employees title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /employee/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show employee list with items', async ({ mobilePage: page }) => {

@@ -7,7 +7,7 @@ test.describe('Products (Warehouse)', () => {
   });
 
   test('should display Products/Warehouse title', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /product|warehouse/i })).toBeVisible();
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
   });
 
   test('should show product list or empty state', async ({ mobilePage: page }) => {

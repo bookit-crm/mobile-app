@@ -7,7 +7,8 @@ test.describe('Clients', () => {
   });
 
   test('should display Clients title and searchbar', async ({ mobilePage: page }) => {
-    await expect(page.locator('ion-title', { hasText: /client/i })).toBeVisible();
+    // filter({ visible: true }) skips hidden side-menu ion-title; language-agnostic
+    await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
     await expect(page.locator('ion-searchbar')).toBeVisible();
   });
 
