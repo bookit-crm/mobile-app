@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">ScheDay</string>
     <string name="title_activity_main">ScheDay</string>
-    <string name="package_name">com.scheday.mobile</string>
-    <string name="custom_url_scheme">com.scheday.mobile</string>
+    <string name="package_name">app.scheday</string>
+    <string name="custom_url_scheme">app.scheday</string>
 </resources>

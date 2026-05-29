@@ -62,6 +62,7 @@
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
     "@angular/language-service": "^20.0.0",
+    "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "6.2.1",
     "@ionic/angular-toolkit": "^12.1.0",
     "@playwright/test": "^1.60.0",
