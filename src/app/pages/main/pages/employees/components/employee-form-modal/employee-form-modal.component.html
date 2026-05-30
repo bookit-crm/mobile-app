@@ -10,112 +10,127 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <!-- Avatar picker -->
+  <div class="avatar-row">
+    <app-image-picker
+      shape="circle"
+      [imageUrl]="avatarUrl"
+      (fileUploaded)="onAvatarUploaded($event)"
+      (fileRemoved)="onAvatarRemoved()"
+    ></app-image-picker>
+  </div>
+
   <form [formGroup]="form">
 
-    <!-- ── Профиль ─────────────────────────────────────── -->
-    <ion-list-header><ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label></ion-list-header>
+    <ion-list lines="full">
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="firstName" placeholder="John" clearInput></ion-input>
-      @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
-        <ion-note color="danger" slot="helper">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
-      }
-    </ion-item>
+      <!-- ── Профиль ─────────────────────────────────────── -->
+      <ion-list-header><ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label></ion-list-header>
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="lastName" placeholder="Doe" clearInput></ion-input>
-      @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
-        <ion-note color="danger" slot="helper">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
-      }
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="phone" type="tel" placeholder="+1234567890" clearInput></ion-input>
-      @if (form.controls.phone.invalid && form.controls.phone.touched) {
-        <ion-note color="danger" slot="helper">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
-      }
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="email" type="email" placeholder="john@example.com" clearInput></ion-input>
-      @if (form.controls.email.invalid && form.controls.email.touched) {
-        <ion-note color="danger" slot="helper">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
-      }
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ 'POSITION' | translate }}</ion-label>
-      <ion-input formControlName="position" [placeholder]="'EMP_POSITION_PLACEHOLDER' | translate" clearInput></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
-      <ion-input formControlName="dateOfBirth" type="date"></ion-input>
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ 'DESCRIPTION' | translate }}</ion-label>
-      <ion-textarea formControlName="description" rows="3" [placeholder]="'EMP_DESCRIPTION_PLACEHOLDER' | translate"></ion-textarea>
-    </ion-item>
-
-    <!-- ── Сервисы ─────────────────────────────────────── -->
-    <ion-list-header><ion-label><strong>{{ 'EMP_ASSIGNED_SERVICES' | translate }}</strong></ion-label></ion-list-header>
-
-    @if (availableServices.length > 0) {
-      <ion-item button (click)="showServicePicker = !showServicePicker" detail="false">
-        <ion-icon name="briefcase-outline" slot="start"></ion-icon>
-        <ion-label>
-          {{ 'EMP_SELECT_SERVICES' | translate }}
-          @if (selectedServices.length > 0) {
-            <ion-badge color="primary" class="ion-margin-start">{{ selectedServices.length }}</ion-badge>
-          }
-        </ion-label>
-        <ion-icon [name]="showServicePicker ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="firstName" placeholder="John" clearInput></ion-input>
       </ion-item>
-      @if (showServicePicker) {
-        @for (svc of availableServices; track svc._id) {
+      @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+        <ion-note color="danger" class="field-error">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="lastName" placeholder="Doe" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+        <ion-note color="danger" class="field-error">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="phone" type="tel" placeholder="+1234567890" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.phone.invalid && form.controls.phone.touched) {
+        <ion-note color="danger" class="field-error">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="email" type="email" placeholder="john@example.com" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <ion-note color="danger" class="field-error">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'POSITION' | translate }}</ion-label>
+        <ion-input formControlName="position" [placeholder]="'EMP_POSITION_PLACEHOLDER' | translate" clearInput></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
+        <ion-input formControlName="dateOfBirth" type="date"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'DESCRIPTION' | translate }}</ion-label>
+        <ion-textarea formControlName="description" rows="3" [placeholder]="'EMP_DESCRIPTION_PLACEHOLDER' | translate"></ion-textarea>
+      </ion-item>
+
+      <!-- ── Сервисы ─────────────────────────────────────── -->
+      <ion-list-header><ion-label><strong>{{ 'EMP_ASSIGNED_SERVICES' | translate }}</strong></ion-label></ion-list-header>
+
+      @if (availableServices.length > 0) {
+        <ion-item button (click)="showServicePicker = !showServicePicker" detail="false">
+          <ion-icon name="briefcase-outline" slot="start"></ion-icon>
+          <ion-label>
+            {{ 'EMP_SELECT_SERVICES' | translate }}
+            @if (selectedServices.length > 0) {
+              <ion-badge color="primary" class="ion-margin-start">{{ selectedServices.length }}</ion-badge>
+            }
+          </ion-label>
+          <ion-icon [name]="showServicePicker ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+        </ion-item>
+        @if (showServicePicker) {
+          @for (svc of availableServices; track svc._id) {
+            <ion-item>
+              <ion-checkbox slot="start" [checked]="isServiceSelected(svc)" (ionChange)="toggleServiceSelection(svc)"></ion-checkbox>
+              <ion-label>
+                <h3>{{ svc.name }}</h3>
+                <p>{{ svc.duration }} min — {{ svc.price | currency }}</p>
+              </ion-label>
+            </ion-item>
+          }
+        }
+      } @else {
+        <ion-item><ion-label color="medium">{{ 'EMP_NO_SERVICES_IN_DEPT' | translate }}</ion-label></ion-item>
+      }
+
+      <!-- ── Зарплатная ставка ───────────────────────────── -->
+      @if (canShowSalaryRate) {
+        <ion-list-header><ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label></ion-list-header>
+        <ion-item>
+          <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
+          <ion-select formControlName="salaryRateType" [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
+            (ionChange)="onSalaryRateChange($event.detail.value)">
+            @for (opt of salaryRateOptions; track opt.value) {
+              <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+        @if (showBaseAmount) {
           <ion-item>
-            <ion-checkbox slot="start" [checked]="isServiceSelected(svc)" (ionChange)="toggleServiceSelection(svc)"></ion-checkbox>
-            <ion-label>
-              <h3>{{ svc.name }}</h3>
-              <p>{{ svc.duration }} min — {{ svc.price | currency }}</p>
-            </ion-label>
+            <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
+            <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
+          </ion-item>
+        }
+        @if (showCommissionPercent) {
+          <ion-item>
+            <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
+            <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
           </ion-item>
         }
       }
-    } @else {
-      <ion-item><ion-label color="medium">{{ 'EMP_NO_SERVICES_IN_DEPT' | translate }}</ion-label></ion-item>
-    }
 
-    <!-- ── Зарплатная ставка ───────────────────────────── -->
-    @if (canShowSalaryRate) {
-      <ion-list-header><ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label></ion-list-header>
-      <ion-item>
-        <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
-        <ion-select formControlName="salaryRateType" [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
-          (ionChange)="onSalaryRateChange($event.detail.value)">
-          @for (opt of salaryRateOptions; track opt.value) {
-            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
-          }
-        </ion-select>
-      </ion-item>
-      @if (showBaseAmount) {
-        <ion-item>
-          <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
-          <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
-        </ion-item>
-      }
-      @if (showCommissionPercent) {
-        <ion-item>
-          <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
-          <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
-        </ion-item>
-      }
-    }
+    </ion-list>
 
   </form>
 
@@ -134,7 +149,7 @@
               <div class="schedule-row__name">
                 <span class="schedule-row__day">{{ row.label }}</span>
                 @if (!row.enabled) {
-                  <span class="schedule-row__closed-label">{{ 'DEPT_CLOSED' | translate }}</span>
+                  <span class="schedule-row__closed-label">{{ 'DS_NOT_WORKING' | translate }}</span>
                 } @else {
                   <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
                 }

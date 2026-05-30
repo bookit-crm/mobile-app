@@ -149,6 +149,8 @@ export class ServicesPage {
     const modal = await this.modalCtrl.create({
       component: ServiceModalComponent,
       componentProps: { departmentId: deptId },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -174,6 +176,8 @@ export class ServicesPage {
     const modal = await this.modalCtrl.create({
       component: ServiceModalComponent,
       componentProps: { service: full },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -218,6 +222,11 @@ export class ServicesPage {
         return `${name} ×${cp.quantity}`;
       })
       .join(', ');
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.refresh();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private ───────────────────────────────────────────────────────────────

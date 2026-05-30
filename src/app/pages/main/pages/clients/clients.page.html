@@ -63,6 +63,9 @@
 </ion-modal>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (isLoading() && clients().length === 0) {
     <div class="clients-loading">

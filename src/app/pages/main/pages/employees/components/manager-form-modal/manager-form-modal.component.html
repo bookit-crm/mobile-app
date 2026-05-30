@@ -1,130 +1,137 @@
 <ion-header>
   <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button fill="clear" (click)="dismiss()">
-        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
     <ion-title>{{ (isEditMode ? 'MGR_EDIT_TITLE' : 'MGR_ADD_TITLE') | translate }}</ion-title>
     <ion-buttons slot="end">
-      <ion-button fill="solid" color="primary" [disabled]="isSubmitting || form.invalid" (click)="submit()">
-        @if (isSubmitting) {
-          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
-        }
-        {{ (isEditMode ? 'SAVE' : 'CREATE') | translate }}
+      <ion-button fill="clear" (click)="dismiss()">
+        <ion-icon name="close-outline" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+
+  <!-- Avatar picker -->
+  <div class="avatar-row">
+    <app-image-picker
+      shape="circle"
+      [imageUrl]="avatarUrl"
+      (fileUploaded)="onAvatarUploaded($event)"
+      (fileRemoved)="onAvatarRemoved()"
+    ></app-image-picker>
+  </div>
+
   <form [formGroup]="form">
 
-    <!-- ── Профиль ─────────────────────────────────────── -->
-    <ion-list-header>
-      <ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label>
-    </ion-list-header>
+    <ion-list lines="full">
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="firstName" placeholder="John" [clearInput]="true"></ion-input>
+      <!-- ── Профиль ─────────────────────────────────────── -->
+      <ion-list-header>
+        <ion-label><strong>{{ 'PROFILE' | translate }}</strong></ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="firstName" placeholder="John" [clearInput]="true"></ion-input>
+      </ion-item>
       @if (form.get('firstName')?.invalid && form.get('firstName')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
       }
-    </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="lastName" placeholder="Doe" [clearInput]="true"></ion-input>
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="lastName" placeholder="Doe" [clearInput]="true"></ion-input>
+      </ion-item>
       @if (form.get('lastName')?.invalid && form.get('lastName')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
       }
-    </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="phone" type="tel" placeholder="+1234567890" [clearInput]="true"></ion-input>
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="phone" type="tel" placeholder="+1234567890" [clearInput]="true"></ion-input>
+      </ion-item>
       @if (form.get('phone')?.invalid && form.get('phone')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
       }
-    </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
-      <ion-input formControlName="email" type="email" placeholder="john@example.com" [clearInput]="true"></ion-input>
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="email" type="email" placeholder="john@example.com" [clearInput]="true"></ion-input>
+      </ion-item>
       @if (form.get('email')?.invalid && form.get('email')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
+        <ion-note color="danger" class="field-error">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
       }
-    </ion-item>
 
-    <ion-item>
-      <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
-      <ion-input formControlName="dateOfBirth" type="date"></ion-input>
-    </ion-item>
+      <ion-item>
+        <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
+        <ion-input formControlName="dateOfBirth" type="date"></ion-input>
+      </ion-item>
 
-    <!-- ── Пароль ──────────────────────────────────────── -->
-    <ion-list-header>
-      <ion-label>
-        <strong>{{ (isEditMode ? 'MGR_CHANGE_PASSWORD_OPTIONAL' : 'MGR_PASSWORD_HEADER') | translate }}</strong>
-      </ion-label>
-    </ion-list-header>
+      <!-- ── Пароль ──────────────────────────────────────── -->
+      <ion-list-header>
+        <ion-label>
+          <strong>{{ (isEditMode ? 'MGR_CHANGE_PASSWORD_OPTIONAL' : 'MGR_PASSWORD_HEADER') | translate }}</strong>
+        </ion-label>
+      </ion-list-header>
 
-    <ion-item>
-      <ion-label position="stacked">{{ (isEditMode ? 'MGR_NEW_PASSWORD_LABEL' : 'MGR_PASSWORD_LABEL') | translate }}</ion-label>
-      <ion-input formControlName="password" type="password" [placeholder]="(isEditMode ? 'MGR_PWD_LEAVE_BLANK' : 'MGR_PWD_MIN_HINT') | translate"></ion-input>
+      <ion-item>
+        <ion-label position="stacked">{{ (isEditMode ? 'MGR_NEW_PASSWORD_LABEL' : 'MGR_PASSWORD_LABEL') | translate }}</ion-label>
+        <ion-input formControlName="password" type="password" [placeholder]="(isEditMode ? 'MGR_PWD_LEAVE_BLANK' : 'MGR_PWD_MIN_HINT') | translate"></ion-input>
+      </ion-item>
       @if (form.get('password')?.invalid && form.get('password')?.touched) {
-        <ion-note color="danger" slot="helper">
+        <ion-note color="danger" class="field-error">
           @if (form.get('password')?.errors?.['required']) { {{ 'MGR_PASSWORD_REQUIRED' | translate }} }
           @else if (form.get('password')?.errors?.['minlength']) { {{ 'MGR_PASSWORD_MIN_LENGTH' | translate }} }
           @else { {{ 'MGR_PASSWORD_PATTERN' | translate }} }
         </ion-note>
       }
-    </ion-item>
-
-    <ion-item>
-      <ion-label position="stacked">{{ (isEditMode ? 'MGR_CONFIRM_NEW_PASSWORD_LABEL' : 'MGR_CONFIRM_PASSWORD_LABEL') | translate }}</ion-label>
-      <ion-input formControlName="confirmPassword" type="password" [placeholder]="'MGR_CONFIRM_PLACEHOLDER' | translate"></ion-input>
-      @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'MGR_PASSWORDS_MISMATCH' | translate }}</ion-note>
-      }
-      @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" slot="helper">{{ 'MGR_CONFIRM_REQUIRED' | translate }}</ion-note>
-      }
-    </ion-item>
-
-    <!-- ── Зарплатная ставка ───────────────────────────── -->
-    @if (canShowSalaryRate) {
-      <ion-list-header>
-        <ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label>
-      </ion-list-header>
 
       <ion-item>
-        <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
-        <ion-select
-          formControlName="salaryRateType"
-          [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
-          (ionChange)="onSalaryRateChange($event.detail.value)"
-        >
-          @for (opt of salaryRateOptions; track opt.value) {
-            <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
-          }
-        </ion-select>
+        <ion-label position="stacked">{{ (isEditMode ? 'MGR_CONFIRM_NEW_PASSWORD_LABEL' : 'MGR_CONFIRM_PASSWORD_LABEL') | translate }}</ion-label>
+        <ion-input formControlName="confirmPassword" type="password" [placeholder]="'MGR_CONFIRM_PLACEHOLDER' | translate"></ion-input>
       </ion-item>
-
-      @if (showBaseAmount) {
-        <ion-item>
-          <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
-          <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
-        </ion-item>
+      @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+        <ion-note color="danger" class="field-error">{{ 'MGR_PASSWORDS_MISMATCH' | translate }}</ion-note>
+      }
+      @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
+        <ion-note color="danger" class="field-error">{{ 'MGR_CONFIRM_REQUIRED' | translate }}</ion-note>
       }
 
-      @if (showCommissionPercent) {
+      <!-- ── Зарплатная ставка ───────────────────────────── -->
+      @if (canShowSalaryRate) {
+        <ion-list-header>
+          <ion-label><strong>{{ 'EMP_SALARY_RATE' | translate }}</strong></ion-label>
+        </ion-list-header>
+
         <ion-item>
-          <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
-          <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
+          <ion-label position="stacked">{{ 'EMP_RATE_TYPE' | translate }}</ion-label>
+          <ion-select
+            formControlName="salaryRateType"
+            [placeholder]="'EMP_RATE_SELECT_TYPE' | translate"
+            (ionChange)="onSalaryRateChange($event.detail.value)"
+          >
+            @for (opt of salaryRateOptions; track opt.value) {
+              <ion-select-option [value]="opt.value">{{ opt.label }}</ion-select-option>
+            }
+          </ion-select>
         </ion-item>
+
+        @if (showBaseAmount) {
+          <ion-item>
+            <ion-label position="stacked">{{ 'EMP_BASE_AMOUNT' | translate }}</ion-label>
+            <ion-input formControlName="baseAmount" type="number" placeholder="0"></ion-input>
+          </ion-item>
+        }
+
+        @if (showCommissionPercent) {
+          <ion-item>
+            <ion-label position="stacked">{{ 'EMP_COMMISSION_PCT' | translate }}</ion-label>
+            <ion-input formControlName="commissionPercent" type="number" placeholder="0" min="0" max="100"></ion-input>
+          </ion-item>
+        }
       }
-    }
+
+    </ion-list>
 
   </form>
 
@@ -189,3 +196,18 @@
 
 </ion-content>
 
+<ion-footer class="ion-no-border">
+  <ion-toolbar>
+    <div class="modal-footer-actions">
+      <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
+        {{ 'CANCEL' | translate }}
+      </ion-button>
+      <ion-button fill="solid" color="primary" expand="block" [disabled]="isSubmitting || form.invalid" (click)="submit()">
+        @if (isSubmitting) {
+          <ion-spinner name="crescent" slot="start" style="width:16px;height:16px"></ion-spinner>
+        }
+        {{ (isEditMode ? 'SAVE' : 'CREATE') | translate }}
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

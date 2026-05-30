@@ -275,6 +275,8 @@ export class AppointmentsPage {
     const modal = await this.modalCtrl.create({
       component: AppointmentViewModalComponent,
       componentProps: { appointmentId: appt._id },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -289,6 +291,8 @@ export class AppointmentsPage {
     const modal = await this.modalCtrl.create({
       component: AppointmentModalComponent,
       componentProps: { payload: {} },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -304,6 +308,8 @@ export class AppointmentsPage {
     const modal = await this.modalCtrl.create({
       component: AppointmentModalComponent,
       componentProps: { payload: { _id: appt._id } },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -404,6 +410,11 @@ export class AppointmentsPage {
         // ignore if item already destroyed
       }
     }, 900);
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.refresh();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   private refresh(): void {

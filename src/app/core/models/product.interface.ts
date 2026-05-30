@@ -13,6 +13,7 @@ export interface IProduct {
   status: 'active' | 'archived';
   stockStatus?: 'normal' | 'low' | 'out_of_stock';
   department?: { _id: string; name: string } | string;
+  photos?: { _id: string; url: string }[];
   updatedAt?: string;
   created?: string;
 }

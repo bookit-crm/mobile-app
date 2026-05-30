@@ -19,6 +19,7 @@ import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { IEmployee } from '@core/models/employee.interface';
+import { IFileDTO } from '@core/models/file.interface';
 import { IService } from '@core/models/appointment.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { ISchedulePayload, IScheduleRow, DAY_KEY_MAP, DAY_ORDER } from '@core/models/schedule.interface';
@@ -27,11 +28,12 @@ import { EmployeeService } from '@core/services/employee.service';
 import { SchedulesService } from '@core/services/schedules.service';
 import { ServicesService } from '@core/services/services.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { ImagePickerComponent } from '@core/components/image-picker/image-picker.component';
 
 @Component({
   selector: 'app-employee-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent],
   templateUrl: './employee-form-modal.component.html',
   styleUrls: ['./employee-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +56,9 @@ export class EmployeeFormModalComponent implements OnInit {
   public isSubmitting = false;
   public isEditMode = false;
   private existingScheduleId: string | null = null;
+
+  public avatarFileId: string | null = null;
+  public avatarUrl: string | null = null;
 
   public canShowSalaryRate = this.subscriptionService.hasFeature('expensesPayroll');
   public showBaseAmount = false;
@@ -96,9 +101,22 @@ export class EmployeeFormModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.isEditMode = !!this.employee?._id;
+    this.avatarUrl = this.employee?.avatar?.url ?? null;
+    this.avatarFileId = this.employee?.avatar?._id ?? null;
     this.populateForm();
     this.loadServicesForDepartment();
     this.loadSchedule();
+  }
+
+  public onAvatarUploaded(dto: IFileDTO): void {
+    this.avatarFileId = dto._id;
+    this.avatarUrl = dto.url;
+    this.cdr.markForCheck();
+  }
+
+  public onAvatarRemoved(): void {
+    this.avatarFileId = null;
+    this.avatarUrl = null;
   }
 
   public dismiss(): void {
@@ -196,6 +214,7 @@ export class EmployeeFormModalComponent implements OnInit {
       salaryRateType: raw.salaryRateType ?? undefined,
       baseAmount: raw.baseAmount ?? undefined,
       commissionPercent: raw.commissionPercent ?? undefined,
+      avatar: this.avatarFileId ?? undefined,
     };
 
     const save$ = this.isEditMode && this.employee?._id
@@ -275,9 +294,12 @@ export class EmployeeFormModalComponent implements OnInit {
         if (hasSchedule) {
           this.existingScheduleId = schedules[0]._id;
           const rows: IScheduleRow[] = DAY_ORDER.map((day) => {
+            // DAY_ORDER uses JS convention (0=Sun,1=Mon…6=Sat).
+            // Schedules are stored with backend convention (0=Mon…6=Sun).
+            const backendDay = day === 0 ? 6 : day - 1;
             const existing = schedules
-              .find((sc) => sc.days.find((d) => d.day === day))
-              ?.days.find((d) => d.day === day);
+              .find((sc) => sc.days.find((d) => d.day === backendDay))
+              ?.days.find((d) => d.day === backendDay);
             const enabled = !!existing?.from;
             return {
               day,
@@ -298,7 +320,12 @@ export class EmployeeFormModalComponent implements OnInit {
   private initScheduleFromDepartment(): void {
     const deptSchedule = this.department?.schedule;
     const rows: IScheduleRow[] = DAY_ORDER.map((day) => {
-      const existing = deptSchedule?.find((d) => d.day === day);
+      // Try backend convention first (0=Mon…6=Sun), then fall back to JS
+      // convention (0=Sun…6=Sat) for departments created before the fix.
+      const backendDay = day === 0 ? 6 : day - 1;
+      const existing =
+        deptSchedule?.find((d) => d.day === backendDay) ??
+        deptSchedule?.find((d) => d.day === day);
       const enabled = !!(existing?.from && existing?.to);
       return {
         day,
@@ -315,7 +342,13 @@ export class EmployeeFormModalComponent implements OnInit {
   private saveSchedule(employeeId: string, departmentId: string) {
     const days = this.scheduleRows()
       .filter((r) => r.enabled)
-      .map((r) => ({ day: r.day, from: r.from, to: r.to, brake_times: [] }));
+      .map((r) => ({
+        // Convert JS day (0=Sun,1=Mon…6=Sat) → backend day (0=Mon…6=Sun)
+        day: r.day === 0 ? 6 : r.day - 1,
+        from: this.timeToISO(r.from),
+        to: this.timeToISO(r.to),
+        brake_times: [],
+      }));
 
     if (!days.length) return of(null);
 
@@ -324,6 +357,31 @@ export class EmployeeFormModalComponent implements OnInit {
     return this.existingScheduleId
       ? this.schedulesService.patchSchedules(this.existingScheduleId, payload)
       : this.schedulesService.createSchedules(payload);
+  }
+
+  /**
+   * Convert local HH:mm → UTC ISO string (same logic as department.page.ts).
+   * Uses Intl to determine the device's TZ offset without relying on
+   * Date.getHours() which can return UTC hours in some Capacitor WebViews.
+   */
+  private timeToISO(time: string): string {
+    const [h, m] = time.split(':').map(Number);
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const today = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit',
+    }).format(new Date());
+    const refUtc = new Date(
+      `${today}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00Z`,
+    );
+    const localHourAtRef = Number(
+      new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit', hour12: false, timeZone: tz,
+      }).format(refUtc),
+    );
+    const tzOffsetHours = localHourAtRef - h;
+    const utcH = h - tzOffsetHours;
+    const [year, month, day] = today.split('-').map(Number);
+    return new Date(Date.UTC(year, month - 1, day, utcH, m, 0)).toISOString();
   }
 
   private isoToTime(value: string): string {

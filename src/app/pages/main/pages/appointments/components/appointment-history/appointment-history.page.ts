@@ -77,6 +77,11 @@ export class AppointmentHistoryPage {
     return String(value);
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadHistory();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private loadHistory(): void {
     if (!this.appointmentId) return;
     this.isLoading.set(true);

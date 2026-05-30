@@ -91,19 +91,35 @@
         ></ion-textarea>
       </ion-item>
 
+      <!-- Photos (gallery) -->
+      <ion-item lines="none" class="photo-item">
+        <ion-label position="stacked">{{ 'PROD_PHOTO_LABEL' | translate }}</ion-label>
+        <div class="photo-picker-wrap">
+          <app-image-picker
+            [multi]="true"
+            [existingImages]="existingProductPhotos"
+            (filesChanged)="onPhotosChanged($event)"
+          ></app-image-picker>
+        </div>
+      </ion-item>
+
       <!-- Department (only for create, hidden if single-department mode) -->
       @if (!isEditMode && !singleDepartmentMode()) {
-        <ion-item [button]="true" (click)="pickDepartment()">
-          <ion-label position="stacked">
-            {{ 'PROD_DEPT_LABEL' | translate }}
-          </ion-label>
-          <ion-text slot="end" [color]="selectedDepartmentId ? 'dark' : 'medium'">
-            {{ selectedDepartmentName || ('PROD_DEPT_SELECT' | translate) }}
-          </ion-text>
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        <ion-item>
+          <ion-label position="stacked">{{ 'PROD_DEPT_LABEL' | translate }}</ion-label>
+          <ion-select
+            [(ngModel)]="selectedDepartmentId"
+            [placeholder]="'PROD_DEPT_SELECT' | translate"
+            interface="action-sheet"
+            (ionDismiss)="departmentTouched = true"
+          >
+            @for (dept of departments; track dept._id) {
+              <ion-select-option [value]="dept._id">{{ dept.name }}</ion-select-option>
+            }
+          </ion-select>
         </ion-item>
-        @if (!selectedDepartmentId) {
-          <ion-note color="medium" class="field-error">{{ 'PROD_DEPT_REQUIRED' | translate }}</ion-note>
+        @if (departmentTouched && !selectedDepartmentId) {
+          <ion-note color="danger" class="field-error">{{ 'PROD_DEPT_REQUIRED' | translate }}</ion-note>
         }
       }
 

@@ -19,6 +19,7 @@ import { IService } from '@core/models/service.interface';
 import { DepartmentService } from '@core/services/department.service';
 import { ProductsService } from '@core/services/products.service';
 import { ServicesService } from '@core/services/services.service';
+import { ImagePickerComponent } from '@core/components/image-picker/image-picker.component';
 
 interface IConsumableForm {
   productId: string;
@@ -33,12 +34,13 @@ interface IServicePayload {
   description?: string;
   category?: string;
   consumableProducts?: { product: string; quantity: number }[];
+  galleryImages?: string[];
 }
 
 @Component({
   selector: 'app-service-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, IonicModule, TranslateModule],
+  imports: [CommonModule, FormsModule, IonicModule, TranslateModule, ImagePickerComponent],
   templateUrl: './service-modal.component.html',
   styleUrls: ['./service-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +60,9 @@ export class ServiceModalComponent implements OnInit {
   public readonly isLoading = signal(false);
   public departments: IDepartment[] = [];
   public availableProducts: IProduct[] = [];
+
+  public galleryImageIds: string[] = [];
+  public existingGalleryImages: { _id: string; url: string }[] = [];
 
   public name = '';
   public category = '';
@@ -87,6 +92,9 @@ export class ServiceModalComponent implements OnInit {
           : (cp.product as IProduct)._id,
         quantity: cp.quantity,
       }));
+      // Load existing gallery images for multi-picker
+      this.existingGalleryImages = (this.service.galleryImages ?? []).map(img => ({ _id: img._id, url: img.url }));
+      this.galleryImageIds = this.existingGalleryImages.map(img => img._id);
     } else if (this.departmentId) {
       this.selectedDepartmentId = this.departmentId;
     }
@@ -95,6 +103,10 @@ export class ServiceModalComponent implements OnInit {
   }
 
   public dismiss(): void { void this.modalCtrl.dismiss(null); }
+
+  public onImagesChanged(files: { _id: string; url: string }[]): void {
+    this.galleryImageIds = files.map(f => f._id);
+  }
 
   public save(): void {
     if (this.isLoading()) return;
@@ -118,6 +130,7 @@ export class ServiceModalComponent implements OnInit {
     const trimmedDescription = this.description.trim();
     if (trimmedCategory) payload.category = trimmedCategory;
     if (trimmedDescription) payload.description = trimmedDescription;
+    if (this.galleryImageIds.length > 0) payload.galleryImages = this.galleryImageIds;
 
     const request$ = this.isEdit
       ? this.servicesService.patchServiceById(this.service!._id, payload as any)

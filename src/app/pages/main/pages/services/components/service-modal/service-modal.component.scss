@@ -1,8 +1,16 @@
-.form-item {
-  margin-bottom: 8px;
-  --highlight-background: var(--ion-color-primary);
-  border-radius: 8px;
-  --background: var(--ion-color-light);
+.image-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 16px 4px;
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ion-color-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
 }
 
 .section-header {

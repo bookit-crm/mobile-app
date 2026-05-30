@@ -323,6 +323,11 @@ export class NotificationPage implements OnInit {
     });
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadData();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private loadData(): void {
     this.notificationsService.loadNotifications(
       this.activeCategory(),

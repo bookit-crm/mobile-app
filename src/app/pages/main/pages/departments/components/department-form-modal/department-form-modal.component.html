@@ -12,49 +12,45 @@
 <ion-content class="ion-padding">
   <form [formGroup]="form" (ngSubmit)="submit()">
 
-    <ion-list lines="none">
+    <ion-list lines="full">
 
-      <ion-item class="form-item" [class.ion-invalid]="form.controls.name.invalid && form.controls.name.touched">
+      <ion-item>
+        <ion-label position="stacked">{{ 'DEPT_NAME_LABEL' | translate }}</ion-label>
         <ion-input
-          [label]="'DEPT_NAME_LABEL' | translate"
-          labelPlacement="floating"
-          [placeholder]="'DEPT_NAME_PLACEHOLDER' | translate"
           formControlName="name"
+          [placeholder]="'DEPT_NAME_PLACEHOLDER' | translate"
           [clearInput]="true"
         ></ion-input>
-        @if (form.controls.name.hasError('required') && form.controls.name.touched) {
-          <ion-note slot="error">{{ 'DEPT_NAME_REQUIRED' | translate }}</ion-note>
-        }
       </ion-item>
+      @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+        <ion-note color="danger" class="field-error">{{ 'DEPT_NAME_REQUIRED' | translate }}</ion-note>
+      }
 
-      <ion-item class="form-item">
+      <ion-item>
+        <ion-label position="stacked">{{ 'PHONE' | translate }}</ion-label>
         <ion-input
-          [label]="'PHONE' | translate"
-          labelPlacement="floating"
-          placeholder="+1 (555) 000-0000"
           formControlName="phone"
           type="tel"
+          placeholder="+1 (555) 000-0000"
           [clearInput]="true"
         ></ion-input>
       </ion-item>
 
-      <ion-item class="form-item">
+      <ion-item>
+        <ion-label position="stacked">{{ 'ADDRESS' | translate }}</ion-label>
         <ion-input
-          [label]="'ADDRESS' | translate"
-          labelPlacement="floating"
-          [placeholder]="'DEPT_ADDRESS_PLACEHOLDER' | translate"
           formControlName="formattedAddress"
+          [placeholder]="'DEPT_ADDRESS_PLACEHOLDER' | translate"
           [clearInput]="true"
         ></ion-input>
       </ion-item>
 
-      <ion-item class="form-item">
+      <ion-item>
+        <ion-label position="stacked">{{ 'WEBSITE_URL' | translate }}</ion-label>
         <ion-input
-          [label]="'WEBSITE_URL' | translate"
-          labelPlacement="floating"
-          [placeholder]="'DEPT_WEBSITE_PLACEHOLDER' | translate"
           formControlName="websiteURL"
           type="url"
+          [placeholder]="'DEPT_WEBSITE_PLACEHOLDER' | translate"
           [clearInput]="true"
         ></ion-input>
       </ion-item>

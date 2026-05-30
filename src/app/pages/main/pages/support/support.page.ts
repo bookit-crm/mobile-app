@@ -14,8 +14,8 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { AlertController, IonicModule } from '@ionic/angular';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import {
   EChatStatus,
   ESenderType,
@@ -45,6 +45,8 @@ export class SupportPage implements AfterViewChecked {
   private readonly chatService = inject(SupportChatService);
   private readonly wsService = inject(SupportChatWebsocketService);
   private readonly supervisorService = inject(SupervisorService);
+  private readonly alertCtrl = inject(AlertController);
+  private readonly t = inject(TranslateService);
 
   public readonly messageControl = new FormControl('');
 
@@ -116,6 +118,11 @@ export class SupportPage implements AfterViewChecked {
     this.loadOpenChat();
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadOpenChat();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private loadOpenChat(): void {
     const filters = this.buildDefaultFilters();
     this.chatService
@@ -184,6 +191,22 @@ export class SupportPage implements AfterViewChecked {
           this.isSending.set(false);
         },
       });
+  }
+
+  public async confirmEndChat(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: this.t.instant('CHAT_END_CONFIRM_TITLE'),
+      message: this.t.instant('CHAT_END_CONFIRM_MSG'),
+      buttons: [
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
+        {
+          text: this.t.instant('CHAT_END_CONFIRM_OK'),
+          role: 'destructive',
+          handler: () => { this.endChat(); },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   public endChat(): void {

@@ -156,6 +156,12 @@ export class ClientDetailPage implements OnInit {
     });
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadClient();
+    this.loadHistory(true);
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private loadClient(): void {
     if (!this.clientId) return;
     this.isLoadingClient.set(true);

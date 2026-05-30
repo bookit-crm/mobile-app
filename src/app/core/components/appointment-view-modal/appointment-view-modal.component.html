@@ -165,19 +165,20 @@
         {{ 'CANCEL_APPOINTMENT' | translate }}
       </button>
       <div class="view-footer__actions">
-        <ion-button fill="outline" color="medium" (click)="markNoShow()">
+        <ion-button fill="outline" color="medium" expand="block" (click)="markNoShow()">
           {{ 'NO_SHOW' | translate }}
         </ion-button>
-        <ion-button fill="solid" color="dark" (click)="completeVisit()">
+        <ion-button fill="solid" color="dark" expand="block" (click)="completeVisit()">
           <ion-icon slot="start" name="checkmark-outline"></ion-icon>
           {{ 'COMPLETE' | translate }}
         </ion-button>
       </div>
     } @else {
-      <span></span>
-      <ion-button fill="outline" color="medium" (click)="closeModal()">
-        {{ 'CLOSE' | translate }}
-      </ion-button>
+      <div class="view-footer__actions">
+        <ion-button fill="outline" color="medium" expand="block" (click)="closeModal()">
+          {{ 'CLOSE' | translate }}
+        </ion-button>
+      </div>
     }
   </div>
 </ion-footer>

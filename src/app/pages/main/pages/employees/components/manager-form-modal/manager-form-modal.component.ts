@@ -21,6 +21,7 @@ import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { ISupervisor } from '@core/models/supervisor.interface';
+import { IFileDTO } from '@core/models/file.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { ISchedulePayload, IScheduleRow, DAY_KEY_MAP, DAY_ORDER } from '@core/models/schedule.interface';
 import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
@@ -29,11 +30,12 @@ import { SchedulesService } from '@core/services/schedules.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { ValidatorsHelper } from '@core/helpers/validators.helper';
+import { ImagePickerComponent } from '@core/components/image-picker/image-picker.component';
 
 @Component({
   selector: 'app-manager-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent],
   templateUrl: './manager-form-modal.component.html',
   styleUrls: ['./manager-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,6 +59,9 @@ export class ManagerFormModalComponent implements OnInit {
   public isEditMode = false;
   private existingScheduleId: string | null = null;
 
+  public avatarFileId: string | null = null;
+  public avatarUrl: string | null = null;
+
   public canShowSalaryRate = this.subscriptionService.hasFeature('expensesPayroll');
   public showBaseAmount = false;
   public showCommissionPercent = false;
@@ -77,8 +82,21 @@ export class ManagerFormModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.isEditMode = !!this.manager?._id;
+    this.avatarUrl = this.manager?.avatar?.url ?? null;
+    this.avatarFileId = this.manager?.avatar?._id ?? null;
     this.buildForm();
     this.loadSchedule();
+  }
+
+  public onAvatarUploaded(dto: IFileDTO): void {
+    this.avatarFileId = dto._id;
+    this.avatarUrl = dto.url;
+    this.cdr.markForCheck();
+  }
+
+  public onAvatarRemoved(): void {
+    this.avatarFileId = null;
+    this.avatarUrl = null;
   }
 
   public dismiss(): void {
@@ -149,13 +167,14 @@ export class ManagerFormModalComponent implements OnInit {
     const raw = this.form.getRawValue();
     const { password, confirmPassword, ...rest } = raw;
 
-    const payload: Partial<ISupervisor> & { password?: string; department: string } = {
+    const payload: Partial<ISupervisor> & { password?: string; department: string; avatar?: string } = {
       ...rest,
       department: this.department._id,
       dateOfBirth: raw.dateOfBirth || undefined,
       salaryRateType: raw.salaryRateType ?? undefined,
       baseAmount: raw.baseAmount ?? undefined,
       commissionPercent: raw.commissionPercent ?? undefined,
+      avatar: this.avatarFileId ?? undefined,
     };
     delete (payload as Record<string, unknown>)['confirmPassword'];
 

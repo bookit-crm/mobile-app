@@ -23,6 +23,7 @@ export interface ICreateProductPayload {
   maxStock?: number;
   description?: string;
   department?: string;
+  photos?: string[];
 }
 
 export interface IUpdateProductPayload extends Partial<ICreateProductPayload> {

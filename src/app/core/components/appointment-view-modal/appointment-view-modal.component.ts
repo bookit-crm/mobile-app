@@ -98,6 +98,8 @@ export class AppointmentViewModalComponent implements OnInit {
     const modal = await this.ctrl.create({
       component: AppointmentModalComponent,
       componentProps: { payload: { _id: this.appointmentId } },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();

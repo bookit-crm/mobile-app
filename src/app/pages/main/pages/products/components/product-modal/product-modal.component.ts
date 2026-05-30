@@ -8,7 +8,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActionSheetController, ModalController, ToastController } from '@ionic/angular';
+import { ModalController, ToastController } from '@ionic/angular';
 import { take } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -32,7 +32,6 @@ export class ProductModalComponent implements OnInit {
   private readonly supervisorService = inject(SupervisorService);
   private readonly departmentService = inject(DepartmentService);
   private readonly modalCtrl = inject(ModalController);
-  private readonly actionSheetCtrl = inject(ActionSheetController);
   private readonly toastCtrl = inject(ToastController);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly t = inject(TranslateService);
@@ -40,8 +39,16 @@ export class ProductModalComponent implements OnInit {
   public isSaving = false;
   public selectedDepartmentId: string | null = null;
   public selectedDepartmentName = '';
+  public departmentTouched = false;
+
+  public productPhotoIds: string[] = [];
+  public existingProductPhotos: { _id: string; url: string }[] = [];
 
   public readonly singleDepartmentMode = computed(() => this.supervisorService.singleDepartmentMode());
+
+  public get departments(): IDepartment[] {
+    return this.departmentService.departmentsSignal()?.results ?? [];
+  }
 
   public get unitOptions() {
     return [
@@ -63,6 +70,10 @@ export class ProductModalComponent implements OnInit {
 
   ngOnInit(): void {
     const p = this.product;
+
+    // Init photos
+    this.existingProductPhotos = (p?.photos ?? []).map(ph => ({ _id: ph._id, url: ph.url }));
+    this.productPhotoIds = this.existingProductPhotos.map(ph => ph._id);
 
     // Инициализируем departmentId
     if (p?.department) {
@@ -119,6 +130,10 @@ export class ProductModalComponent implements OnInit {
     void this.modalCtrl.dismiss();
   }
 
+  public onPhotosChanged(files: { _id: string; url: string }[]): void {
+    this.productPhotoIds = files.map(f => f._id);
+  }
+
   public submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -149,8 +164,9 @@ export class ProductModalComponent implements OnInit {
           return;
         }
       } else {
-        // Для multi-department — открываем выбор
-        void this.pickDepartment();
+        // Для multi-department — пользователь должен выбрать через селект
+        this.departmentTouched = true;
+        this.cdr.markForCheck();
         return;
       }
     }
@@ -172,6 +188,7 @@ export class ProductModalComponent implements OnInit {
         maxStock: raw['maxStock'] != null && raw['maxStock'] !== '' ? Number(raw['maxStock']) : undefined,
         description: raw['description'] || undefined,
         comment: raw['comment'] || undefined,
+        photos: this.productPhotoIds.length > 0 ? this.productPhotoIds : undefined,
       };
       this.productsService.update(this.product!._id, payload).pipe(take(1)).subscribe({
         next: () => { this.isSaving = false; void this.modalCtrl.dismiss({ saved: true }); },
@@ -194,6 +211,7 @@ export class ProductModalComponent implements OnInit {
         maxStock: raw['maxStock'] != null && raw['maxStock'] !== '' ? Number(raw['maxStock']) : undefined,
         description: raw['description'] || undefined,
         department: this.selectedDepartmentId!,
+        photos: this.productPhotoIds.length > 0 ? this.productPhotoIds : undefined,
       };
       this.productsService.create(payload).pipe(take(1)).subscribe({
         next: () => { this.isSaving = false; void this.modalCtrl.dismiss({ saved: true }); },
@@ -216,27 +234,6 @@ export class ProductModalComponent implements OnInit {
       position: 'top',
     });
     await toast.present();
-  }
-
-  public async pickDepartment(): Promise<void> {
-    const departments = this.departmentService.departmentsSignal()?.results ?? [];
-    if (!departments.length) return;
-
-    const buttons = departments.map((dept: IDepartment) => ({
-      text: dept.name,
-      handler: () => {
-        this.selectedDepartmentId = dept._id;
-        this.selectedDepartmentName = dept.name;
-        this.cdr.markForCheck();
-      },
-    }));
-    buttons.push({ text: this.t.instant('PROD_CANCEL'), handler: () => {} } as any);
-
-    const sheet = await this.actionSheetCtrl.create({
-      header: this.t.instant('PROD_SELECT_DEPT_SHEET'),
-      buttons,
-    });
-    await sheet.present();
   }
 
   public hasError(field: string, error: string): boolean {

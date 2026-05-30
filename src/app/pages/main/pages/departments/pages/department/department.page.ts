@@ -79,6 +79,9 @@ export class DepartmentPage implements OnInit {
   /** Which branding field is currently uploading */
   public uploadingField = signal<'logo' | 'gallery' | 'banner' | null>(null);
 
+  /** URL currently shown in the fullscreen image preview overlay */
+  public previewUrl = signal<string | null>(null);
+
   /** true если план позволяет редактировать расписание — убрано ограничение, всегда true */
   public readonly canEditSchedule = computed(() => true);
 
@@ -100,6 +103,19 @@ export class DepartmentPage implements OnInit {
 
   public setTab(tab: DepartmentTab): void {
     this.activeTab.set(tab);
+  }
+
+  public openPreview(url: string): void {
+    this.previewUrl.set(url);
+  }
+
+  public closePreview(): void {
+    this.previewUrl.set(null);
+  }
+
+  public onClosePreviewClick(event: MouseEvent): void {
+    event.stopPropagation();
+    this.previewUrl.set(null);
   }
 
   // ── Schedule ────────────────────────────────────────────────────────────────
@@ -158,20 +174,22 @@ export class DepartmentPage implements OnInit {
         .subscribe({
           next: (uploaded: IFileDTO[]) => {
             this.applyBrandingUpload(dept, field, uploaded);
-            // Reset input value so the same file can be re-selected
             input.value = '';
           },
-            error: async () => {
-              this.uploadingField.set(null);
-              this.cdr.markForCheck();
-              const toast = await this.toastCtrl.create({
-                message: this.t.instant('UPLOAD_FAILED'),
-                duration: 3000,
-                color: 'danger',
-              });
-              await toast.present();
-              input.value = '';
-            },
+          error: async (err) => {
+            this.uploadingField.set(null);
+            this.cdr.markForCheck();
+            const detail: string = err?.error?.message ?? err?.message ?? '';
+            const base = this.t.instant('UPLOAD_FAILED');
+            const toast = await this.toastCtrl.create({
+              message: detail ? `${base}: ${detail}` : base,
+              duration: 4000,
+              color: 'danger',
+              icon: 'alert-circle-outline',
+            });
+            await toast.present();
+            input.value = '';
+          },
         });
     });
   }
@@ -224,9 +242,28 @@ export class DepartmentPage implements OnInit {
       .patchDepartment(dept._id, payload)
       .pipe(take(1))
       .subscribe({
-        next: (updated) => {
+        next: async (updated) => {
           this.department.set(updated);
           this.cdr.markForCheck();
+          const toast = await this.toastCtrl.create({
+            message: this.t.instant('DEPT_IMAGE_REMOVED'),
+            duration: 2000,
+            color: 'success',
+            icon: 'checkmark-circle-outline',
+          });
+          await toast.present();
+        },
+        error: async (err) => {
+          this.cdr.markForCheck();
+          const detail: string = err?.error?.message ?? err?.message ?? '';
+          const base = this.t.instant('DEPT_REMOVE_FAILED');
+          const toast = await this.toastCtrl.create({
+            message: detail ? `${base}: ${detail}` : base,
+            duration: 4000,
+            color: 'danger',
+            icon: 'alert-circle-outline',
+          });
+          await toast.present();
         },
       });
   }
@@ -246,18 +283,39 @@ export class DepartmentPage implements OnInit {
       payload = { bannerImages: [...(dept.bannerImages ?? []), ...uploaded] };
     }
 
+    const successKey =
+      field === 'logo' ? 'DEPT_LOGO_UPLOADED' :
+      field === 'gallery' ? 'DEPT_GALLERY_UPLOADED' :
+      'DEPT_BANNER_UPLOADED';
+
     this.departmentService
       .patchDepartment(dept._id, this.toIdPayload(payload))
       .pipe(take(1))
       .subscribe({
-        next: (updated) => {
+        next: async (updated) => {
           this.department.set(updated);
           this.uploadingField.set(null);
           this.cdr.markForCheck();
+          const toast = await this.toastCtrl.create({
+            message: this.t.instant(successKey),
+            duration: 2000,
+            color: 'success',
+            icon: 'checkmark-circle-outline',
+          });
+          await toast.present();
         },
-        error: () => {
+        error: async (err) => {
           this.uploadingField.set(null);
           this.cdr.markForCheck();
+          const detail: string = err?.error?.message ?? err?.message ?? '';
+          const base = this.t.instant('DEPT_UPLOAD_PATCH_FAILED');
+          const toast = await this.toastCtrl.create({
+            message: detail ? `${base}: ${detail}` : base,
+            duration: 4000,
+            color: 'danger',
+            icon: 'alert-circle-outline',
+          });
+          await toast.present();
         },
       });
   }
@@ -402,6 +460,8 @@ export class DepartmentPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: DepartmentFormModalComponent,
       componentProps: { department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -464,6 +524,12 @@ export class DepartmentPage implements OnInit {
   /** Short "from — to" summary in locale format for collapsed rows */
   public timeSummary(row: IScheduleRow): string {
     return `${this.formatTimeLocale(row.from)} — ${this.formatTimeLocale(row.to)}`;
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) this.loadDepartment(id);
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private ─────────────────────────────────────────────────────────────────

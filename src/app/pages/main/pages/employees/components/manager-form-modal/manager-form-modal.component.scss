@@ -4,6 +4,13 @@
   height: 100%;
 }
 
+// ── Avatar row ─────────────────────────────────────────────
+.avatar-row {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0 12px;
+}
+
 ion-list-header {
   margin-top: 16px;
 }

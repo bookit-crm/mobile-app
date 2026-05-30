@@ -1,4 +1,4 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-title>{{ modalTitle }}</ion-title>
     <ion-buttons slot="end">
@@ -23,6 +23,9 @@
 </ion-header>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   @if (isLoading() && history().length === 0) {
     <div class="history-loading">
       <ion-spinner name="crescent"></ion-spinner>

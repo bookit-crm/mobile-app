@@ -8,4 +8,18 @@
   font-size: 12px;
 }
 
+.photo-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+.photo-picker-wrap {
+  padding: 10px 0 12px;
+  width: 100%;
+
+  app-image-picker {
+    display: block;
+  }
+}
+
 

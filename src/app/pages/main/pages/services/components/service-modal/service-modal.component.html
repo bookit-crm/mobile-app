@@ -10,10 +10,10 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <ion-list lines="none">
+  <ion-list lines="full">
 
     <!-- Name -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_NAME_LABEL' | translate }} <ion-text color="danger">*</ion-text></ion-label>
       <ion-input
         [(ngModel)]="name"
@@ -23,7 +23,7 @@
     </ion-item>
 
     <!-- Category -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_CATEGORY_LABEL' | translate }}</ion-label>
       <ion-input
         [(ngModel)]="category"
@@ -33,7 +33,7 @@
     </ion-item>
 
     <!-- Department -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_DEPT_FIELD_LABEL' | translate }} <ion-text color="danger">*</ion-text></ion-label>
       <ion-select [(ngModel)]="selectedDepartmentId" [placeholder]="'SVC_SELECT_DEPT' | translate">
         @for (dept of departments; track dept._id) {
@@ -43,7 +43,7 @@
     </ion-item>
 
     <!-- Duration -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_DURATION_LABEL' | translate }}</ion-label>
       <ion-input
         type="number"
@@ -54,7 +54,7 @@
     </ion-item>
 
     <!-- Price -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_PRICE_LABEL' | translate }}</ion-label>
       <ion-input
         type="number"
@@ -65,7 +65,7 @@
     </ion-item>
 
     <!-- Description -->
-    <ion-item class="form-item">
+    <ion-item>
       <ion-label position="stacked">{{ 'SVC_DESCRIPTION_LABEL' | translate }}</ion-label>
       <ion-textarea
         [(ngModel)]="description"
@@ -76,6 +76,16 @@
     </ion-item>
 
   </ion-list>
+
+  <!-- Images (gallery) -->
+  <div class="image-section">
+    <span class="image-section__label">{{ 'SVC_IMAGE_LABEL' | translate }}</span>
+    <app-image-picker
+      [multi]="true"
+      [existingImages]="existingGalleryImages"
+      (filesChanged)="onImagesChanged($event)"
+    ></app-image-picker>
+  </div>
 
   <!-- Consumable Products -->
   <div class="section-header">

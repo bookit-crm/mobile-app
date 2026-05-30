@@ -136,6 +136,8 @@ export class PromoCodesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: PromoCodeFormModalComponent,
       componentProps: { promoCode: null, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -151,6 +153,8 @@ export class PromoCodesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: PromoCodeFormModalComponent,
       componentProps: { promoCode, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -215,6 +219,11 @@ export class PromoCodesPage implements OnInit {
     } catch {
       return dateStr;
     }
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.loadPromoCodes();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private ────────────────────────────────────────────────────────────────

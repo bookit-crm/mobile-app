@@ -125,6 +125,9 @@
 </ion-modal>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (isLoading() && appointments().length === 0) {
     <div class="appt-loading">

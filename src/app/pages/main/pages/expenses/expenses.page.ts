@@ -168,6 +168,8 @@ export class ExpensesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: ExpenseFormModalComponent,
       componentProps: { expense: null },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -180,6 +182,8 @@ export class ExpensesPage implements OnInit {
       const modal = await this.modalCtrl.create({
         component: ExpenseFormModalComponent,
         componentProps: { expense: full },
+        breakpoints: [0, 1],
+        initialBreakpoint: 1,
       });
       await modal.present();
       const { data } = await modal.onWillDismiss<boolean>();
@@ -260,6 +264,11 @@ export class ExpensesPage implements OnInit {
       [EExpenseRecurrence.Yearly]:  'EXP_REC_YEARLY',
     };
     return map[val] ? this.t.instant(map[val]) : String(val);
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.resetAndLoad();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private ───────────────────────────────────────────────────────────────

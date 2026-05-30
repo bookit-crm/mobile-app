@@ -173,6 +173,8 @@ export class ClientsPage {
     const modal = await this.modalCtrl.create({
       component: AppointmentModalComponent,
       componentProps: { payload: { clientId: client._id } },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
@@ -262,6 +264,11 @@ export class ClientsPage {
         // ignore
       }
     }, 900);
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.refresh();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   private refresh(): void {

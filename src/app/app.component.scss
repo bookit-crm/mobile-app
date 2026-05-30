@@ -1,0 +1,15 @@
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.15);
+
+  .loader-spinner {
+    --color: var(--ion-color-primary, #6366f1);
+    width: 48px;
+    height: 48px;
+  }
+}

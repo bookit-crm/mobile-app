@@ -67,6 +67,16 @@
   border: 2px solid white;
   object-fit: cover;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:active {
+      transform: scale(0.93);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+  }
 }
 
 // ─── Info Card ───────────────────────────────────────────────────────────────
@@ -153,6 +163,15 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--ion-color-light);
+
+  &--clickable {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.93);
+    }
+  }
 }
 
 // Image grid (gallery)
@@ -473,5 +492,57 @@
     flex: 1;
     margin: 0;
   }
+}
+
+// ─── Fullscreen image preview overlay ────────────────────────────────────────
+
+.img-preview-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: img-preview-fade-in 0.18s ease;
+
+  &__img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+
+  &__close {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 16px);
+    right: 16px;
+    background: rgba(255, 255, 255, 0.18);
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    ion-icon {
+      font-size: 26px;
+      color: #fff;
+      pointer-events: none; // prevent web-component shadow DOM from eating the tap
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.35);
+    }
+  }
+}
+
+@keyframes img-preview-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 

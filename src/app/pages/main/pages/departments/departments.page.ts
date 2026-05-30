@@ -86,6 +86,8 @@ export class DepartmentsPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: DepartmentFormModalComponent,
       componentProps: { department: null },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -94,17 +96,9 @@ export class DepartmentsPage implements OnInit {
     }
   }
 
-  public async openEditModal(department: IDepartment, event: Event): Promise<void> {
+  public openEditModal(department: IDepartment, event: Event): void {
     event.stopPropagation();
-    const modal = await this.modalCtrl.create({
-      component: DepartmentFormModalComponent,
-      componentProps: { department },
-    });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) {
-      this.loadDepartments();
-    }
+    void this.router.navigate(['/main/departments', department._id]);
   }
 
   public async toggleStatus(department: IDepartment, event: Event): Promise<void> {
@@ -147,6 +141,11 @@ export class DepartmentsPage implements OnInit {
       buttons: [{ text: this.t.instant('OK'), role: 'cancel' }],
     });
     await alert.present();
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.loadDepartments();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   private loadDepartments(): void {

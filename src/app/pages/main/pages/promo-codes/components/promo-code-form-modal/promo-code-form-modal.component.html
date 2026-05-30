@@ -27,7 +27,7 @@
       <ion-input formControlName="name" [placeholder]="'PC_NAME_PLACEHOLDER' | translate" clearInput></ion-input>
     </ion-item>
     @if (form.get('name')?.invalid && form.get('name')?.touched) {
-      <ion-note color="danger" class="validation-note">{{ 'PC_NAME_REQUIRED' | translate }}</ion-note>
+      <ion-note color="danger" class="field-error">{{ 'PC_NAME_REQUIRED' | translate }}</ion-note>
     }
 
     <!-- Date range -->

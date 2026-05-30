@@ -324,6 +324,11 @@ export class ProductsPage {
     }, 900);
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.refresh();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private refresh(): void {
     this.offset.set(0);
     this.hasMore.set(true);

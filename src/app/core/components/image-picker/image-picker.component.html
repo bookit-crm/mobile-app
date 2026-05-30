@@ -1,0 +1,69 @@
+@if (!multi) {
+  <!-- ── Single mode ──────────────────────────────────────────────────────── -->
+  <label
+    class="img-picker"
+    [class.img-picker--circle]="shape === 'circle'"
+    [class.img-picker--rect]="shape === 'rect'"
+  >
+    @if (displayUrl) {
+      <img [src]="displayUrl" class="img-picker__img" alt="">
+    } @else {
+      <div class="img-picker__placeholder">
+        <ion-icon [name]="shape === 'circle' ? 'person-add-outline' : 'image-outline'"></ion-icon>
+        <span>{{ 'PICK_PHOTO' | translate }}</span>
+      </div>
+    }
+
+    @if (isUploading) {
+      <div class="img-picker__overlay">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    }
+
+    <input
+      type="file"
+      accept="image/*"
+      class="img-picker__input"
+      (change)="onFileChange($event)"
+    >
+  </label>
+
+  @if (displayUrl && !isUploading) {
+    <button type="button" class="img-picker__remove-btn" (click)="remove()">
+      <ion-icon name="close-circle"></ion-icon>
+    </button>
+  }
+
+} @else {
+  <!-- ── Multi mode (gallery) ────────────────────────────────────────────── -->
+  <div class="gallery-row">
+
+    @for (item of galleryItems; track item._id; let i = $index) {
+      <div class="gallery-item">
+        <img [src]="item.url" class="gallery-item__img" alt="">
+        @if (item.uploading) {
+          <div class="gallery-item__overlay">
+            <ion-spinner name="crescent"></ion-spinner>
+          </div>
+        } @else {
+          <button type="button" class="gallery-item__remove" (click)="removeMulti(i)">
+            <ion-icon name="close-circle"></ion-icon>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Add button -->
+    <label class="gallery-add">
+      <ion-icon name="add-outline"></ion-icon>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        class="img-picker__input"
+        (change)="onFileChangeMulti($event)"
+      >
+    </label>
+
+  </div>
+}

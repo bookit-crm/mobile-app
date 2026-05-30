@@ -1,4 +1,4 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/main/departments"></ion-back-button>
@@ -48,6 +48,9 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (isLoading()) {
     <div class="loading-wrapper">
@@ -68,7 +71,8 @@
           }
           @if (dept.logo?.url) {
             <div class="logo-wrapper" [class.has-banner]="dept.bannerImages?.length">
-              <img [src]="dept.logo!.url" alt="logo" class="logo-img" />
+              <img [src]="dept.logo!.url" alt="logo" class="logo-img logo-img--clickable"
+                   (click)="openPreview(dept.logo!.url)" />
             </div>
           }
         </div>
@@ -165,7 +169,8 @@
 
           @if (dept.logo?.url) {
             <div class="avatar-preview">
-              <img [src]="dept.logo!.url" alt="logo" class="avatar-img" />
+              <img [src]="dept.logo!.url" alt="logo" class="avatar-img avatar-img--clickable"
+                   (click)="openPreview(dept.logo!.url)" />
               @if (!isManager) {
                 <button class="remove-btn" (click)="removeImage('logo', dept.logo!._id)">
                   <ion-icon name="close-circle"></ion-icon>
@@ -333,4 +338,19 @@
   }
 
 </ion-content>
+
+<!-- Fullscreen image preview overlay -->
+@if (previewUrl()) {
+  <div class="img-preview-overlay" (click)="closePreview()">
+    <button class="img-preview-overlay__close" (click)="onClosePreviewClick($event)">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+    <img
+      [src]="previewUrl()!"
+      alt="preview"
+      class="img-preview-overlay__img"
+      (click)="$event.stopPropagation()"
+    />
+  </div>
+}
 

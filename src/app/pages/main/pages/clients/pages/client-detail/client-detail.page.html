@@ -1,4 +1,4 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button fill="clear" (click)="dismiss()">
@@ -55,6 +55,9 @@
 </ion-modal>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- ── Client Profile Card ──────────────────────────────────────────────── -->
   @if (isLoadingClient()) {

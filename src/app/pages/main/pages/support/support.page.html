@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border support-chat__header">
+﻿<ion-header class="ion-no-border support-chat__header">
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button color="dark"></ion-menu-button>
@@ -26,15 +26,17 @@
     </ion-title>
 
     <ion-buttons slot="end">
-      @if (activeChat()) {
-        <ion-button
-          fill="clear"
-          color="medium"
-          (click)="endChat()"
-          [title]="'SUP_END_CHAT' | translate"
-        >
-          <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
-        </ion-button>
+      @if (activeChat()?.status !== 'closed') {
+        @if (activeChat()) {
+          <ion-button
+            fill="clear"
+            color="danger"
+            (click)="confirmEndChat()"
+            [title]="'CHAT_END_TITLE' | translate"
+          >
+            <ion-icon slot="icon-only" name="power-outline"></ion-icon>
+          </ion-button>
+        }
       }
     </ion-buttons>
   </ion-toolbar>
@@ -42,6 +44,9 @@
 
 <!-- Messages area -->
 <ion-content class="support-chat__content">
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <!-- Load more -->
   @if (hasMoreMessages()) {
     <div class="support-chat__load-more">
