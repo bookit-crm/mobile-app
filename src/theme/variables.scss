@@ -9,7 +9,7 @@
 
   --bk-grey-50:          #e9e9e9;
   --bk-grey-100:         #bbbbbb;
-  --bk-grey-200:         #9b9a9a;
+  --bk-grey-200:         #767676; /* raised from #9b9a9a (2.78:1) → 4.54:1 WCAG AA */
   --bk-grey-300:         #6d6c6c;
   --bk-grey-400:         #51504f;
   --bk-grey-500:         #252423;
@@ -41,17 +41,24 @@
   // Orange as accent (for toggles, active highlights, FAB — use color="warning" or css var)
   --ion-color-warning:          var(--bk-orange-500);      /* #ff7407 */
   --ion-color-warning-rgb:      255, 116, 7;
-  --ion-color-warning-contrast: #ffffff;
-  --ion-color-warning-contrast-rgb: 255, 255, 255;
+  --ion-color-warning-contrast: var(--bk-basic-black);     /* #252422 — 5.72:1 WCAG AA */
+  --ion-color-warning-contrast-rgb: 37, 36, 34;
   --ion-color-warning-shade:    var(--bk-orange-600);
   --ion-color-warning-tint:     var(--bk-orange-400);
 
-  --ion-color-danger:           var(--bk-red-500);         /* #f04438 */
-  --ion-color-danger-rgb:       240, 68, 56;
+  --ion-color-danger:           #b91c1c;                   /* darkened from #f04438 → 6.14:1 WCAG AA */
+  --ion-color-danger-rgb:       185, 28, 28;
   --ion-color-danger-contrast:  #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
-  --ion-color-danger-shade:     #d33b30;
-  --ion-color-danger-tint:      #f25750;
+  --ion-color-danger-shade:     #a01919;
+  --ion-color-danger-tint:      #c72929;
+
+  // Medium — explicit override so secondary text passes WCAG AA on white (4.54:1)
+  --ion-color-medium:           #767676;
+  --ion-color-medium-rgb:       118, 118, 118;
+  --ion-color-medium-contrast:  #ffffff;
+  --ion-color-medium-shade:     #636363;
+  --ion-color-medium-tint:      #848484;
 
   --ion-color-success:          var(--bk-green-500);       /* #1be885 */
   --ion-color-success-rgb:      27, 232, 133;

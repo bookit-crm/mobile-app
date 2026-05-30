@@ -5,7 +5,7 @@
   &__header-spacer { position: sticky; top: 0; z-index: 5; height: 57px; background: var(--ion-background-color, #fff); }
   &__time-label { display: flex; align-items: flex-start; justify-content: flex-end; padding-right: 6px;
     span { font-size: 11px; color: var(--ion-color-medium, #6d6c6c); font-weight: 500; transform: translateY(-7px); }
-    &--half span { font-size: 10px; color: var(--ion-color-medium, #9b9a9a); font-weight: 400; }
+    &--half span { font-size: 10px; color: var(--ion-color-medium, #767676); font-weight: 400; }
   }
   &__columns { display: flex; flex: 1; min-width: 0; position: relative; }
   &__current-time { position: absolute; left: 0; right: 0; z-index: 4; pointer-events: none; display: flex; align-items: center; }
@@ -33,7 +33,7 @@
     &--canceled { opacity: 0.8; }
     &--dragging { opacity: 0.35; }
   }
-  &__empty { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--ion-color-medium, #9b9a9a); font-size: 14px; padding: 24px; }
+  &__empty { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--ion-color-medium, #767676); font-size: 14px; padding: 24px; }
 
   // Drop indicator
   &__drop-indicator {
