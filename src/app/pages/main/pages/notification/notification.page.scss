@@ -28,9 +28,9 @@
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 
   &--active {
-    background: var(--ion-color-primary);
-    color: var(--ion-color-primary-contrast);
-    border-color: var(--ion-color-primary);
+    background: var(--bk-orange-500, #ff7407);
+    color: #ffffff;
+    border-color: var(--bk-orange-500, #ff7407);
   }
 
   &__icon {
@@ -65,9 +65,9 @@
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 
   &--active {
-    background: var(--ion-color-dark);
-    color: var(--ion-color-dark-contrast);
-    border-color: var(--ion-color-dark);
+    background: var(--bk-orange-500, #ff7407);
+    color: #ffffff;
+    border-color: var(--bk-orange-500, #ff7407);
   }
 
   &__count {
@@ -107,7 +107,7 @@
     justify-content: center;
     margin-right: 12px;
     background: var(--ion-color-step-100, #f0f0f0);
-    color: var(--ion-color-primary);
+    color: var(--ion-text-color);
     font-size: 20px;
 
     &[data-color='warning'] {
@@ -120,9 +120,11 @@
       color: var(--ion-color-danger);
     }
 
+    // 'primary' in this app = #252422 (always dark) — use orange instead so it's
+    // visible in both light and dark modes
     &[data-color='primary'] {
-      background: rgba(var(--ion-color-primary-rgb), 0.15);
-      color: var(--ion-color-primary);
+      background: rgba(255, 116, 7, 0.15);
+      color: var(--bk-orange-500, #ff7407);
     }
 
     &[data-color='tertiary'] {

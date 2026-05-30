@@ -55,15 +55,15 @@ export class SideMenuComponent implements OnInit {
     const base   = role === EUserRole.MANAGER ? MANAGER_MENU_CONFIG : ADMIN_MENU_CONFIG;
     const unread = this.wsService.unreadCount;
 
-    const withBadge = base.map((item) =>
-      item.url === '/main/support' ? { ...item, badgeSignal: unread } : item,
-    );
-
-    const withBadges = base.map((item) =>
-      item.title === 'MENU_NOTIFICATION'
-        ? { ...item, badgeSignal: this.notificationsService.unreadCountSignal }
-        : item,
-    );
+    const withBadge = base
+      .map((item) =>
+        item.url === '/main/support' ? { ...item, badgeSignal: unread } : item,
+      )
+      .map((item) =>
+        item.title === 'MENU_NOTIFICATION'
+          ? { ...item, badgeSignal: this.notificationsService.unreadCountSignal }
+          : item,
+      );
 
     // Подписка ещё не загружена — показываем все пункты без feature-gate
     if (!this.subscriptionService.currentSubscription()) {

@@ -60,6 +60,70 @@ ion-skeleton-text {
   }
 }
 
+// ── Shared modal form styles ───────────────────────────────────────────────
+.required {
+  color: var(--ion-color-danger);
+}
+
+.field-error {
+  display: block;
+  padding: 4px 16px;
+  font-size: 12px;
+  color: var(--ion-color-danger);
+}
+
+// ── ion-item-sliding: clip action buttons so they don't bleed under the card ──
+ion-item-sliding {
+  overflow: hidden;
+}
+
+// ── ion-button dark-mode fix ──────────────────────────────────────────────────
+// Our --ion-color-primary = #252422 (always dark). fill="clear" / fill="outline"
+// buttons without an explicit [color] become invisible on dark backgrounds.
+@media (prefers-color-scheme: dark) {
+  ion-button[fill="clear"]:not([color]) {
+    --color: var(--ion-text-color, #ffffff);
+  }
+
+  ion-button[fill="outline"]:not([color]) {
+    --color: var(--ion-text-color, #ffffff);
+    --border-color: rgba(var(--ion-text-color-rgb, 255, 255, 255), 0.30);
+  }
+}
+
+// ── ion-segment: active indicator & checked label ─────────────────────────────
+// All pages using ion-segment (employees, notifications, appointments, payroll-detail,
+// faq). Active indicator defaults to primary (#252422) = invisible on dark bg.
+@media (prefers-color-scheme: dark) {
+  ion-segment-button.segment-button-checked {
+    --color-checked: var(--bk-orange-500, #ff7407);
+    --indicator-color: var(--bk-orange-500, #ff7407);
+  }
+}
+
+// ── ion-alert button text ─────────────────────────────────────────────────────
+// Cancel / confirm buttons default to primary (#252422) = invisible on dark alert.
+@media (prefers-color-scheme: dark) {
+  .alert-button:not(.alert-button-role-destructive) {
+    color: var(--ion-text-color) !important;
+  }
+}
+
+// ── Checkboxes & radio buttons: dark-mode fix ─────────────────────────────────
+// Our --ion-color-primary is hardcoded to #252422 (always dark) which becomes
+// invisible when checked on a dark background. Override to orange in dark mode.
+@media (prefers-color-scheme: dark) {
+  ion-checkbox {
+    --checkbox-background-checked: var(--bk-orange-500, #ff7407);
+    --border-color-checked: var(--bk-orange-500, #ff7407);
+    --checkmark-color: #ffffff;
+  }
+
+  ion-radio {
+    --color-checked: var(--bk-orange-500, #ff7407);
+  }
+}
+
 // ── Filter button badge — shared across all pages ──────────────────────────
 .filter-btn {
   position: relative;

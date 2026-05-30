@@ -225,6 +225,11 @@ export class PayrollDetailComponent implements OnInit {
     return 'warning';
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadPeriodData();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   // ── Private ────────────────────────────────────────────────────────────────
   private loadPeriodData(): void {
     this.isLoading.set(true);

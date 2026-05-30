@@ -112,6 +112,8 @@ export class EmployeesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: EmployeeFormModalComponent,
       componentProps: { employee: null, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -126,6 +128,8 @@ export class EmployeesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: EmployeeFormModalComponent,
       componentProps: { employee, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -156,6 +160,8 @@ export class EmployeesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: ManagerFormModalComponent,
       componentProps: { manager: null, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -170,6 +176,8 @@ export class EmployeesPage implements OnInit {
     const modal = await this.modalCtrl.create({
       component: ManagerFormModalComponent,
       componentProps: { manager, department: dept },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -238,6 +246,11 @@ export class EmployeesPage implements OnInit {
     const dept = manager.department;
     if (!dept || typeof dept === 'string') return false;
     return !!(dept as { manager?: string | null }).manager;
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.loadCurrentTab();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private helpers ────────────────────────────────────

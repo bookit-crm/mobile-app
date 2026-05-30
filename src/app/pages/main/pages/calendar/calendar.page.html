@@ -20,6 +20,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- View Type Switcher -->
   <div class="cal-view-switcher">

@@ -1,35 +1,39 @@
 ﻿:host { display: block; height: 100%; overflow: auto; }
 .day-view {
-  display: flex; min-width: fit-content; min-height: 100%; background: #fff;
-  &__time-col { min-width: 52px; position: sticky; left: 0; z-index: 2; border-right: 1px solid #e9e9e9; background: #fff; }
-  &__header-spacer { position: sticky; top: 0; z-index: 5; height: 57px; background: #fff; }
+  display: flex; min-width: fit-content; min-height: 100%; background: var(--ion-background-color, #fff);
+  &__time-col { min-width: 52px; position: sticky; left: 0; z-index: 2; border-right: 1px solid var(--ion-border-color, #e9e9e9); background: var(--ion-background-color, #fff); }
+  &__header-spacer { position: sticky; top: 0; z-index: 5; height: 57px; background: var(--ion-background-color, #fff); }
   &__time-label { display: flex; align-items: flex-start; justify-content: flex-end; padding-right: 6px;
-    span { font-size: 11px; color: #6d6c6c; font-weight: 500; transform: translateY(-7px); }
-    &--half span { font-size: 10px; color: #9b9a9a; font-weight: 400; }
+    span { font-size: 11px; color: var(--ion-color-medium, #6d6c6c); font-weight: 500; transform: translateY(-7px); }
+    &--half span { font-size: 10px; color: var(--ion-color-medium, #9b9a9a); font-weight: 400; }
   }
   &__columns { display: flex; flex: 1; min-width: 0; position: relative; }
   &__current-time { position: absolute; left: 0; right: 0; z-index: 4; pointer-events: none; display: flex; align-items: center; }
   &__current-time-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--bk-red-500, #f04438); flex-shrink: 0; margin-left: -5px; }
   &__current-time-line { flex: 1; height: 2px; background: var(--bk-red-500, #f04438); }
-  &__column { flex: 1 0 140px; min-width: 140px; border-right: 1px solid #e9e9e9; &:last-child { border-right: none; } }
-  &__column-header { height: 57px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid #e9e9e9; background: #fff; position: sticky; top: 0; z-index: 5; padding: 0 6px; }
+  &__column { flex: 1 0 140px; min-width: 140px; border-right: 1px solid var(--ion-border-color, #e9e9e9); &:last-child { border-right: none; } }
+  &__column-header { height: 57px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--ion-border-color, #e9e9e9); background: var(--ion-background-color, #fff); position: sticky; top: 0; z-index: 5; padding: 0 6px; }
   &__avatar { width: 28px; min-width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0;
     img { width: 100%; height: 100%; object-fit: cover; }
   }
   &__avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: var(--bk-orange-100, #ffd4b2); color: var(--bk-orange-600, #e86a06); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
-  &__employee-name { font-size: 11px; font-weight: 600; color: #252422; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__employee-name { font-size: 11px; font-weight: 600; color: var(--ion-text-color, #252422); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__slots { position: relative; }
-  &__slot { border-bottom: 1px solid #e9e9e9; cursor: pointer;
+  &__slot { border-bottom: 1px solid var(--ion-border-color, #e9e9e9); cursor: pointer;
     &:hover:not(&--disabled) { background-color: rgba(255, 116, 7, 0.05); }
-    &--disabled { background-color: #f5f5f5; cursor: default; pointer-events: none; }
-    &--half { border-bottom: 1px dashed #e9e9e9; }
+    &--disabled {
+      background-color: #f5f5f5; // light mode: subtle grey = "closed / outside hours"
+      cursor: default;
+      pointer-events: none;
+    }
+    &--half { border-bottom: 1px dashed var(--ion-border-color, #e9e9e9); }
   }
   &__events-container { position: absolute; top: 0; left: 0; right: 0; pointer-events: none; }
   &__event { position: absolute; pointer-events: all; z-index: 1; box-sizing: border-box; padding: 0 1px; cursor: pointer;
     &--canceled { opacity: 0.8; }
     &--dragging { opacity: 0.35; }
   }
-  &__empty { display: flex; align-items: center; justify-content: center; flex: 1; color: #9b9a9a; font-size: 14px; padding: 24px; }
+  &__empty { display: flex; align-items: center; justify-content: center; flex: 1; color: var(--ion-color-medium, #9b9a9a); font-size: 14px; padding: 24px; }
 
   // Drop indicator
   &__drop-indicator {
@@ -41,6 +45,22 @@
     background: rgba(255, 116, 7, 0.08);
     pointer-events: none;
     z-index: 3;
+  }
+}
+
+// ── Dark mode overrides ────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  // Disabled slots: clearly lighter than the near-black available slots (#121212)
+  // #3a3a3a vs #121212 ≈ 3.2× luminance ratio — reliably perceivable on dark displays
+  .day-view__slot--disabled {
+    background-color: #3a3a3a;
+  }
+
+  // First time label (05:00 / day start): its span has translateY(-7px) which
+  // would hide the text behind the sticky header-spacer. Remove the negative
+  // transform so the label stays visible right at the top of the slot area.
+  .day-view__time-col > .day-view__time-label:nth-child(2) > span {
+    transform: translateY(2px);
   }
 }
 

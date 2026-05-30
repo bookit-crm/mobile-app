@@ -28,6 +28,9 @@
 </ion-header>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- Loading skeleton -->
   @if (isLoading() && services().length === 0) {
@@ -78,7 +81,7 @@
                 <p class="service-item__category">{{ service.category.display }}</p>
               }
               <div class="service-item__meta">
-                <ion-chip color="primary" [outline]="true">
+                <ion-chip color="medium" [outline]="true">
                   <ion-icon name="time-outline"></ion-icon>
                   <ion-label>{{ service.duration }} {{ 'SVC_MIN' | translate }}</ion-label>
                 </ion-chip>

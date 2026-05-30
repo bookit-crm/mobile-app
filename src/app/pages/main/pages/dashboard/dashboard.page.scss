@@ -78,6 +78,24 @@
   }
 }
 
+// ── Dark mode fixes ─────────────────────────────────────────────────────────
+@media (prefers-color-scheme: dark) {
+  // Active tab-btn: primary (#252422) is invisible on dark bg → use orange
+  .tab-btn--active {
+    background: rgba(255, 116, 7, 0.15);
+
+    ion-icon, span {
+      color: var(--bk-orange-400, #ff9039);
+    }
+  }
+
+  // Active preset chip: primary (#252422) barely differs from dark bg → use orange
+  .presets-scroll ion-chip.preset-active {
+    --background: var(--bk-orange-500, #ff7407);
+    --color: #ffffff;
+  }
+}
+
 // Custom range section in modal
 .custom-range-section {
   margin-top: 16px;

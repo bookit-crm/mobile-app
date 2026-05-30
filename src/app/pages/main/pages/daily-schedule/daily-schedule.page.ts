@@ -315,6 +315,11 @@ export class DailySchedulePage implements OnInit, OnDestroy {
       });
   }
 
+  public handleRefresh(event: CustomEvent): void {
+    this.loadSchedule();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+  }
+
   private loadSchedule(): void {
     const dep = this.selectedDepartment();
     if (!dep) return;

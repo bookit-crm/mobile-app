@@ -209,6 +209,8 @@ export class PayrollPage implements OnInit {
         month: this.selectedMonth(),
         year: this.selectedYear(),
       },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
     });
     await modal.present();
     const { data } = await modal.onWillDismiss<boolean>();
@@ -247,6 +249,11 @@ export class PayrollPage implements OnInit {
     if (status === EPayrollPeriodStatus.Paid) return 'success';
     if (status === EPayrollPeriodStatus.Reversed) return 'medium';
     return 'warning';
+  }
+
+  public handleRefresh(event: CustomEvent): void {
+    this.resetAndLoad();
+    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
   }
 
   // ── Private ───────────────────────────────────────────────────────────────

@@ -191,8 +191,12 @@ ion-content.login-content {
 
   &__checkbox {
     --size: 16px;
+    // Pin to card's always-white theme — overrides Ionic dark.system.css inversion
+    --checkbox-background: #{$basic-white};
+    --border-color: #{$stroke};
     --checkbox-background-checked: #{$grey-500};
     --border-color-checked: #{$grey-500};
+    --checkmark-color: #{$basic-white};
     font-size: 13px;
     color: $grey-400;
   }

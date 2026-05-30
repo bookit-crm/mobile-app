@@ -1,4 +1,4 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button fill="clear" (click)="dismiss()">
@@ -21,6 +21,9 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (isLoading()) {
     <div class="detail-loading">

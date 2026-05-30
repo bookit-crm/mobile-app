@@ -80,6 +80,9 @@
 </ion-modal>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- ── Feature gate ────────────────────────────────────────────────────── -->
   @if (!hasPayrollFeature()) {
@@ -105,14 +108,17 @@
     <div class="months-row">
       @for (name of MONTH_NAMES; track $index) {
         <ion-chip
-          [color]="selectedMonth() === $index ? 'primary' : monthChipColor($index)"
-          [outline]="selectedMonth() !== $index"
-          (click)="selectMonth($index)"
           class="month-chip"
+          [class.month-chip--active]="selectedMonth() === $index"
+          (click)="selectMonth($index)"
         >
           {{ name }}
           @if (getMonthStatus($index).length > 0) {
-            <span class="month-dot"></span>
+            <span
+              class="month-dot"
+              [class.month-dot--warning]="monthChipColor($index) === 'warning'"
+              [class.month-dot--success]="monthChipColor($index) === 'success'"
+            ></span>
           }
         </ion-chip>
       }

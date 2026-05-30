@@ -94,6 +94,9 @@
 </ion-modal>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <!-- Legend + dept hours -->
   <div class="ds-info-row">
     <div class="ds-legend">
