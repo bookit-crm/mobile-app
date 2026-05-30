@@ -1,4 +1,4 @@
-<ion-header>
+﻿<ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
@@ -34,6 +34,9 @@
 </ion-header>
 
 <ion-content>
+  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
   <!-- ── INBOX TAB ──────────────────────────────────────────────────── -->
   @if (activeTab() === 'inbox') {
     <!-- Category chips (horizontal scroll) -->
@@ -107,14 +110,14 @@
             </div>
             <ion-label class="ion-text-wrap">
               <div class="notif-card__title-row">
-                <span class="notif-card__title">{{ item.title }}</span>
+                <span class="notif-card__title">{{ item.title | translate: item.params }}</span>
                 @if (!item.isRead) {
                   <ion-badge color="warning" class="notif-card__pill">
                     {{ 'NOTIF_UNREAD_BADGE' | translate }}
                   </ion-badge>
                 }
               </div>
-              <p class="notif-card__msg">{{ item.message }}</p>
+              <p class="notif-card__msg">{{ item.message | translate: item.params }}</p>
               <span class="notif-card__time">
                 {{ getTimeAgo(item.createdAt) }}
               </span>

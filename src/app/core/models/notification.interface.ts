@@ -4,6 +4,7 @@ export interface INotification {
   _id: string;
   title: string;
   message: string;
+  params?: Record<string, any>;
   category: ENotificationCategory;
   isRead: boolean;
   department?: string;

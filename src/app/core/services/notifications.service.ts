@@ -8,6 +8,7 @@ import { HttpHelper } from '@core/helpers/http-helper';
 import { INotification } from '@core/models/notification.interface';
 import { APPOINTMENT_NOTIFICATION_CATEGORIES } from '@core/models/subscription.interface';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { TranslateService } from '@ngx-translate/core';
 import { PaginatedResponseModel } from '@core/models/paginated-response.model';
 
 export type PaginatedNotifications = PaginatedResponseModel<INotification>;
@@ -15,6 +16,7 @@ export type PaginatedNotifications = PaginatedResponseModel<INotification>;
 @Injectable({ providedIn: 'root' })
 export class NotificationsService extends HttpHelper {
   private subscriptionService = inject(SubscriptionService);
+  private translate = inject(TranslateService);
 
   public notificationsSignal: WritableSignal<PaginatedNotifications | null> =
     signal(null);
@@ -51,11 +53,11 @@ export class NotificationsService extends HttpHelper {
       next: (res) => {
         if (search.trim()) {
           const q = search.toLowerCase();
-          const filtered = res.results.filter(
-            (n) =>
-              n.title.toLowerCase().includes(q) ||
-              n.message.toLowerCase().includes(q),
-          );
+          const filtered = res.results.filter((n) => {
+            const title = this.translate.instant(n.title, n.params ?? {}).toLowerCase();
+            const msg = this.translate.instant(n.message, n.params ?? {}).toLowerCase();
+            return title.includes(q) || msg.includes(q);
+          });
           res = { ...res, results: filtered, count: filtered.length };
         }
         this.notificationsSignal.set(res);

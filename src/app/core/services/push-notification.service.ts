@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
+import { TranslateService } from '@ngx-translate/core';
 import { filter, skip } from 'rxjs/operators';
 import { NotificationsService } from './notifications.service';
 import { WebsocketService } from './websocket.service';
@@ -21,6 +22,7 @@ let notifId = 1;
 export class PushNotificationService {
   private readonly websocketService = inject(WebsocketService);
   private readonly notificationsService = inject(NotificationsService);
+  private readonly translate = inject(TranslateService);
 
   /** Observable из сигнала — создаём здесь, в injection context */
   private readonly newNotification$ = toObservable(
@@ -89,13 +91,16 @@ export class PushNotificationService {
     this.newNotification$.subscribe(async (notification) => {
       if (!this.permissionGranted || !notification) return;
       try {
+        const params = notification.params ?? {};
+        const title = this.translate.instant(notification.title ?? 'ScheDay', params);
+        const body = this.translate.instant(notification.message ?? '', params);
         await LocalNotifications.schedule({
           notifications: [
               {
                 id: notifId++,
                 channelId: 'scheday_notifications',
-                title: notification.title ?? 'ScheDay',
-                body: notification.message ?? '',
+                title,
+                body,
                 schedule: { at: new Date(Date.now() + 100) },
                 extra: {
                   notificationId: notification._id,
