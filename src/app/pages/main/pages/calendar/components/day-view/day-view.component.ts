@@ -428,7 +428,13 @@ export class DayViewComponent {
     requestAnimationFrame(() => {
       const scrollEl = this.el.nativeElement as HTMLElement;
       const viewportHeight = scrollEl.clientHeight;
-      const scrollTop = Math.max(0, targetPx - viewportHeight * 0.6);
+      if (!viewportHeight) {
+        //layout not ready yet — reset so next buildGrid() can retry
+        this.lastScrollDate = '';
+        return;
+      }
+      //place target at 75% viewport height so earlier morning hours stay visible
+      const scrollTop = Math.max(0, targetPx - viewportHeight * 0.75);
       scrollEl.scrollTop = scrollTop;
     });
   }
