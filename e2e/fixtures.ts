@@ -199,9 +199,10 @@ export const test = base.extend<MobileFixtures>({
     const page = await context.newPage();
     // Start on calendar (default route after login).
     // In CI the server is slower — give Angular more time to bootstrap.
-    const initWait = process.env['CI'] ? 5_000 : 3_000;
-    await page.goto(`${MOBILE_BASE}/main/calendar`, { waitUntil: 'domcontentloaded', timeout: 20_000 });
-    await page.waitForTimeout(initWait);
+    // Wait for Angular to hydrate. In CI the server is slower but we keep
+    // this short — per-test timeouts (60 s) absorb any extra latency.
+    await page.goto(`${MOBILE_BASE}/main/calendar`, { waitUntil: 'networkidle', timeout: 30_000 });
+    await page.waitForTimeout(process.env['CI'] ? 2_000 : 1_500);
     await use(page);
     await context.close();
   },

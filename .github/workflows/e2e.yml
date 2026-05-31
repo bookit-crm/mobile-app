@@ -20,7 +20,7 @@ jobs:
   e2e:
     name: Playwright Mobile E2E
     runs-on: [self-hosted, linux, mobile, hetzner]
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     env:
       MONGO_SERV:           ${{ secrets.MONGO_SERV }}
@@ -129,12 +129,12 @@ jobs:
         run: |
           npx ng serve --port 8100 &
           echo $! > /tmp/app.pid
-          # Wait up to 120s for Angular to compile
-          for i in $(seq 1 120); do
+          # Wait up to 180s (3 min) for Angular to compile — ng serve on CI takes 2-5 min
+          for i in $(seq 1 180); do
             curl -sf http://localhost:8100 > /dev/null 2>&1 && echo "✅ App ready after ${i}s" && break
             sleep 2
           done
-          curl -sf http://localhost:8100 || echo "❌ App failed to start"
+          curl -sf http://localhost:8100 || (echo "❌ App failed to start after 360s" && exit 1)
 
       # ── 6. Verify servers are ready ───────────────────────────────────────────
       - name: Verify API and app are reachable
