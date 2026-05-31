@@ -70,12 +70,66 @@ async function getJwt(): Promise<string> {
   throw new Error(`[fixtures] Could not obtain JWT after 3 attempts. Last error: ${lastError}`);
 }
 
+// ── Enterprise subscription mock ───────────────────────────────────────────
+//
+// The test account on CI may have a limited (Individual / Starter) plan.
+// Pages like Expenses, Payroll, Products and Promo Codes check the
+// subscription tier and show a locked screen if the feature is unavailable.
+// To avoid that we intercept api/subscription/self/ and always return a
+// full Enterprise subscription — the real auth flow is unchanged.
+
+const ENTERPRISE_SUBSCRIPTION = {
+  _id:  'e2e-test-subscription',
+  companyId: 'e2e-test-company',
+  tier: 'enterprise',
+  employeeLimit: -1,
+  locationLimit: -1,
+  features: {
+    warehouse:                   'advanced',
+    analytics:                   'advanced',
+    desktopApp:                  'full',
+    marketing:                   'full',
+    apiAccess:                   'full',
+    telegramBot:                 true,
+    promoCodes:                  true,
+    expensesPayroll:             'full',
+    notifications:               'full',
+    notificationsScope:          'full',
+    prioritySupport:             true,
+    sso:                         true,
+    auditLogs:                   true,
+    storageMb:                   -1,
+    productsImport:              true,
+    productsHistory:             true,
+    productsAttachToService:     true,
+    productsAttachToAppointment: true,
+    productsStockAlerts:         true,
+  },
+  stripeCustomerId:     null,
+  stripeSubscriptionId: null,
+  stripePriceId:        null,
+  status:               'active',
+  currentPeriodStart:   '2025-01-01T00:00:00.000Z',
+  currentPeriodEnd:     '2030-12-31T23:59:59.000Z',
+  cancelAtPeriodEnd:    false,
+  trialEnd:             null,
+  storage: {
+    usedBytes:  0,
+    limitBytes: -1,
+    usedMb:     0,
+    limitMb:    -1,
+    percent:    0,
+    unlimited:  true,
+  },
+};
+
 // ── Mobile context factory ──────────────────────────────────────────────────
 
 /**
  * Creates a BrowserContext pre-configured for the mobile app:
  *   - iPhone 14 Pro viewport
  *   - Redirects API calls from 192.168.1.176:3000 → localhost:3000
+ *   - Intercepts api/subscription/self/ and returns Enterprise mock
  *   - Injects JWT + language into localStorage before any page loads
  */
 export async function createMobileContext(browser: any): Promise<{ context: BrowserContext; jwt: string }> {
@@ -88,9 +142,23 @@ export async function createMobileContext(browser: any): Promise<{ context: Brow
       'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1',
   });
 
-  // Redirect all API calls from the hardcoded dev IP to localhost
+  // Redirect all API calls from the hardcoded dev IP to localhost.
+  // Registered first so the subscription mock (registered next) takes
+  // priority in Playwright's LIFO route-matching order.
   await context.route(`**://${API_ORIGIN}/**`, route =>
     route.continue({ url: route.request().url().replace(API_ORIGIN, 'localhost:3000') }),
+  );
+
+  // Mock subscription endpoint — always returns Enterprise tier.
+  // Registered after origin rewrite → checked first (LIFO) → short-circuits
+  // before any network request is made, so the real plan doesn't matter.
+  await context.route(
+    url => url.href.includes('/api/subscription'),
+    route => route.fulfill({
+      status:      200,
+      contentType: 'application/json',
+      body:        JSON.stringify(ENTERPRISE_SUBSCRIPTION),
+    }),
   );
 
   // Inject auth token + English language on every page load.
