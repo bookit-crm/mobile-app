@@ -163,10 +163,17 @@ jobs:
             fi
             sleep 3
           done
-          # Show last 20 lines of API log if activate never worked
           if [ "$ACTIVATE_OK" != "true" ]; then
-            echo "❌ Activate endpoint not ready — API log:"
-            tail -20 /tmp/api.log
+            echo "❌ Activate failed — full API log:"
+            cat /tmp/api.log
+            echo ""
+            echo "--- Sanity check: wrong credentials (expect 401/404, NOT 500) ---"
+            WRONG=$(node -e "process.stdout.write(JSON.stringify({email:'nobody@test.invalid',password:'wrongpassword'}))")
+            curl -s -X POST http://localhost:3000/api/desktop/activate \
+              -H "Content-Type: application/json" -d "$WRONG"
+            echo ""
+            echo "--- E2E_EMAIL being used ---"
+            node -e "console.log(process.env.E2E_EMAIL ? 'SET: '+process.env.E2E_EMAIL : 'NOT SET — using hardcoded default')"
             exit 1
           fi
 
