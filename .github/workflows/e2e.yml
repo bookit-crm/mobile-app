@@ -132,14 +132,26 @@ jobs:
           pkill -f "node dist/src/main" 2>/dev/null || true
           kill $(lsof -ti:3000) 2>/dev/null || true
           sleep 1
-          npm run start:prod &
+          npm run start:prod >> /tmp/api.log 2>&1 &
           echo $! > /tmp/api.pid
-          # Wait up to 60s for API to be ready
+          # Phase 1: wait for HTTP port to open (process started)
           for i in $(seq 1 60); do
-            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API ready after ${i}s" && break
+            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API HTTP ready after ${i}s" && break
             sleep 2
           done
-          curl -s http://localhost:3000 -o /dev/null -w "%{http_code}\n" | grep -qE "^[234]" || echo "⚠️ API root returns unexpected status (may still work)"
+          # Phase 2: wait for /api/desktop/activate to work — proves MongoDB
+          # dynamic connections are fully established (not just port open)
+          echo "Warming up activate endpoint..."
+          for i in $(seq 1 30); do
+            RESULT=$(curl -s -X POST http://localhost:3000/api/desktop/activate \
+              -H "Content-Type: application/json" \
+              -d "{\"email\":\"${E2E_EMAIL}\",\"password\":\"${E2E_PASSWORD}\"}" 2>/dev/null)
+            echo "Attempt ${i}: ${RESULT}" | head -c 120
+            echo "$RESULT" | grep -q "database_id" && echo "✅ API activate ready after ${i} attempts" && break
+            sleep 3
+          done
+          # Show last 20 lines of API log if activate never worked
+          echo "$RESULT" | grep -q "database_id" || (echo "❌ Activate endpoint not ready — API log:" && tail -20 /tmp/api.log && exit 1)
 
       - name: Serve mobile-app (static, port 8100)
         working-directory: mobile-app
