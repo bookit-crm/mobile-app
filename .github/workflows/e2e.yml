@@ -114,38 +114,13 @@ jobs:
           pkill -f "node dist/src/main" 2>/dev/null || true
           kill $(lsof -ti:3000) 2>/dev/null || true
           sleep 1
-          NODE_ENV=development node dist/src/main >> /tmp/api.log 2>&1 &
+          npm run start:prod &
           echo $! > /tmp/api.pid
-          # Wait for API HTTP port
+          # Wait up to 60s for API to be ready
           for i in $(seq 1 60); do
-            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API HTTP ready after ${i}s" && break
+            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API ready after ${i}s" && break
             sleep 2
           done
-          # Wait for activate endpoint (proves MongoDB connections are ready)
-          echo "Warming up activate endpoint..."
-          ACTIVATE_OK=false
-          for i in $(seq 1 30); do
-            PAYLOAD=$(node -e "process.stdout.write(JSON.stringify({email:process.env.E2E_EMAIL,password:process.env.E2E_PASSWORD}))")
-            RESULT=$(curl -s -X POST http://localhost:3000/api/desktop/activate \
-              -H "Content-Type: application/json" -d "$PAYLOAD" 2>/dev/null)
-            echo "Attempt ${i}: ${RESULT}" | head -c 120
-            if echo "$RESULT" | grep -q "database_id"; then
-              echo "✅ API activate ready after ${i} attempts"
-              ACTIVATE_OK=true
-              break
-            fi
-            sleep 3
-          done
-          if [ "$ACTIVATE_OK" != "true" ]; then
-            echo "❌ Activate failed — full API log:"
-            cat /tmp/api.log
-            echo "--- Sanity check with wrong credentials ---"
-            WRONG=$(node -e "process.stdout.write(JSON.stringify({email:'nobody@test.invalid',password:'wrong'}))")
-            curl -s -X POST http://localhost:3000/api/desktop/activate -H "Content-Type: application/json" -d "$WRONG"
-            echo ""
-            node -e "console.log('E2E_EMAIL:', process.env.E2E_EMAIL || 'NOT SET')"
-            exit 1
-          fi
 
       # ── 5. Start ng serve (SPA routing works out of the box, swap prevents OOM)
       - name: Start mobile-app dev server
