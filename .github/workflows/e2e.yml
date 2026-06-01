@@ -39,11 +39,11 @@ jobs:
       - name: Fix workspace permissions and kill leftover processes
         run: |
           sudo chown -R $(whoami):$(whoami) "${{ github.workspace }}" 2>/dev/null || true
-          pkill -f "ng serve"   2>/dev/null || true
-          pkill -f "nest start" 2>/dev/null || true
-          pkill -f "node.*main" 2>/dev/null || true
-          fuser -k 8100/tcp     2>/dev/null || true
-          fuser -k 3000/tcp     2>/dev/null || true
+          pkill -f "http-server" 2>/dev/null || true
+          pkill -f "nest start"  2>/dev/null || true
+          pkill -f "node.*main"  2>/dev/null || true
+          fuser -k 8100/tcp      2>/dev/null || true
+          fuser -k 3000/tcp      2>/dev/null || true
           systemctl start nginx 2>/dev/null || true
           ufw allow 80/tcp      2>/dev/null || true
           sleep 2
@@ -123,18 +123,26 @@ jobs:
           done
           curl -sf http://localhost:3000 || echo "❌ API failed to start"
 
-      # ── 5. Start Ionic/Angular dev server ─────────────────────────────────────
-      - name: Start mobile-app dev server
+      # ── 5. Build Ionic app and serve as static files ──────────────────────────
+      # ng serve uses ~800 MB RAM (webpack watch mode) — on a 4 GB server this
+      # triggers the OOM killer.  ng build + npx serve uses ~50 MB instead.
+      - name: Build mobile-app (static)
         working-directory: mobile-app
         run: |
-          npx ng serve --port 8100 &
+          npx ng build --configuration=development 2>&1 | tail -5
+          echo "✅ Build done — $(du -sh www | cut -f1)"
+
+      - name: Serve mobile-app (static, port 8100)
+        working-directory: mobile-app
+        run: |
+          npx http-server www --port 8100 --silent &
           echo $! > /tmp/app.pid
-          # Wait up to 180s (3 min) for Angular to compile — ng serve on CI takes 2-5 min
-          for i in $(seq 1 180); do
+          # Wait up to 30s for static server (starts in <1s)
+          for i in $(seq 1 30); do
             curl -sf http://localhost:8100 > /dev/null 2>&1 && echo "✅ App ready after ${i}s" && break
-            sleep 2
+            sleep 1
           done
-          curl -sf http://localhost:8100 || (echo "❌ App failed to start after 360s" && exit 1)
+          curl -sf http://localhost:8100 || (echo "❌ Static server failed to start" && exit 1)
 
       # ── 6. Verify servers are ready ───────────────────────────────────────────
       - name: Verify API and app are reachable
