@@ -139,8 +139,11 @@ jobs:
                 return;
               }
               dataBaseId = company.dataBaseId;
-              const r = await db.collection('companies').updateOne({ email }, { \$set: { password: hash } });
-              console.log('✅ companies password reset — matched:', r.matchedCount, 'modified:', r.modifiedCount);
+              const r = await db.collection('companies').updateOne(
+                { email },
+                { \$set: { password: hash, accessAllowed: true, expiresSoon: false } }
+              );
+              console.log('✅ companies reset — matched:', r.matchedCount, 'modified:', r.modifiedCount);
             } finally {
               await mainClient.close();
             }
