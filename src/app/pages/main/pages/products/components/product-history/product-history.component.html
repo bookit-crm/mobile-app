@@ -23,7 +23,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-refresher mode="ios" (ionRefresh)="handleRefresh($event)">
+  <ion-refresher (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   @if (isLoading() && history().length === 0) {
@@ -85,4 +85,5 @@
     </ion-infinite-scroll>
   }
 </ion-content>
+
 
