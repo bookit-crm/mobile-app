@@ -173,35 +173,49 @@ jobs:
             echo "⚠️ dataBaseId not saved — activate fallback will be used"
           fi
 
-      - name: Build and start core-api
+      - name: Build core-api
+        working-directory: core-api
+        run: npm run build
+
+      # ── 5. Build app + serve as static files ─────────────────────────────────
+      # ng serve uses ~800 MB RAM in watch mode and crashes mid-run under load.
+      # ng build + npx serve --single uses ~50 MB and never crashes.
+      # --single flag = SPA mode: serves index.html for all unknown routes.
+      - name: Build mobile-app
+        working-directory: mobile-app
+        run: |
+          npx ng build --configuration=development 2>&1 | tail -5
+          SERVE_DIR="www"
+          [ -d "www/browser" ] && SERVE_DIR="www/browser"
+          echo "SERVE_DIR=${SERVE_DIR}" >> $GITHUB_ENV
+          echo "✅ Build done ($(du -sh ${SERVE_DIR} | cut -f1)) → serving from ${SERVE_DIR}"
+
+      - name: Serve mobile-app (static + SPA routing)
+        working-directory: mobile-app
+        run: |
+          npx serve ${SERVE_DIR} --listen 8100 --single &
+          echo $! > /tmp/app.pid
+          for i in $(seq 1 30); do
+            curl -s http://localhost:8100 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[23]" && echo "✅ App ready after ${i}s" && break
+            sleep 1
+          done
+          curl -s http://localhost:8100 -o /dev/null -w "%{http_code}\n" | grep -qE "^[23]" || (echo "❌ Static server failed to start" && exit 1)
+
+      # ── 6. Start core-api (after build — full RAM available) ─────────────────
+      - name: Start core-api
         working-directory: core-api
         run: |
-          npm run build
           pkill -f "node dist/src/main" 2>/dev/null || true
           kill $(lsof -ti:3000) 2>/dev/null || true
           sleep 1
           npm run start:prod &
           echo $! > /tmp/api.pid
-          # Wait up to 60s for API to be ready
           for i in $(seq 1 60); do
             curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API ready after ${i}s" && break
             sleep 2
           done
 
-      # ── 5. Start ng serve (SPA routing works out of the box, swap prevents OOM)
-      - name: Start mobile-app dev server
-        working-directory: mobile-app
-        run: |
-          npx ng serve --port 8100 --host 0.0.0.0 &
-          echo $! > /tmp/app.pid
-          # Wait up to 6 min for Angular to compile
-          for i in $(seq 1 180); do
-            curl -s http://localhost:8100 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[23]" && echo "✅ App ready after ${i}s" && break
-            sleep 2
-          done
-          curl -s http://localhost:8100 -o /dev/null -w "%{http_code}\n" | grep -qE "^[23]" || (echo "❌ ng serve failed to start" && exit 1)
-
-      # ── 6. Verify servers are ready ───────────────────────────────────────────
+      # ── 7. Verify servers are ready ───────────────────────────────────────────
       - name: Verify API and app are reachable
         run: |
           echo "--- API check ---"
@@ -310,7 +324,7 @@ jobs:
         run: |
           kill $(cat /tmp/api.pid) 2>/dev/null || true
           kill $(cat /tmp/app.pid) 2>/dev/null || true
-          pkill -f "ng serve"  2>/dev/null || true
+          pkill -f "serve"     2>/dev/null || true
           pkill -f "node dist" 2>/dev/null || true
 
       # ── 13. Fail if tests failed ──────────────────────────────────────────────
