@@ -95,10 +95,8 @@ ion-modal.filter-modal {
 }
 
 // ── Client list items ──────────────────────────────────────────────────────
-ion-item-sliding {
-  overflow: hidden;
-}
-
+// overflow: hidden on ion-item-sliding is now in global.scss to avoid
+// Angular ViewEncapsulation attribute-selector scoping issues.
 ion-item {
   --padding-start: 12px;
   --padding-end: 8px;

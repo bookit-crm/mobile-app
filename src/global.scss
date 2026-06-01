@@ -29,11 +29,27 @@
  * Custom global overrides
  */
 
-// Prevent Android WebView's native overscroll glow/bounce from intercepting
-// the pull-down gesture before ion-refresher can capture it.
-// Without this, ion-refresher never appears on Android Capacitor builds.
-ion-app {
-  overscroll-behavior: none;
+// ── Pull-to-refresh / Android overscroll fix ─────────────────────────────────
+//
+// ion-content::part(scroll) is the REAL scroll container inside ion-content.
+// Android WebView renders its native "glow" overscroll effect on this element,
+// intercepting the pull-down gesture before ion-refresher can see it.
+// overscroll-behavior-y: none removes the glow without touching touch events,
+// so ion-refresher's own touch listeners still fire correctly.
+// Note: ion-app already has overflow:hidden (set by Ionic), so placing
+// overscroll-behavior on ion-app was a no-op — this is the correct target.
+ion-content::part(scroll) {
+  overscroll-behavior-y: none;
+}
+
+// ── ion-item-sliding overflow clip ───────────────────────────────────────────
+//
+// Placed in global.scss (not component SCSS) so it is NOT subject to Angular's
+// ViewEncapsulation attribute-selector scoping ([_ngcontent-xxx]).
+// Without this, 1 px of ion-item-options bleeds below the item during a swipe
+// on some Ionic shadow-DOM builds.
+ion-item-sliding {
+  overflow: hidden;
 }
 
 // ion-skeleton-text animated uses --background-rgb for shimmer gradient.
