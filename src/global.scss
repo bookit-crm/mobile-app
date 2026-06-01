@@ -29,6 +29,13 @@
  * Custom global overrides
  */
 
+// Prevent Android WebView's native overscroll glow/bounce from intercepting
+// the pull-down gesture before ion-refresher can capture it.
+// Without this, ion-refresher never appears on Android Capacitor builds.
+ion-app {
+  overscroll-behavior: none;
+}
+
 // ion-skeleton-text animated uses --background-rgb for shimmer gradient.
 // Explicitly set to neutral grey so it never inherits reddish tones
 // from --ion-color-danger-rgb or other cascade sources.
