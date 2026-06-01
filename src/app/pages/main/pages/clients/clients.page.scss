@@ -95,6 +95,10 @@ ion-modal.filter-modal {
 }
 
 // ── Client list items ──────────────────────────────────────────────────────
+ion-item-sliding {
+  overflow: hidden;
+}
+
 ion-item {
   --padding-start: 12px;
   --padding-end: 8px;

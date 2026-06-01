@@ -168,9 +168,9 @@ $border-color: var(--ion-border-color, #e0e0e0);
   font-size: 12px;
   padding: 4px 10px;
   border-radius: 20px;
-  border: 1px solid var(--ion-color-primary-tint, #4c8dff);
-  background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.08);
-  color: var(--ion-color-primary, #3880ff);
+  border: 1px solid var(--bk-orange-500, #ff7407);
+  background: rgba(255, 116, 7, 0.1);
+  color: var(--bk-orange-500, #ff7407);
   white-space: nowrap;
   flex-shrink: 0;
 

@@ -45,7 +45,7 @@ export class EmployeesPage implements OnInit {
 
   // ── Состояние ──────────────────────────────────────────
   public activeTab = signal<'employees' | 'managers'>('employees');
-  public isLoading = signal(false);
+  public isLoading = signal(true);
   public searchQuery = signal('');
   private readonly search$ = new Subject<string>();
 

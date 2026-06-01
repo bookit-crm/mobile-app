@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { combineLatest, Observable, of, Subject, switchMap, take } from 'rxjs';
 import { debounceTime, startWith } from 'rxjs/operators';
 
@@ -69,6 +69,7 @@ export class AppointmentModalComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
   private readonly promoCodesService = inject(PromoCodesService);
   private readonly slotsService = inject(SlotsService);
+  private readonly t = inject(TranslateService);
 
   public readonly AppointmentStatus = AppointmentStatus;
 
@@ -157,7 +158,7 @@ export class AppointmentModalComponent implements OnInit {
       try {
         const d = new Date(date + 'T00:00:00');
         const day = d.getDate();
-        const month = d.toLocaleString('en', { month: 'short' });
+        const month = this.t.instant(`MONTH_${d.getMonth() + 1}`);
         parts.push(`${day} ${month}, ${slot.startTime}–${slot.endTime}`);
       } catch {
         parts.push(`${slot.startTime}–${slot.endTime}`);
@@ -176,7 +177,7 @@ export class AppointmentModalComponent implements OnInit {
         try {
           const d = new Date(startDate + 'T00:00:00');
           const day   = d.getDate();
-          const month = d.toLocaleString('en', { month: 'short' });
+          const month = this.t.instant(`MONTH_${d.getMonth() + 1}`);
           const range = toTime ? `${fromTime}–${toTime}` : fromTime;
           parts.push(`${day} ${month}, ${range}`);
         } catch {

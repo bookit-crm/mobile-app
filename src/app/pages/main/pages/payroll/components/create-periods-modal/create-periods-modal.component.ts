@@ -89,8 +89,7 @@ export class CreatePeriodsModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const monthDate = new Date(this.year, this.month, 1);
-    this.targetMonthLabel = monthDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    this.targetMonthLabel = `${this.t.instant(`MONTH_FULL_${this.month + 1}`)} ${this.year}`;
 
     if (!this.singleDepartmentMode) {
       this.loadDepartments();

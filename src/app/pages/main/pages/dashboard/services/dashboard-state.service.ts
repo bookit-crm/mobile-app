@@ -16,6 +16,7 @@ import { IBaseQueries, IKeyValuePair } from '@core/models/application.interface'
 import { IDepartment, IDepartmentList } from '@core/models/department.interface';
 import { IEmployee, IEmployeeList } from '@core/models/employee.interface';
 import { EUserRole } from '@core/enums/e-user-role';
+import { TranslateService } from '@ngx-translate/core';
 import { BehaviorSubject, take } from 'rxjs';
 
 @Injectable()
@@ -26,6 +27,7 @@ export class DashboardStateService {
   private supervisorService = inject(SupervisorService);
   private websocketService = inject(WebsocketService);
   private destroyRef = inject(DestroyRef);
+  private t = inject(TranslateService);
 
   private liveUpdateTimer: ReturnType<typeof setTimeout> | null = null;
   private static readonly LIVE_UPDATE_DEBOUNCE_MS = 3000;
@@ -187,14 +189,14 @@ export class DashboardStateService {
 
   public formatMonthLabel(label: string): string {
     const [year, month] = label.split('-');
-    const date = new Date(+year, +month - 1);
-    return date.toLocaleString('en-US', { month: 'short', year: '2-digit' });
+    const m = +month;
+    const yy = String(+year).slice(-2);
+    return `${this.t.instant(`MONTH_${m}`)} '${yy}`;
   }
 
   public formatDayLabel(label: string): string {
-    const [year, month, day] = label.split('-');
-    const date = new Date(+year, +month - 1, +day);
-    return date.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+    const [, month, day] = label.split('-');
+    return `${+day} ${this.t.instant(`MONTH_${+month}`)}`;
   }
 
   // Private
