@@ -254,6 +254,18 @@ jobs:
           IPV4=$(curl -4 -s ifconfig.me || echo "178.105.223.209")
           echo "REPORT_URL=http://${IPV4}/mobile-run-${{ github.run_number }}/index.html" >> $GITHUB_ENV
 
+      # ── 9b. Cleanup old reports (keep last 15) ───────────────────────────────
+      - name: Clean up old reports
+        if: always()
+        run: |
+          REPORTS_DIR="/opt/scheday/reports"
+          ls -d "${REPORTS_DIR}"/mobile-run-* 2>/dev/null \
+            | sort -t- -k3 -n -r \
+            | tail -n +16 \
+            | xargs rm -rf 2>/dev/null || true
+          REMAINING=$(ls -d "${REPORTS_DIR}"/mobile-run-* 2>/dev/null | wc -l)
+          echo "✅ Reports cleanup done — ${REMAINING} mobile run(s) kept"
+
       # ── 10. Send Telegram notification ────────────────────────────────────────
       - name: Send Telegram report
         working-directory: mobile-app
