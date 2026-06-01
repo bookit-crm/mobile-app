@@ -118,10 +118,10 @@ jobs:
           echo $! > /tmp/api.pid
           # Wait up to 60s for API to be ready
           for i in $(seq 1 60); do
-            curl -sf http://localhost:3000 > /dev/null 2>&1 && echo "✅ API ready after ${i}s" && break
+            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API ready after ${i}s" && break
             sleep 2
           done
-          curl -sf http://localhost:3000 || echo "❌ API failed to start"
+          curl -s http://localhost:3000 -o /dev/null -w "%{http_code}\n" | grep -qE "^[234]" || echo "⚠️ API root returns unexpected status (may still work)"
 
       # ── 5. Build Ionic app and serve as static files ──────────────────────────
       # ng serve uses ~800 MB RAM (webpack watch mode) — on a 4 GB server this
