@@ -160,8 +160,18 @@ jobs:
             } finally {
               await tenantClient.close();
             }
+            // Write dataBaseId to file so the workflow can export it as E2E_DATABASE_ID
+            require('fs').writeFileSync('/tmp/e2e-db-id', dataBaseId);
           })().catch(e => { console.error('❌ Password reset failed:', e.message); process.exit(1); });
           "
+          # Export dataBaseId so fixtures.ts can skip activate entirely
+          DB_ID=$(cat /tmp/e2e-db-id 2>/dev/null || echo "")
+          if [ -n "$DB_ID" ]; then
+            echo "E2E_DATABASE_ID=${DB_ID}" >> $GITHUB_ENV
+            echo "✅ E2E_DATABASE_ID exported: ${DB_ID}"
+          else
+            echo "⚠️ dataBaseId not saved — activate fallback will be used"
+          fi
 
       - name: Build and start core-api
         working-directory: core-api

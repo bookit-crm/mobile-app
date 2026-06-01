@@ -35,23 +35,39 @@ function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
 let _cachedJwt: string | null = null;
 
 /**
- * Obtain a valid JWT by calling activate → login.
- * Retries 3 times with 3 s delay — needed in CI where the API may not be
- * fully ready (DB connection) right after the HTTP health-check passes.
+ * Obtain a valid JWT.
+ *
+ * In CI the workflow resets the supervisor password and exports E2E_DATABASE_ID
+ * (the tenant dataBaseId for the test account). When that env var is present we
+ * skip /api/desktop/activate (which relies on the company-owner password and is
+ * prone to bcrypt-mismatch → 500) and go straight to /api/auth/login.
+ *
+ * Falls back to the full activate → login flow when E2E_DATABASE_ID is not set
+ * (local dev where the dev server is running with a known-good DB state).
  */
 async function getJwt(): Promise<string> {
   if (_cachedJwt) return _cachedJwt;
 
+  const presetDbId = process.env['E2E_DATABASE_ID'] ?? '';
+
   let lastError = '';
   for (let attempt = 1; attempt <= 3; attempt++) {
     try {
-      const cfg = await apiPost('/api/desktop/activate', { email: EMAIL, password: PASSWORD });
-      if (!cfg?.database_id) {
-        throw new Error(`activate returned no database_id (attempt ${attempt}): ${JSON.stringify(cfg)}`);
+      let dataBaseId = presetDbId;
+
+      if (!dataBaseId) {
+        // Local dev path: get dataBaseId via desktop activate endpoint
+        const cfg = await apiPost('/api/desktop/activate', { email: EMAIL, password: PASSWORD });
+        if (!cfg?.database_id) {
+          throw new Error(`activate returned no database_id (attempt ${attempt}): ${JSON.stringify(cfg)}`);
+        }
+        dataBaseId = cfg.database_id;
+      } else {
+        console.log(`[fixtures] Skipping activate — using E2E_DATABASE_ID: ${dataBaseId.substring(0, 20)}...`);
       }
 
       const tok = await apiPost('/api/auth/login', {
-        email: EMAIL, password: PASSWORD, dataBaseId: cfg.database_id,
+        email: EMAIL, password: PASSWORD, dataBaseId,
       });
       if (!tok?.auth_token || typeof tok.auth_token !== 'string') {
         throw new Error(`login returned no auth_token (attempt ${attempt}): ${JSON.stringify(tok)}`);
