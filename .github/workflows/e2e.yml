@@ -111,6 +111,7 @@ jobs:
       # This is needed because the password may have been changed manually or
       # a bcrypt hash mismatch causes /api/desktop/activate to throw Error() → 500.
       - name: Reset E2E test user password in MongoDB
+        working-directory: core-api
         run: |
           node -e "
           const { MongoClient } = require('mongodb');
@@ -123,6 +124,7 @@ jobs:
               console.log('⚠️  MONGO_SERV / E2E_EMAIL / E2E_PASSWORD not set — skipping reset');
               return;
             }
+            console.log('Connecting to MongoDB...');
             const client = new MongoClient(uri);
             try {
               await client.connect();
