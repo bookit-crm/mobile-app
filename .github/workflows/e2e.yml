@@ -91,7 +91,7 @@ jobs:
           fi
           google-chrome --version && echo "✅ Google Chrome ready" || (echo "❌ Chrome not found" && exit 1)
 
-      # ── 4. Start core-api ─────────────────────────────────────────────────────
+      # ── 4. Prepare core-api (build only, do NOT start yet) ───────────────────
       - name: Write core-api .env
         working-directory: core-api
         run: |
@@ -107,42 +107,52 @@ jobs:
             > .env
           echo "✅ .env written ($(wc -l < .env) lines)"
 
-      - name: Build and start core-api
+      - name: Build core-api (compile only)
         working-directory: core-api
-        run: |
-          npm run build
-          pkill -f "node dist/src/main" 2>/dev/null || true
-          kill $(lsof -ti:3000) 2>/dev/null || true
-          sleep 2
-          npm run start:prod &
-          echo $! > /tmp/api.pid
-          # Wait up to 60s for API to be ready
-          for i in $(seq 1 60); do
-            curl -sf http://localhost:3000 > /dev/null 2>&1 && echo "✅ API ready after ${i}s" && break
-            sleep 2
-          done
-          curl -sf http://localhost:3000 || echo "❌ API failed to start"
+        run: npm run build
 
-      # ── 5. Build Ionic app and serve as static files ──────────────────────────
-      # ng serve uses ~800 MB RAM (webpack watch mode) — on a 4 GB server this
-      # triggers the OOM killer.  ng build + npx serve uses ~50 MB instead.
+      # ── 5. Build Ionic app FIRST (memory-intensive — ~1.5 GB peak) ───────────
+      # IMPORTANT: ng build runs before the API starts so both never compete
+      # for RAM at the same time.  ng build + npx serve uses ~50 MB at runtime
+      # vs ~800 MB for ng serve (webpack watch mode).
       - name: Build mobile-app (static)
         working-directory: mobile-app
         run: |
           npx ng build --configuration=development 2>&1 | tail -5
-          echo "✅ Build done — $(du -sh www | cut -f1)"
+          # Support both old (www/) and new Angular esbuild (www/browser/) output
+          SERVE_DIR="www"
+          [ -d "www/browser" ] && SERVE_DIR="www/browser"
+          echo "SERVE_DIR=${SERVE_DIR}" >> $GITHUB_ENV
+          echo "✅ Build done — serving from ${SERVE_DIR} ($(du -sh ${SERVE_DIR} | cut -f1))"
+
+      # ── 6. Start services (ng build is done — full RAM available) ────────────
+      - name: Start core-api
+        working-directory: core-api
+        run: |
+          pkill -f "node dist/src/main" 2>/dev/null || true
+          kill $(lsof -ti:3000) 2>/dev/null || true
+          sleep 1
+          npm run start:prod &
+          echo $! > /tmp/api.pid
+          # Wait up to 60s for API to be ready
+          for i in $(seq 1 60); do
+            curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API ready after ${i}s" && break
+            sleep 2
+          done
+          curl -s http://localhost:3000 -o /dev/null -w "%{http_code}\n" | grep -qE "^[234]" || echo "⚠️ API root returns unexpected status (may still work)"
 
       - name: Serve mobile-app (static, port 8100)
         working-directory: mobile-app
         run: |
-          npx http-server www --port 8100 --silent &
+          # serve --single = SPA mode: serves index.html for all unknown routes
+          # This is required for Angular PathLocationStrategy (/main/calendar etc.)
+          npx serve ${SERVE_DIR} --listen 8100 --single &
           echo $! > /tmp/app.pid
-          # Wait up to 30s for static server (starts in <1s)
           for i in $(seq 1 30); do
-            curl -sf http://localhost:8100 > /dev/null 2>&1 && echo "✅ App ready after ${i}s" && break
+            curl -s http://localhost:8100 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[23]" && echo "✅ App ready after ${i}s" && break
             sleep 1
           done
-          curl -sf http://localhost:8100 || (echo "❌ Static server failed to start" && exit 1)
+          curl -s http://localhost:8100 -o /dev/null -w "%{http_code}\n" | grep -qE "^[23]" || (echo "❌ Static server failed to start" && exit 1)
 
       # ── 6. Verify servers are ready ───────────────────────────────────────────
       - name: Verify API and app are reachable
@@ -241,8 +251,8 @@ jobs:
         run: |
           kill $(cat /tmp/api.pid) 2>/dev/null || true
           kill $(cat /tmp/app.pid) 2>/dev/null || true
-          pkill -f "ng serve"   2>/dev/null || true
-          pkill -f "nest start" 2>/dev/null || true
+          pkill -f "serve"      2>/dev/null || true
+          pkill -f "node dist"  2>/dev/null || true
 
       # ── 13. Fail if tests failed ──────────────────────────────────────────────
       - name: Check test results
