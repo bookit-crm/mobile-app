@@ -117,30 +117,48 @@ jobs:
           const { MongoClient } = require('mongodb');
           const bcrypt = require('bcrypt');
           (async () => {
-            const uri = process.env.MONGO_SERV;
-            const email = process.env.E2E_EMAIL;
-            const password = process.env.E2E_PASSWORD;
-            if (!uri || !email || !password) {
-              console.log('⚠️  MONGO_SERV / E2E_EMAIL / E2E_PASSWORD not set — skipping reset');
+            const mainUri    = process.env.MONGO_SERV;
+            const dynUri     = process.env.MONGO_SERV_DYNAMIC;
+            const email      = process.env.E2E_EMAIL;
+            const password   = process.env.E2E_PASSWORD;
+            if (!mainUri || !email || !password) {
+              console.log('⚠️  MONGO_SERV / E2E_EMAIL / E2E_PASSWORD not set — skipping');
               return;
             }
-            console.log('Connecting to MongoDB...');
-            const client = new MongoClient(uri);
+            const hash = await bcrypt.hash(password, 10);
+
+            // 1. Reset password in main companies collection + get dataBaseId
+            const mainClient = new MongoClient(mainUri);
+            let dataBaseId;
             try {
-              await client.connect();
-              const db = client.db();
-              const hash = await bcrypt.hash(password, 10);
-              const result = await db.collection('companies').updateOne(
-                { email },
-                { \$set: { password: hash } }
-              );
-              if (result.matchedCount === 0) {
-                console.log('⚠️  User not found in companies collection:', email);
-              } else {
-                console.log('✅ Password reset for', email, '— matched:', result.matchedCount, 'modified:', result.modifiedCount);
+              await mainClient.connect();
+              const db = mainClient.db();
+              const company = await db.collection('companies').findOne({ email });
+              if (!company) {
+                console.log('⚠️  Company not found for email:', email);
+                return;
               }
+              dataBaseId = company.dataBaseId;
+              const r = await db.collection('companies').updateOne({ email }, { \$set: { password: hash } });
+              console.log('✅ companies password reset — matched:', r.matchedCount, 'modified:', r.modifiedCount);
             } finally {
-              await client.close();
+              await mainClient.close();
+            }
+
+            // 2. Reset password in tenant supervisors collection
+            if (!dynUri || !dataBaseId) {
+              console.log('⚠️  MONGO_SERV_DYNAMIC not set — skipping supervisor reset');
+              return;
+            }
+            const tenantUri = dynUri + dataBaseId + '?retryWrites=true&w=majority';
+            const tenantClient = new MongoClient(tenantUri);
+            try {
+              await tenantClient.connect();
+              const db = tenantClient.db();
+              const r = await db.collection('supervisors').updateOne({ email }, { \$set: { password: hash } });
+              console.log('✅ supervisors password reset (db:', dataBaseId, ') — matched:', r.matchedCount, 'modified:', r.modifiedCount);
+            } finally {
+              await tenantClient.close();
             }
           })().catch(e => { console.error('❌ Password reset failed:', e.message); process.exit(1); });
           "
