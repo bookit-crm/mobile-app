@@ -137,8 +137,8 @@ jobs:
           ls dist/src/main.js 2>/dev/null && echo "✅ dist/src/main.js exists" || (echo "❌ dist/src/main.js missing!" && ls dist/ 2>/dev/null || echo "dist/ dir missing")
           echo "--- start scripts ---"
           node -e "const p=require('./package.json'); Object.keys(p.scripts||{}).filter(k=>k.includes('start')).forEach(k=>console.log(k+': '+p.scripts[k]))"
-          # Start API
-          npm run start:prod >> /tmp/api.log 2>&1 &
+          # Start API with NODE_ENV=development so NestJS logs full stack traces
+          NODE_ENV=development node dist/src/main >> /tmp/api.log 2>&1 &
           echo $! > /tmp/api.pid
           # Phase 1: wait for HTTP port to open (process started)
           for i in $(seq 1 60); do
