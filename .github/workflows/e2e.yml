@@ -132,6 +132,12 @@ jobs:
           pkill -f "node dist/src/main" 2>/dev/null || true
           kill $(lsof -ti:3000) 2>/dev/null || true
           sleep 1
+          # Diagnostics before start
+          echo "--- dist/ check ---"
+          ls dist/src/main.js 2>/dev/null && echo "✅ dist/src/main.js exists" || (echo "❌ dist/src/main.js missing!" && ls dist/ 2>/dev/null || echo "dist/ dir missing")
+          echo "--- start scripts ---"
+          node -e "const p=require('./package.json'); Object.keys(p.scripts||{}).filter(k=>k.includes('start')).forEach(k=>console.log(k+': '+p.scripts[k]))"
+          # Start API
           npm run start:prod >> /tmp/api.log 2>&1 &
           echo $! > /tmp/api.pid
           # Phase 1: wait for HTTP port to open (process started)
