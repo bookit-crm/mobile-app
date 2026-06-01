@@ -91,7 +91,7 @@ jobs:
           fi
           google-chrome --version && echo "✅ Google Chrome ready" || (echo "❌ Chrome not found" && exit 1)
 
-      # ── 4. Prepare core-api (build only, do NOT start yet) ───────────────────
+      # ── 4. Start core-api ─────────────────────────────────────────────────────
       - name: Write core-api .env
         working-directory: core-api
         run: |
@@ -107,54 +107,27 @@ jobs:
             > .env
           echo "✅ .env written ($(wc -l < .env) lines)"
 
-      - name: Build core-api (compile only)
-        working-directory: core-api
-        run: npm run build
-
-      # ── 5. Build Ionic app FIRST (memory-intensive — ~1.5 GB peak) ───────────
-      # IMPORTANT: ng build runs before the API starts so both never compete
-      # for RAM at the same time.  ng build + npx serve uses ~50 MB at runtime
-      # vs ~800 MB for ng serve (webpack watch mode).
-      - name: Build mobile-app (static)
-        working-directory: mobile-app
-        run: |
-          npx ng build --configuration=development 2>&1 | tail -5
-          # Support both old (www/) and new Angular esbuild (www/browser/) output
-          SERVE_DIR="www"
-          [ -d "www/browser" ] && SERVE_DIR="www/browser"
-          echo "SERVE_DIR=${SERVE_DIR}" >> $GITHUB_ENV
-          echo "✅ Build done — serving from ${SERVE_DIR} ($(du -sh ${SERVE_DIR} | cut -f1))"
-
-      # ── 6. Start services (ng build is done — full RAM available) ────────────
-      - name: Start core-api
+      - name: Build and start core-api
         working-directory: core-api
         run: |
+          npm run build
           pkill -f "node dist/src/main" 2>/dev/null || true
           kill $(lsof -ti:3000) 2>/dev/null || true
           sleep 1
-          # Diagnostics before start
-          echo "--- dist/ check ---"
-          ls dist/src/main.js 2>/dev/null && echo "✅ dist/src/main.js exists" || (echo "❌ dist/src/main.js missing!" && ls dist/ 2>/dev/null || echo "dist/ dir missing")
-          echo "--- start scripts ---"
-          node -e "const p=require('./package.json'); Object.keys(p.scripts||{}).filter(k=>k.includes('start')).forEach(k=>console.log(k+': '+p.scripts[k]))"
-          # Start API with NODE_ENV=development so NestJS logs full stack traces
           NODE_ENV=development node dist/src/main >> /tmp/api.log 2>&1 &
           echo $! > /tmp/api.pid
-          # Phase 1: wait for HTTP port to open (process started)
+          # Wait for API HTTP port
           for i in $(seq 1 60); do
             curl -s http://localhost:3000 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[234]" && echo "✅ API HTTP ready after ${i}s" && break
             sleep 2
           done
-          # Phase 2: wait for /api/desktop/activate to work — proves MongoDB
-          # dynamic connections are fully established (not just port open).
-          # Use Node.js to build JSON so special chars in credentials are safe.
+          # Wait for activate endpoint (proves MongoDB connections are ready)
           echo "Warming up activate endpoint..."
           ACTIVATE_OK=false
           for i in $(seq 1 30); do
             PAYLOAD=$(node -e "process.stdout.write(JSON.stringify({email:process.env.E2E_EMAIL,password:process.env.E2E_PASSWORD}))")
             RESULT=$(curl -s -X POST http://localhost:3000/api/desktop/activate \
-              -H "Content-Type: application/json" \
-              -d "$PAYLOAD" 2>/dev/null)
+              -H "Content-Type: application/json" -d "$PAYLOAD" 2>/dev/null)
             echo "Attempt ${i}: ${RESULT}" | head -c 120
             if echo "$RESULT" | grep -q "database_id"; then
               echo "✅ API activate ready after ${i} attempts"
@@ -166,29 +139,26 @@ jobs:
           if [ "$ACTIVATE_OK" != "true" ]; then
             echo "❌ Activate failed — full API log:"
             cat /tmp/api.log
+            echo "--- Sanity check with wrong credentials ---"
+            WRONG=$(node -e "process.stdout.write(JSON.stringify({email:'nobody@test.invalid',password:'wrong'}))")
+            curl -s -X POST http://localhost:3000/api/desktop/activate -H "Content-Type: application/json" -d "$WRONG"
             echo ""
-            echo "--- Sanity check: wrong credentials (expect 401/404, NOT 500) ---"
-            WRONG=$(node -e "process.stdout.write(JSON.stringify({email:'nobody@test.invalid',password:'wrongpassword'}))")
-            curl -s -X POST http://localhost:3000/api/desktop/activate \
-              -H "Content-Type: application/json" -d "$WRONG"
-            echo ""
-            echo "--- E2E_EMAIL being used ---"
-            node -e "console.log(process.env.E2E_EMAIL ? 'SET: '+process.env.E2E_EMAIL : 'NOT SET — using hardcoded default')"
+            node -e "console.log('E2E_EMAIL:', process.env.E2E_EMAIL || 'NOT SET')"
             exit 1
           fi
 
-      - name: Serve mobile-app (static, port 8100)
+      # ── 5. Start ng serve (SPA routing works out of the box, swap prevents OOM)
+      - name: Start mobile-app dev server
         working-directory: mobile-app
         run: |
-          # serve --single = SPA mode: serves index.html for all unknown routes
-          # This is required for Angular PathLocationStrategy (/main/calendar etc.)
-          npx serve ${SERVE_DIR} --listen 8100 --single &
+          npx ng serve --port 8100 --host 0.0.0.0 &
           echo $! > /tmp/app.pid
-          for i in $(seq 1 30); do
+          # Wait up to 6 min for Angular to compile
+          for i in $(seq 1 180); do
             curl -s http://localhost:8100 -o /dev/null -w "%{http_code}" 2>/dev/null | grep -qE "^[23]" && echo "✅ App ready after ${i}s" && break
-            sleep 1
+            sleep 2
           done
-          curl -s http://localhost:8100 -o /dev/null -w "%{http_code}\n" | grep -qE "^[23]" || (echo "❌ Static server failed to start" && exit 1)
+          curl -s http://localhost:8100 -o /dev/null -w "%{http_code}\n" | grep -qE "^[23]" || (echo "❌ ng serve failed to start" && exit 1)
 
       # ── 6. Verify servers are ready ───────────────────────────────────────────
       - name: Verify API and app are reachable
@@ -287,8 +257,8 @@ jobs:
         run: |
           kill $(cat /tmp/api.pid) 2>/dev/null || true
           kill $(cat /tmp/app.pid) 2>/dev/null || true
-          pkill -f "serve"      2>/dev/null || true
-          pkill -f "node dist"  2>/dev/null || true
+          pkill -f "ng serve"  2>/dev/null || true
+          pkill -f "node dist" 2>/dev/null || true
 
       # ── 13. Fail if tests failed ──────────────────────────────────────────────
       - name: Check test results
