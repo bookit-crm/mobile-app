@@ -140,18 +140,29 @@ jobs:
             sleep 2
           done
           # Phase 2: wait for /api/desktop/activate to work — proves MongoDB
-          # dynamic connections are fully established (not just port open)
+          # dynamic connections are fully established (not just port open).
+          # Use Node.js to build JSON so special chars in credentials are safe.
           echo "Warming up activate endpoint..."
+          ACTIVATE_OK=false
           for i in $(seq 1 30); do
+            PAYLOAD=$(node -e "process.stdout.write(JSON.stringify({email:process.env.E2E_EMAIL,password:process.env.E2E_PASSWORD}))")
             RESULT=$(curl -s -X POST http://localhost:3000/api/desktop/activate \
               -H "Content-Type: application/json" \
-              -d "{\"email\":\"${E2E_EMAIL}\",\"password\":\"${E2E_PASSWORD}\"}" 2>/dev/null)
+              -d "$PAYLOAD" 2>/dev/null)
             echo "Attempt ${i}: ${RESULT}" | head -c 120
-            echo "$RESULT" | grep -q "database_id" && echo "✅ API activate ready after ${i} attempts" && break
+            if echo "$RESULT" | grep -q "database_id"; then
+              echo "✅ API activate ready after ${i} attempts"
+              ACTIVATE_OK=true
+              break
+            fi
             sleep 3
           done
           # Show last 20 lines of API log if activate never worked
-          echo "$RESULT" | grep -q "database_id" || (echo "❌ Activate endpoint not ready — API log:" && tail -20 /tmp/api.log && exit 1)
+          if [ "$ACTIVATE_OK" != "true" ]; then
+            echo "❌ Activate endpoint not ready — API log:"
+            tail -20 /tmp/api.log
+            exit 1
+          fi
 
       - name: Serve mobile-app (static, port 8100)
         working-directory: mobile-app
