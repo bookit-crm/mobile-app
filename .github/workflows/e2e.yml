@@ -107,6 +107,42 @@ jobs:
             > .env
           echo "✅ .env written ($(wc -l < .env) lines)"
 
+      # Reset E2E test user password in MongoDB so it always matches the secret.
+      # This is needed because the password may have been changed manually or
+      # a bcrypt hash mismatch causes /api/desktop/activate to throw Error() → 500.
+      - name: Reset E2E test user password in MongoDB
+        run: |
+          node -e "
+          const { MongoClient } = require('mongodb');
+          const bcrypt = require('bcrypt');
+          (async () => {
+            const uri = process.env.MONGO_SERV;
+            const email = process.env.E2E_EMAIL;
+            const password = process.env.E2E_PASSWORD;
+            if (!uri || !email || !password) {
+              console.log('⚠️  MONGO_SERV / E2E_EMAIL / E2E_PASSWORD not set — skipping reset');
+              return;
+            }
+            const client = new MongoClient(uri);
+            try {
+              await client.connect();
+              const db = client.db();
+              const hash = await bcrypt.hash(password, 10);
+              const result = await db.collection('companies').updateOne(
+                { email },
+                { \$set: { password: hash } }
+              );
+              if (result.matchedCount === 0) {
+                console.log('⚠️  User not found in companies collection:', email);
+              } else {
+                console.log('✅ Password reset for', email, '— matched:', result.matchedCount, 'modified:', result.modifiedCount);
+              }
+            } finally {
+              await client.close();
+            }
+          })().catch(e => { console.error('❌ Password reset failed:', e.message); process.exit(1); });
+          "
+
       - name: Build and start core-api
         working-directory: core-api
         run: |
