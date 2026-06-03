@@ -31,10 +31,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
-            "stylePreprocessorOptions": {
-              "includePaths": ["node_modules"]
-            },
+            "styles": ["src/global.scss", "src/theme/variables.scss", "src/assets/flags/flags.css"],
             "scripts": []
           },
           "configurations": {
@@ -114,7 +111,7 @@
                 "output": "./svg"
               }
             ],
-            "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "styles": ["src/global.scss", "src/theme/variables.scss", "src/assets/flags/flags.css"],
             "scripts": []
           },
           "configurations": {

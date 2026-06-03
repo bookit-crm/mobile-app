@@ -1,0 +1,43 @@
+/* Minimal flag-icons — only 4x3 flags for supported countries */
+.fi {
+  display: inline-block;
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+}
+
+.fi-at { background-image: url("at.svg"); }
+.fi-by { background-image: url("by.svg"); }
+.fi-be { background-image: url("be.svg"); }
+.fi-bg { background-image: url("bg.svg"); }
+.fi-ca { background-image: url("ca.svg"); }
+.fi-hr { background-image: url("hr.svg"); }
+.fi-cz { background-image: url("cz.svg"); }
+.fi-dk { background-image: url("dk.svg"); }
+.fi-ee { background-image: url("ee.svg"); }
+.fi-fi { background-image: url("fi.svg"); }
+.fi-fr { background-image: url("fr.svg"); }
+.fi-ge { background-image: url("ge.svg"); }
+.fi-de { background-image: url("de.svg"); }
+.fi-gr { background-image: url("gr.svg"); }
+.fi-hu { background-image: url("hu.svg"); }
+.fi-il { background-image: url("il.svg"); }
+.fi-it { background-image: url("it.svg"); }
+.fi-lv { background-image: url("lv.svg"); }
+.fi-lt { background-image: url("lt.svg"); }
+.fi-md { background-image: url("md.svg"); }
+.fi-nl { background-image: url("nl.svg"); }
+.fi-no { background-image: url("no.svg"); }
+.fi-pl { background-image: url("pl.svg"); }
+.fi-pt { background-image: url("pt.svg"); }
+.fi-ro { background-image: url("ro.svg"); }
+.fi-ru { background-image: url("ru.svg"); }
+.fi-sk { background-image: url("sk.svg"); }
+.fi-es { background-image: url("es.svg"); }
+.fi-se { background-image: url("se.svg"); }
+.fi-ch { background-image: url("ch.svg"); }
+.fi-tr { background-image: url("tr.svg"); }
+.fi-ae { background-image: url("ae.svg"); }
+.fi-ua { background-image: url("ua.svg"); }
+.fi-gb { background-image: url("gb.svg"); }
+.fi-us { background-image: url("us.svg"); }
