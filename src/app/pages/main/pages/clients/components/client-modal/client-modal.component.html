@@ -33,23 +33,15 @@
       }
 
       <!-- Phone -->
-      <ion-item>
-        <ion-label position="stacked">
-          {{ "PHONE" | translate }} <span class="required">*</span>
-        </ion-label>
-        <ion-input
+      <ion-item lines="none" class="phone-item">
+        <app-phone-input
+          class="phone-input-field"
+          [label]="'PHONE' | translate"
           formControlName="phone"
-          type="tel"
-          placeholder="+380 12 345 6789"
-          autocomplete="tel"
-        ></ion-input>
+          [errorMessage]="phoneErrorMessage | translate"
+          [required]="true"
+        ></app-phone-input>
       </ion-item>
-      @if (hasError('phone', 'required')) {
-        <ion-note color="danger" class="field-error">{{ "PHONE_REQUIRED" | translate }}</ion-note>
-      }
-      @if (hasError('phone', 'pattern')) {
-        <ion-note color="danger" class="field-error">{{ "PHONE_INVALID" | translate }}</ion-note>
-      }
 
       <!-- Email -->
       <ion-item>

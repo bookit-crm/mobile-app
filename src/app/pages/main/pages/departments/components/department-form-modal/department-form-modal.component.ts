@@ -13,11 +13,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { take } from 'rxjs';
 import { IDepartment } from '@core/models/department.interface';
 import { DepartmentService } from '@core/services/department.service';
+import { PhoneInputComponent } from '@core/components/phone-input/phone-input.component';
 
 @Component({
   selector: 'app-department-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, PhoneInputComponent],
   templateUrl: './department-form-modal.component.html',
   styleUrls: ['./department-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

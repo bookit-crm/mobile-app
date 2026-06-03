@@ -44,13 +44,14 @@
         <ion-note color="danger" class="field-error">{{ 'EMP_LAST_NAME_REQUIRED' | translate }}</ion-note>
       }
 
-      <ion-item>
-        <ion-label position="stacked">{{ 'EMP_PHONE_LABEL' | translate }}</ion-label>
-        <ion-input formControlName="phone" type="tel" placeholder="+1234567890" clearInput></ion-input>
+      <ion-item lines="none" class="phone-item">
+        <app-phone-input
+          class="phone-input-field"
+          [label]="'EMP_PHONE_LABEL' | translate"
+          formControlName="phone"
+          [errorMessage]="(form.controls.phone.invalid && form.controls.phone.touched) ? ('PHONE_REQUIRED' | translate) : ''"
+        ></app-phone-input>
       </ion-item>
-      @if (form.controls.phone.invalid && form.controls.phone.touched) {
-        <ion-note color="danger" class="field-error">{{ 'PHONE_REQUIRED' | translate }}</ion-note>
-      }
 
       <ion-item>
         <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>

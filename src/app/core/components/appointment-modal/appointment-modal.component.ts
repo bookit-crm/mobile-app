@@ -32,6 +32,7 @@ import { SlotsService } from '@core/services/slots.service';
 import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 import { AppointmentDayScrollerComponent } from '@core/components/appointment-day-scroller/appointment-day-scroller.component';
 import { AppointmentSlotGridComponent, ISlotSelection } from '@core/components/appointment-slot-grid/appointment-slot-grid.component';
+import { PhoneInputComponent } from '@core/components/phone-input/phone-input.component';
 
 export interface IAppointmentModalPayload {
   _id?: string;          // если задан → edit mode
@@ -46,7 +47,7 @@ export interface IAppointmentModalPayload {
   selector: 'app-appointment-modal',
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule,
-    TranslateModule, AppointmentDayScrollerComponent, AppointmentSlotGridComponent],
+    TranslateModule, AppointmentDayScrollerComponent, AppointmentSlotGridComponent, PhoneInputComponent],
   templateUrl: './appointment-modal.component.html',
   styleUrls: ['./appointment-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

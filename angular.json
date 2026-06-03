@@ -32,6 +32,9 @@
               }
             ],
             "styles": ["src/global.scss", "src/theme/variables.scss"],
+            "stylePreprocessorOptions": {
+              "includePaths": ["node_modules"]
+            },
             "scripts": []
           },
           "configurations": {

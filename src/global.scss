@@ -1,3 +1,5 @@
+@use 'flag-icons/sass/flag-icons' with ($flag-icons-use-square: false);
+
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
@@ -150,6 +152,18 @@ ion-item-sliding {
 // ── Filter button badge — shared across all pages ──────────────────────────
 .filter-btn {
   position: relative;
+}
+
+/* ── PhoneInputComponent inside ion-item ──────────────────────────────────── */
+ion-item.phone-item {
+  --padding-start: 0;
+  --inner-padding-end: 0;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+
+  app-phone-input.phone-input-field {
+    width: 100%;
+  }
 }
 
 .filter-badge {

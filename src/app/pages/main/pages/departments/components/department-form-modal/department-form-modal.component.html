@@ -26,14 +26,12 @@
         <ion-note color="danger" class="field-error">{{ 'DEPT_NAME_REQUIRED' | translate }}</ion-note>
       }
 
-      <ion-item>
-        <ion-label position="stacked">{{ 'PHONE' | translate }}</ion-label>
-        <ion-input
+      <ion-item lines="none" class="phone-item">
+        <app-phone-input
+          class="phone-input-field"
+          [label]="'PHONE' | translate"
           formControlName="phone"
-          type="tel"
-          placeholder="+1 (555) 000-0000"
-          [clearInput]="true"
-        ></ion-input>
+        ></app-phone-input>
       </ion-item>
 
       <ion-item>

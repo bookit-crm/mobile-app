@@ -19,6 +19,7 @@ import { FilesService } from '@services/files.service';
 import { ISupervisor } from '@models/supervisor.interface';
 import { ValidatorsHelper } from '@core/helpers/validators.helper';
 import { Router } from '@angular/router';
+import { PhoneInputComponent } from '@core/components/phone-input/phone-input.component';
 
 type SettingsTab = 'profile' | 'security';
 
@@ -31,7 +32,7 @@ enum EChangePasswordStep {
 @Component({
   selector: 'app-account-settings-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, PhoneInputComponent],
   templateUrl: './account-settings-modal.component.html',
   styleUrls: ['./account-settings-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,7 +106,7 @@ export class AccountSettingsModalComponent implements OnInit {
       firstName: [u?.firstName ?? '', Validators.required],
       lastName:  [u?.lastName ?? ''],
       email:     [u?.email ?? '', [Validators.required, Validators.pattern(ValidatorsHelper.userEmailReg)]],
-      phone:     [u?.phone ?? '', Validators.pattern(ValidatorsHelper.phoneRegExp)],
+      phone:     [u?.phone ?? ''],
     });
 
     this.securityForm = this.fb.group({

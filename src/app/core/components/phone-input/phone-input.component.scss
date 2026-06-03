@@ -1,0 +1,139 @@
+.phone-label {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  margin: 0 0 6px;
+  color: var(--ion-color-medium-shade, #686868);
+
+  .required-star {
+    color: var(--ion-color-danger, #eb445a);
+  }
+}
+
+// ── Main field wrapper ────────────────────────────────────────────────────────
+.phone-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border: 1px solid var(--ion-color-light-shade, #d7d8da);
+  border-radius: 8px;
+  background: var(--ion-background-color, #fff);
+  transition: border-color 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--ion-color-primary, #3880ff);
+  }
+
+  &--error {
+    border-color: var(--ion-color-danger, #eb445a) !important;
+  }
+
+  &--disabled {
+    background-color: var(--ion-color-light, #f4f5f8);
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+// ── Country selector button ───────────────────────────────────────────────────
+.country-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px 0 12px;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+
+  &:disabled {
+    cursor: initial;
+  }
+
+  &__flag {
+    width: 24px;
+    height: 18px;
+    flex-shrink: 0;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+
+  &__dial {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ion-text-color, #000);
+    letter-spacing: 0.2px;
+  }
+
+  &__chevron {
+    font-size: 14px;
+    color: var(--ion-color-medium, #92949c);
+    transition: transform 0.15s ease;
+
+    &.rotated {
+      transform: rotateZ(-180deg);
+    }
+  }
+}
+
+// ── Divider ───────────────────────────────────────────────────────────────────
+.divider {
+  width: 1px;
+  height: 22px;
+  background-color: var(--ion-color-light-shade, #d7d8da);
+  flex-shrink: 0;
+}
+
+// ── Phone number input ────────────────────────────────────────────────────────
+.phone-number-input {
+  flex: 1;
+  padding: 0 12px;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ion-text-color, #000);
+  letter-spacing: 0.2px;
+  min-width: 0;
+
+  &::placeholder {
+    color: var(--ion-color-medium, #92949c);
+  }
+
+  &:disabled {
+    background: initial;
+  }
+}
+
+// ── Country picker modal (ion-modal bottom sheet) ─────────────────────────────
+.country-picker-modal {
+  .country-search {
+    --border-radius: 8px;
+    padding: 8px 12px 4px;
+  }
+}
+
+.picker-flag {
+  width: 24px;
+  height: 18px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  margin-right: 4px;
+}
+
+.country-selected {
+  --background: rgba(var(--ion-color-primary-rgb, 56, 128, 255), 0.08);
+}
+
+// ── Error message ─────────────────────────────────────────────────────────────
+.phone-error {
+  font-size: 12px;
+  color: var(--ion-color-danger, #eb445a);
+  margin: 4px 0 0;
+}

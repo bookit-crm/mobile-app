@@ -34,7 +34,7 @@ export class ClientModalComponent implements OnInit {
 
   public form = new FormGroup({
     fullName: new FormControl('', [Validators.required, Validators.minLength(2)]),
-    phone: new FormControl('', [Validators.required, Validators.pattern(PHONE_PATTERN)]),
+    phone: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.pattern(EMAIL_PATTERN)]),
     dateOfBirth: new FormControl(''),
     city: new FormControl(''),
@@ -105,6 +105,12 @@ export class ClientModalComponent implements OnInit {
   public hasError(field: string, error: string): boolean {
     const ctrl = this.form.get(field);
     return !!(ctrl?.touched && ctrl?.hasError(error));
+  }
+
+  get phoneErrorMessage(): string {
+    if (this.hasError('phone', 'required')) return 'PHONE_REQUIRED';
+    if (this.hasError('phone', 'phoneMask')) return 'PHONE_INVALID';
+    return '';
   }
 }
 

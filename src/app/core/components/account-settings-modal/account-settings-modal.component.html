@@ -103,15 +103,12 @@
             <p class="acc-modal__field-error">{{ 'EMAIL_INVALID' | translate }}</p>
           }
 
-          <ion-item class="acc-modal__field">
-            <ion-input
+          <ion-item class="acc-modal__field" lines="none">
+            <app-phone-input
+              class="phone-input-field"
               [label]="'PHONE' | translate"
-              labelPlacement="stacked"
-              [placeholder]="'ENTER_PHONE' | translate"
-              type="tel"
               formControlName="phone"
-              [clearInput]="true"
-            ></ion-input>
+            ></app-phone-input>
           </ion-item>
 
         </ion-list>

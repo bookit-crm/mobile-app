@@ -1,0 +1,95 @@
+@if (label) {
+  <p class="phone-label">
+    {{ label }}
+    @if (required) {
+      <span class="required-star"> *</span>
+    }
+  </p>
+}
+
+<div
+  #phoneWrapper
+  class="phone-wrapper"
+  [class.phone-wrapper--error]="errorMessage"
+  [class.phone-wrapper--disabled]="disabled"
+>
+  <!-- Country selector button -->
+  <button
+    type="button"
+    class="country-btn"
+    [disabled]="disabled"
+    (click)="openCountryPicker($event)"
+  >
+    <span class="country-btn__flag" [ngClass]="flagClass(selectedCountry)"></span>
+    <span class="country-btn__dial">{{ selectedCountry.dialCode }}</span>
+    <ion-icon
+      name="chevron-down-outline"
+      class="country-btn__chevron"
+      [class.rotated]="isDropdownOpen()"
+    ></ion-icon>
+  </button>
+
+  <div class="divider"></div>
+
+  <!-- Phone number input -->
+  <input
+    #phoneInput
+    class="phone-number-input"
+    type="tel"
+    inputmode="numeric"
+    autocomplete="tel"
+    [placeholder]="phonePlaceholder"
+    [value]="maskedValue"
+    [disabled]="disabled"
+    (input)="onPhoneInput($event)"
+    (blur)="onBlur()"
+  />
+</div>
+
+<!-- Country picker modal — renders as Ionic overlay, never clipped -->
+<ion-modal
+  class="country-picker-modal"
+  [isOpen]="isDropdownOpen()"
+  (didDismiss)="closeDropdown()"
+  [breakpoints]="[0, 0.65, 1]"
+  [initialBreakpoint]="0.65"
+  [handle]="true"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-searchbar
+          class="country-search"
+          [placeholder]="'Search country…'"
+          [debounce]="0"
+          (ionInput)="searchQuery = $any($event).detail.value ?? ''"
+        ></ion-searchbar>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <ion-list lines="full">
+        @for (country of filteredCountries; track country.code) {
+          <ion-item
+            [button]="true"
+            [detail]="false"
+            [class.country-selected]="country.code === selectedCountry.code"
+            (click)="selectCountry(country)"
+          >
+            <span class="picker-flag" [ngClass]="flagClass(country)" slot="start"></span>
+            <ion-label>{{ country.name }}</ion-label>
+            <ion-note slot="end">{{ country.dialCode }}</ion-note>
+          </ion-item>
+        }
+        @if (filteredCountries.length === 0) {
+          <ion-item>
+            <ion-label class="ion-text-center" color="medium">No results</ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    </ion-content>
+  </ng-template>
+</ion-modal>
+
+@if (errorMessage) {
+  <p class="phone-error">{{ errorMessage }}</p>
+}

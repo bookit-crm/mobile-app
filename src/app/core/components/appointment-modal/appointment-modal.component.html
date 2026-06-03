@@ -101,9 +101,13 @@
             <ion-label position="stacked">{{ 'FULL_NAME' | translate }} <span class="req">*</span></ion-label>
             <ion-input formControlName="clientName" [placeholder]="'FULL_NAME' | translate"></ion-input>
           </ion-item>
-          <ion-item>
-            <ion-label position="stacked">{{ 'PHONE' | translate }} <span class="req">*</span></ion-label>
-            <ion-input formControlName="clientPhone" type="tel" placeholder="+1 (000) 000-0000"></ion-input>
+          <ion-item lines="none" class="phone-item">
+            <app-phone-input
+              class="phone-input-field"
+              [label]="'PHONE' | translate"
+              formControlName="clientPhone"
+              [required]="true"
+            ></app-phone-input>
           </ion-item>
           <ion-item>
             <ion-label position="stacked">{{ 'EMAIL' | translate }}</ion-label>

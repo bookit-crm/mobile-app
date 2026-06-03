@@ -17,6 +17,7 @@ import {
 } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { PhoneInputComponent } from '@core/components/phone-input/phone-input.component';
 import { Observable, of, switchMap, take } from 'rxjs';
 import { IEmployee } from '@core/models/employee.interface';
 import { IFileDTO } from '@core/models/file.interface';
@@ -33,7 +34,7 @@ import { ImagePickerComponent } from '@core/components/image-picker/image-picker
 @Component({
   selector: 'app-employee-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent, PhoneInputComponent],
   templateUrl: './employee-form-modal.component.html',
   styleUrls: ['./employee-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
