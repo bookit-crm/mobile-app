@@ -35,6 +35,7 @@ interface IServicePayload {
   category?: string;
   consumableProducts?: { product: string; quantity: number }[];
   galleryImages?: string[];
+  coverImage?: string | null;
 }
 
 @Component({
@@ -63,6 +64,9 @@ export class ServiceModalComponent implements OnInit {
 
   public galleryImageIds: string[] = [];
   public existingGalleryImages: { _id: string; url: string }[] = [];
+
+  public coverImageId: string | null = null;
+  public coverImageUrl: string | null = null;
 
   public name = '';
   public category = '';
@@ -95,6 +99,9 @@ export class ServiceModalComponent implements OnInit {
       // Load existing gallery images for multi-picker
       this.existingGalleryImages = (this.service.galleryImages ?? []).map(img => ({ _id: img._id, url: img.url }));
       this.galleryImageIds = this.existingGalleryImages.map(img => img._id);
+      // Load existing cover image for single-picker
+      this.coverImageId = this.service.coverImage?._id ?? null;
+      this.coverImageUrl = this.service.coverImage?.url ?? null;
     } else if (this.departmentId) {
       this.selectedDepartmentId = this.departmentId;
     }
@@ -106,6 +113,16 @@ export class ServiceModalComponent implements OnInit {
 
   public onImagesChanged(files: { _id: string; url: string }[]): void {
     this.galleryImageIds = files.map(f => f._id);
+  }
+
+  public onCoverUploaded(file: { _id: string; url: string }): void {
+    this.coverImageId = file._id;
+    this.coverImageUrl = file.url;
+  }
+
+  public onCoverRemoved(): void {
+    this.coverImageId = null;
+    this.coverImageUrl = null;
   }
 
   public save(): void {
@@ -131,6 +148,8 @@ export class ServiceModalComponent implements OnInit {
     if (trimmedCategory) payload.category = trimmedCategory;
     if (trimmedDescription) payload.description = trimmedDescription;
     if (this.galleryImageIds.length > 0) payload.galleryImages = this.galleryImageIds;
+    // Always send coverImage (id or null) so it can be set or cleared.
+    payload.coverImage = this.coverImageId;
 
     const request$ = this.isEdit
       ? this.servicesService.patchServiceById(this.service!._id, payload as any)

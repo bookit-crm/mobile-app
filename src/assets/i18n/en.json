@@ -990,6 +990,7 @@
   "MONTH_FULL_12": "December",
   "PICK_PHOTO": "Photo",
   "SVC_IMAGE_LABEL": "Image",
+  "SVC_COVER_LABEL": "Cover image",
   "PROD_PHOTO_LABEL": "Photo",
 
   "NOTIF_NEW_BOOKING_TITLE": "New booking confirmed",

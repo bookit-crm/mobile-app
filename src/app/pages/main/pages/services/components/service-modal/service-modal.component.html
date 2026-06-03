@@ -77,6 +77,17 @@
 
   </ion-list>
 
+  <!-- Cover image (single) -->
+  <div class="image-section">
+    <span class="image-section__label">{{ 'SVC_COVER_LABEL' | translate }}</span>
+    <app-image-picker
+      shape="rect"
+      [imageUrl]="coverImageUrl"
+      (fileUploaded)="onCoverUploaded($event)"
+      (fileRemoved)="onCoverRemoved()"
+    ></app-image-picker>
+  </div>
+
   <!-- Images (gallery) -->
   <div class="image-section">
     <span class="image-section__label">{{ 'SVC_IMAGE_LABEL' | translate }}</span>

@@ -27,6 +27,7 @@ export interface IService {
   department: IDepartment | string;
   created: string;
   galleryImages?: IFileDTO[];
+  coverImage?: IFileDTO | null;
   consumableProducts?: IConsumableProduct[];
 }
 
