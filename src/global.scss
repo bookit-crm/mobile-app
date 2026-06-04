@@ -132,6 +132,32 @@ ion-item-sliding {
   }
 }
 
+// ── ion-item list separators: dark-mode fix ───────────────────────────────────
+// In dark mode, ion-item borders are the same colour as the background →
+// cards / list items blend into each other with no visible separation.
+// Add a subtle divider and a slight background lift so each card is distinct.
+@media (prefers-color-scheme: dark) {
+  ion-item {
+    --border-color: rgba(255, 255, 255, 0.07);
+    --background: rgba(255, 255, 255, 0.03);
+  }
+
+  // ion-item-sliding: add bottom margin so sliding cards have breathing room
+  ion-item-sliding {
+    margin-bottom: 2px;
+
+    ion-item {
+      --border-radius: 10px;
+    }
+  }
+
+  // ion-card: ensure cards have visible border in dark mode
+  ion-card {
+    --background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
 // ── Checkboxes & radio buttons: dark-mode fix ─────────────────────────────────
 // Our --ion-color-primary is hardcoded to #252422 (always dark) which becomes
 // invisible when checked on a dark background. Override to orange in dark mode.
