@@ -19,6 +19,7 @@ import { PromoCodesService, IPromoCodesFilters } from '@core/services/promo-code
 import { SupervisorService } from '@core/services/supervisor.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { PromoCodeFormModalComponent } from './components/promo-code-form-modal/promo-code-form-modal.component';
 
 @Component({
@@ -35,6 +36,7 @@ export class PromoCodesPage implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   public readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -133,15 +135,13 @@ export class PromoCodesPage implements OnInit {
     const dept = await this.pickDepartment();
     if (!dept) return;
 
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: PromoCodeFormModalComponent,
       componentProps: { promoCode: null, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadPromoCodes();
+    if (res?.data) this.loadPromoCodes();
   }
 
   public async openEdit(promoCode: IPromoCode, event: Event): Promise<void> {
@@ -150,15 +150,13 @@ export class PromoCodesPage implements OnInit {
       ? { _id: promoCode.department, name: '' } as IDepartment
       : promoCode.department as IDepartment;
 
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: PromoCodeFormModalComponent,
       componentProps: { promoCode, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadPromoCodes();
+    if (res?.data) this.loadPromoCodes();
   }
 
   public async confirmDelete(promoCode: IPromoCode, event: Event): Promise<void> {

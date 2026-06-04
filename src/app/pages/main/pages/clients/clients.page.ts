@@ -17,6 +17,7 @@ import { debounceTime, Subject, take } from 'rxjs';
 import { IClient } from '@core/models/client.interface';
 import { ClientsService } from '@core/services/clients.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { AppointmentModalComponent } from '@core/components/appointment-modal/appointment-modal.component';
 import { ClientModalComponent } from './components/client-modal/client-modal.component';
 import { ClientDetailPage } from './pages/client-detail/client-detail.page';
@@ -36,6 +37,7 @@ export class ClientsPage {
   private readonly clientsService = inject(ClientsService);
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly translate = inject(TranslateService);
@@ -136,15 +138,13 @@ export class ClientsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: ClientModalComponent,
       componentProps: { client: null },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openEditModal(client: IClient, event: Event): Promise<void> {
@@ -153,15 +153,13 @@ export class ClientsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: ClientModalComponent,
       componentProps: { client },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openNewAppointment(client: IClient, event: Event): Promise<void> {
@@ -170,25 +168,22 @@ export class ClientsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: AppointmentModalComponent,
       componentProps: { payload: { clientId: client._id } },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) {
+    if (res?.data?.saved) {
       void this.showToast(this.translate.instant('APPOINTMENT_CREATED'));
     }
   }
 
   public async viewProfile(client: IClient): Promise<void> {
-    const modal = await this.modalCtrl.create({
+    await this.modalGuard.open({
       component: ClientDetailPage,
       componentProps: { clientId: client._id },
     });
-    await modal.present();
   }
 
   public async viewHistory(client: IClient, event: Event): Promise<void> {
@@ -204,11 +199,10 @@ export class ClientsPage {
       return;
     }
     // Переход на страницу деталей клиента с историей
-    const modal = await this.modalCtrl.create({
+    await this.modalGuard.open({
       component: ClientDetailPage,
       componentProps: { clientId: client._id },
     });
-    await modal.present();
   }
 
   public async confirmDelete(client: IClient, event: Event): Promise<void> {

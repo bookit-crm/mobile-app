@@ -20,7 +20,7 @@ import {
   IDayModel,
 } from '@core/models/schedule.interface';
 import { EUserRole } from '@core/enums/e-user-role';
-import { format, parse, parseISO } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { DepartmentService } from '@core/services/department.service';
 import { SchedulesService } from '@core/services/schedules.service';
 import { SupervisorService } from '@core/services/supervisor.service';
@@ -95,7 +95,6 @@ export class DailySchedulePage implements OnInit, OnDestroy {
   public data = signal<IDailyScheduleResponse | null>(null);
   public loading = signal(false);
   public nowHourPosition = signal<number | null>(null);
-  public datePickerOpen = signal(false);
 
   // Менеджер → всегда 1 локация (ограничение роли).
   // Individual / Starter → isSingleLocationPlan = true (locations limit = 1).
@@ -267,24 +266,18 @@ export class DailySchedulePage implements OnInit, OnDestroy {
     this.loadSchedule();
   }
 
-  public onDatePickerChange(value: string | string[] | null | undefined): void {
-    const strVal = Array.isArray(value) ? value[0] : value;
-    if (!strVal) return;
-    // ion-datetime может вернуть "2026-04-28" (date-only = UTC midnight в JS)
-    // или "2026-04-28T00:00:00Z". Используем parse для date-only, parseISO для ISO.
-    const dateStr = strVal.slice(0, 10);
-    const parsed = strVal.length <= 10
-      ? parse(dateStr, 'yyyy-MM-dd', new Date())
-      : parseISO(strVal);
+  /**
+   * Native date input (`<input type="date">`) — opens the OS-native date picker
+   * in the Capacitor WebView. Value comes back as "yyyy-MM-dd".
+   */
+  public onNativeDateChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    if (!value) return;
+    const parsed = parse(value, 'yyyy-MM-dd', new Date());
     if (isNaN(parsed.getTime())) return;
     this.selectedDate.set(parsed);
-    this.datePickerOpen.set(false);
     this.loadSchedule();
     this.updateNowIndicator();
-  }
-
-  public openDatePicker(): void {
-    this.datePickerOpen.set(true);
   }
 
   public getEmpForRow(row: IDailyEmployeeSchedule): IDailyEmployeeSchedule {
@@ -299,6 +292,26 @@ export class DailySchedulePage implements OnInit, OnDestroy {
    * Один code path — нет проблем с authUserSignal() на холодном старте.
    */
   private loadInitialData(): void {
+    // Managers cannot list all departments (the endpoint is admin-scoped and
+    // errors for them) — use the department bound to their profile instead.
+    // Mirrors the calendar/services pages; previously this page always called
+    // getDepartments() with no error handler, so managers got an unhandled
+    // error and a blank, frozen screen.
+    const user = this.supervisorService.authUserSignal();
+    if (user?.role === EUserRole.MANAGER) {
+      const dept = user.department;
+      if (dept) {
+        const deptObj: IDepartment =
+          typeof dept === 'string'
+            ? ({ _id: dept, name: '' } as IDepartment)
+            : ({ _id: dept._id, name: dept.name } as IDepartment);
+        this.departments.set([deptObj]);
+        this.selectedDepartment.set(deptObj);
+      }
+      this.loadSchedule();
+      return;
+    }
+
     this.departmentService
       .getDepartments({ limit: 100, offset: 0 })
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
@@ -309,6 +322,10 @@ export class DailySchedulePage implements OnInit, OnDestroy {
           if (deps.length) {
             this.selectedDepartment.set(deps[0]);
           }
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.loading.set(false);
           this.cdr.markForCheck();
         },
         complete: () => this.loadSchedule(),

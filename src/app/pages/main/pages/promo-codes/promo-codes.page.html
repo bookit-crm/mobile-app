@@ -69,7 +69,7 @@
     <ion-list lines="none">
       @for (promo of promoCodes(); track promo._id) {
         <ion-item-sliding>
-          <ion-item>
+          <ion-item [button]="true" [detail]="false" (click)="openEdit(promo, $event)">
             <ion-label>
               <div class="promo-header">
                 <h2>{{ promo.name }}</h2>

@@ -30,3 +30,27 @@
   &__more { font-size: 9px; color: var(--bk-orange-500, #ff7407); font-weight: 500; padding: 1px 4px; }
 }
 
+// ── Dark mode overrides ────────────────────────────────────────────────────
+// Softer surface + visible grid; event pills keep their light status tints so
+// their text must stay dark to remain readable.
+@media (prefers-color-scheme: dark) {
+  .month-view {
+    background: #1b1b1f;
+
+    &__header { border-bottom-color: rgba(255, 255, 255, 0.12); }
+    &__header-cell { color: rgba(255, 255, 255, 0.6); }
+
+    &__day {
+      border-right-color: rgba(255, 255, 255, 0.08);
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+      &:hover { background-color: rgba(255, 116, 7, 0.08); }
+      &--today { background-color: rgba(255, 116, 7, 0.1); }
+    }
+
+    &__day-number { color: rgba(255, 255, 255, 0.92); }
+
+    &__event-name { color: #252422; }
+    &__event-time { color: #51504f; }
+  }
+}
+

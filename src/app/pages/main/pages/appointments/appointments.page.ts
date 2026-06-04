@@ -22,6 +22,7 @@ import { IDepartment } from '@core/models/department.interface';
 import { IEmployee } from '@core/models/employee.interface';
 import { IClient } from '@core/models/client.interface';
 import { AppointmentsService } from '@core/services/appointments.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { DepartmentService } from '@core/services/department.service';
 import { EmployeeService } from '@core/services/employee.service';
 import { ClientsService } from '@core/services/clients.service';
@@ -51,6 +52,7 @@ export class AppointmentsPage {
   private readonly supervisorService = inject(SupervisorService);
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -272,15 +274,13 @@ export class AppointmentsPage {
 
   // ── CRUD actions ──────────────────────────────────────────────────────────
   public async openViewModal(appt: IAppointment): Promise<void> {
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: AppointmentViewModalComponent,
       componentProps: { appointmentId: appt._id },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openCreateModal(): Promise<void> {
@@ -288,15 +288,13 @@ export class AppointmentsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: AppointmentModalComponent,
       componentProps: { payload: {} },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openEditModal(appt: IAppointment, event: Event): Promise<void> {
@@ -305,15 +303,13 @@ export class AppointmentsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: AppointmentModalComponent,
       componentProps: { payload: { _id: appt._id } },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openHistory(appt: IAppointment, event: Event): Promise<void> {

@@ -17,6 +17,7 @@ import { ISupervisor } from '@core/models/supervisor.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { EUserRole } from '@core/enums/e-user-role';
 import { EmployeeService } from '@core/services/employee.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SubscriptionService } from '@core/services/subscription.service';
@@ -37,6 +38,7 @@ export class EmployeesPage implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   public readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -109,15 +111,13 @@ export class EmployeesPage implements OnInit {
     }
     const dept = await this.pickDepartment();
     if (!dept) return;
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: EmployeeFormModalComponent,
       componentProps: { employee: null, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadEmployees();
+    if (res?.data) this.loadEmployees();
   }
 
   public async openEditEmployee(employee: IEmployee, event: Event): Promise<void> {
@@ -125,15 +125,13 @@ export class EmployeesPage implements OnInit {
     const dept = typeof employee.department === 'string'
       ? { _id: employee.department, name: '' }
       : employee.department;
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: EmployeeFormModalComponent,
       componentProps: { employee, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadEmployees();
+    if (res?.data) this.loadEmployees();
   }
 
   public async confirmDeleteEmployee(employee: IEmployee, event: Event): Promise<void> {
@@ -157,15 +155,13 @@ export class EmployeesPage implements OnInit {
   public async openAddManager(): Promise<void> {
     const dept = await this.pickDepartment();
     if (!dept) return;
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: ManagerFormModalComponent,
       componentProps: { manager: null, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadManagers();
+    if (res?.data) this.loadManagers();
   }
 
   public async openEditManager(manager: ISupervisor, event: Event): Promise<void> {
@@ -173,15 +169,13 @@ export class EmployeesPage implements OnInit {
     const dept = typeof manager.department === 'string'
       ? { _id: manager.department, name: '', schedule: [] }
       : { ...manager.department, schedule: [] };
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: ManagerFormModalComponent,
       componentProps: { manager, department: dept },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.loadManagers();
+    if (res?.data) this.loadManagers();
   }
 
   public async confirmDeleteManager(manager: ISupervisor, event: Event): Promise<void> {

@@ -148,3 +148,16 @@ ion-content::part(scroll) {
     overflow: visible;
   }
 }
+
+// ── Dark mode: view switcher needs a visible raised surface (the default
+// --ion-color-step-50 + black active tab is nearly invisible). ───────────────
+@media (prefers-color-scheme: dark) {
+  .cal-view-switcher {
+    background: rgba(255, 255, 255, 0.06);
+
+    &__btn.active {
+      background: #2a2a2e;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+  }
+}

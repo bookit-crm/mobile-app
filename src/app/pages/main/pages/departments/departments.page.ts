@@ -17,6 +17,7 @@ import { IDepartment } from '@core/models/department.interface';
 import { DepartmentService } from '@core/services/department.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { EUserRole } from '@core/enums/e-user-role';
 import { DepartmentFormModalComponent } from './components/department-form-modal/department-form-modal.component';
 
@@ -34,6 +35,7 @@ export class DepartmentsPage implements OnInit {
   private readonly supervisorService = inject(SupervisorService);
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -83,15 +85,13 @@ export class DepartmentsPage implements OnInit {
       await this.showLimitAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: DepartmentFormModalComponent,
       componentProps: { department: null },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) {
+    if (res?.data) {
       this.loadDepartments();
     }
   }

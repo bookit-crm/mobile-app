@@ -71,7 +71,7 @@
       <ion-list lines="none">
         @for (emp of employees(); track emp._id) {
           <ion-item-sliding>
-            <ion-item>
+            <ion-item [button]="true" [detail]="false" (click)="openEditEmployee(emp, $event)">
               <ion-avatar slot="start">
                 @if (emp.avatar?.url) {
                   <img [src]="emp.avatar!.url" [alt]="emp.firstName" />
@@ -152,7 +152,7 @@
       <ion-list lines="none">
         @for (mgr of managers(); track mgr._id) {
           <ion-item-sliding>
-            <ion-item>
+            <ion-item [button]="true" [detail]="false" (click)="openEditManager(mgr, $event)">
               <ion-avatar slot="start">
                 @if (mgr.avatar?.url) {
                   <img [src]="mgr.avatar!.url" [alt]="mgr.firstName" />

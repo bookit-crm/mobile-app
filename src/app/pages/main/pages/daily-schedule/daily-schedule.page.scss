@@ -120,6 +120,52 @@ $border-color: var(--ion-border-color, #e0e0e0);
   padding: 0 4px;
 }
 
+// Native date picker trigger — styled like an outline button, with a transparent
+// <input type="date"> on top that opens the OS-native calendar when tapped.
+.ds-native-date {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--ion-color-medium, #bbbbbb);
+  border-radius: 8px;
+  color: var(--ion-text-color, #252422);
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  cursor: pointer;
+
+  &__icon {
+    font-size: 16px;
+    color: var(--ion-color-medium, #767676);
+  }
+
+  &__chevron {
+    font-size: 12px;
+    color: var(--ion-color-medium, #767676);
+  }
+
+  // The real input sits invisibly on top so the tap opens the native picker.
+  &__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    cursor: pointer;
+    // iOS shows its own value text inside the input — keep it hidden.
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    color: transparent;
+  }
+}
+
 // ─── Info row (legend + dept hours chip) ─────────────────────────────────────
 .ds-info-row {
   display: flex;

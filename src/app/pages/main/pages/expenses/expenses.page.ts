@@ -17,6 +17,7 @@ import { IExpense } from '@core/models/expense.interface';
 import { EExpenseCategory, EExpenseRecurrence, EExpenseStatus } from '@core/enums/e-expense';
 import { IKeyValuePair } from '@core/models/application.interface';
 import { ExpensesService } from '@core/services/expenses.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { DepartmentService } from '@core/services/department.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
@@ -36,6 +37,7 @@ export class ExpensesPage implements OnInit {
   private readonly supervisorService = inject(SupervisorService);
   public readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -165,29 +167,25 @@ export class ExpensesPage implements OnInit {
 
   // ── CRUD ─────────────────────────────────────────────────────────────────
   public async openAddExpense(): Promise<void> {
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<boolean>({
       component: ExpenseFormModalComponent,
       componentProps: { expense: null },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<boolean>();
-    if (data) this.resetAndLoad();
+    if (res?.data) this.resetAndLoad();
   }
 
   public async openEditExpense(expense: IExpense, event: Event): Promise<void> {
     event.stopPropagation();
     this.expensesService.getExpenseById(expense._id).pipe(take(1)).subscribe(async (full) => {
-      const modal = await this.modalCtrl.create({
+      const res = await this.modalGuard.open<boolean>({
         component: ExpenseFormModalComponent,
         componentProps: { expense: full },
         breakpoints: [0, 1],
         initialBreakpoint: 1,
       });
-      await modal.present();
-      const { data } = await modal.onWillDismiss<boolean>();
-      if (data) this.resetAndLoad();
+      if (res?.data) this.resetAndLoad();
     });
   }
 

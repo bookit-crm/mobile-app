@@ -49,11 +49,60 @@
 }
 
 // ── Dark mode overrides ────────────────────────────────────────────────────
+// Ionic's default dark palette paints --ion-background-color pure black, which
+// turns the whole grid into an unreadable black void. Use a softer surface and
+// clearly visible borders/labels so the calendar reads well on dark displays.
 @media (prefers-color-scheme: dark) {
-  // Disabled slots: clearly lighter than the near-black available slots (#121212)
-  // #3a3a3a vs #121212 ≈ 3.2× luminance ratio — reliably perceivable on dark displays
-  .day-view__slot--disabled {
-    background-color: #3a3a3a;
+  .day-view {
+    background: #1b1b1f;
+
+    &__time-col,
+    &__header-spacer,
+    &__column-header {
+      background: #1b1b1f;
+    }
+
+    &__header-spacer,
+    &__column-header {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    &__time-col {
+      border-right-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &__column {
+      border-right-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &__column-header {
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+    }
+
+    &__slot {
+      border-bottom-color: rgba(255, 255, 255, 0.07);
+
+      &--half {
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+      }
+
+      &:hover:not(.day-view__slot--disabled) {
+        background-color: rgba(255, 116, 7, 0.1);
+      }
+
+      // Disabled / outside working hours — subtly raised, not a harsh light grey.
+      &--disabled {
+        background-color: rgba(255, 255, 255, 0.045);
+      }
+    }
+
+    &__time-label span {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    &__employee-name {
+      color: rgba(255, 255, 255, 0.92);
+    }
   }
 
   // First time label (05:00 / day start): its span has translateY(-7px) which

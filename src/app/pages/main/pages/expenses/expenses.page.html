@@ -175,7 +175,7 @@
       <ion-list lines="none">
         @for (exp of expenses(); track exp._id) {
           <ion-item-sliding>
-            <ion-item>
+            <ion-item [button]="true" [detail]="false" (click)="openEditExpense(exp, $event)">
               <div class="list-item-icon" slot="start">
                 <ion-icon name="receipt-outline"></ion-icon>
               </div>

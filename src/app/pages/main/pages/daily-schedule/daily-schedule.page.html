@@ -54,13 +54,24 @@
     </div>
   </ion-toolbar>
 
-  <!-- Date picker + Today button row -->
+  <!-- Date picker (native) + Today button row -->
   <ion-toolbar class="ds-date-toolbar">
     <div class="ds-date-row">
-      <ion-button fill="outline" size="small" (click)="openDatePicker()">
-        <ion-icon slot="start" name="calendar-outline"></ion-icon>
-        {{ selectedDateString().slice(0, 10).split('-').reverse().join('/') }}
-      </ion-button>
+      <!-- Native OS date picker: the transparent <input type="date"> overlays
+           the styled button and opens the device's native calendar. -->
+      <label class="ds-native-date">
+        <ion-icon name="calendar-outline" class="ds-native-date__icon"></ion-icon>
+        <span class="ds-native-date__text">
+          {{ selectedDateString().slice(0, 10).split('-').reverse().join('/') }}
+        </span>
+        <ion-icon name="chevron-down-outline" class="ds-native-date__chevron"></ion-icon>
+        <input
+          type="date"
+          class="ds-native-date__input"
+          [value]="selectedDateString().slice(0, 10)"
+          (change)="onNativeDateChange($event)"
+        />
+      </label>
 
       @if (!isTodaySignal()) {
         <ion-button fill="outline" size="small" color="medium" (click)="goToToday()">
@@ -70,28 +81,6 @@
     </div>
   </ion-toolbar>
 </ion-header>
-
-<!-- Date Picker Modal -->
-<ion-modal [isOpen]="datePickerOpen()" (didDismiss)="datePickerOpen.set(false)">
-  <ng-template>
-    <ion-header>
-      <ion-toolbar>
-        <ion-title>{{ "DS_SELECT_DATE" | translate }}</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="datePickerOpen.set(false)">{{ "CLOSE" | translate }}</ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-    <ion-content>
-      <ion-datetime
-        presentation="date"
-        [locale]="datePickerLocale()"
-        [value]="selectedDateString()"
-        (ionChange)="onDatePickerChange($event.detail.value)"
-      ></ion-datetime>
-    </ion-content>
-  </ng-template>
-</ion-modal>
 
 <ion-content>
   <ion-refresher (ionRefresh)="handleRefresh($event)">

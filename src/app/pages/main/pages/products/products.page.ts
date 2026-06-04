@@ -16,6 +16,7 @@ import { debounceTime, Subject, take } from 'rxjs';
 import { IProduct } from '@core/models/product.interface';
 import { ProductsService } from '@core/services/products.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { ModalGuardService } from '@core/services/modal-guard.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { DepartmentService } from '@core/services/department.service';
 import { ProductModalComponent } from './components/product-modal/product-modal.component';
@@ -39,6 +40,7 @@ export class ProductsPage {
   private readonly supervisorService = inject(SupervisorService);
   private readonly departmentService = inject(DepartmentService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly modalGuard = inject(ModalGuardService);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
   private readonly destroyRef = inject(DestroyRef);
@@ -145,15 +147,13 @@ export class ProductsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: ProductModalComponent,
       componentProps: { product: null },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openEditModal(product: IProduct, event: Event): Promise<void> {
@@ -163,15 +163,13 @@ export class ProductsPage {
       await this.showSubscriptionAlert();
       return;
     }
-    const modal = await this.modalCtrl.create({
+    const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: ProductModalComponent,
       componentProps: { product },
       breakpoints: [0, 1],
       initialBreakpoint: 1,
     });
-    await modal.present();
-    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
-    if (data?.saved) { this.refresh(); }
+    if (res?.data?.saved) { this.refresh(); }
   }
 
   public async openHistory(product: IProduct, event: Event): Promise<void> {

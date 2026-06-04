@@ -111,9 +111,86 @@
 }
 
 // ── Dark mode overrides ────────────────────────────────────────────────────
+// Softer surface + visible borders/labels instead of Ionic's pure-black default.
 @media (prefers-color-scheme: dark) {
-  .week-view__slot--disabled {
-    background-color: #3a3a3a;
+  .week-view,
+  .week-view__time-col,
+  .week-view__column-header,
+  .week-view__emp-bar,
+  .week-view__emp-chip {
+    background: #1b1b1f;
+  }
+
+  .week-view {
+    &__emp-bar {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &__emp-chip {
+      border-color: rgba(255, 255, 255, 0.14);
+
+      &--active {
+        border-color: var(--bk-orange-500, #ff7407);
+        background: rgba(255, 116, 7, 0.12);
+      }
+    }
+
+    &__emp-chip-name {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    &__header-spacer {
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    &__time-label {
+      border-right-color: rgba(255, 255, 255, 0.1);
+
+      span {
+        color: rgba(255, 255, 255, 0.55);
+      }
+    }
+
+    &__column {
+      border-right-color: rgba(255, 255, 255, 0.08);
+
+      &--today {
+        background: rgba(255, 116, 7, 0.06);
+      }
+    }
+
+    &__column-header {
+      border-bottom-color: rgba(255, 255, 255, 0.12);
+
+      &--today {
+        background: rgba(255, 116, 7, 0.1);
+      }
+    }
+
+    &__day-name {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    &__day-number {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    &__slot {
+      border-bottom-color: rgba(255, 255, 255, 0.07);
+
+      &--half {
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+      }
+
+      &:hover:not(.week-view__slot--disabled) {
+        background-color: rgba(255, 116, 7, 0.1);
+      }
+
+      &--disabled {
+        background-color: rgba(255, 255, 255, 0.045);
+      }
+    }
   }
 
   // First time label: remove negative transform so it doesn't hide behind sticky header
