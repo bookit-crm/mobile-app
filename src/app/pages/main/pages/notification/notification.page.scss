@@ -85,14 +85,23 @@
 // ── Notification list ───────────────────────────────────────────────────────
 .notif-list {
   background: transparent;
-  padding: 0;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .notif-card {
-  --padding-start: 16px;
-  --inner-padding-end: 16px;
-  --background: transparent;
-  --border-color: var(--ion-color-step-150, #ececec);
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --background: var(--ion-color-step-50, #f7f7f7);
+  --border-color: transparent;
+  border-radius: 12px;
+  overflow: hidden;
+
+  @media (prefers-color-scheme: dark) {
+    --background: rgba(255, 255, 255, 0.06);
+  }
 
   &--unread {
     --background: rgba(var(--ion-color-warning-rgb, 255, 196, 9), 0.08);

@@ -230,13 +230,20 @@ ion-item-sliding {
 }
 
 // ── ion-segment: active indicator & checked label ─────────────────────────────
-// All pages using ion-segment (employees, notifications, appointments, payroll-detail,
-// faq). Active indicator defaults to primary (#252422) = invisible on dark bg.
+// Active indicator defaults to primary (#252422) = invisible on dark bg.
+// Use orange indicator with WHITE checked text (not orange — would be invisible
+// on orange background).
 @media (prefers-color-scheme: dark) {
   ion-segment-button.segment-button-checked {
-    --color-checked: var(--bk-orange-500, #ff7407);
+    --color-checked: #ffffff;
     --indicator-color: var(--bk-orange-500, #ff7407);
   }
+}
+
+// Light mode: indicator is orange, text should also be white for contrast
+ion-segment-button.segment-button-checked {
+  --color-checked: #ffffff;
+  --indicator-color: var(--bk-orange-500, #ff7407);
 }
 
 // ── ion-alert button text ─────────────────────────────────────────────────────
