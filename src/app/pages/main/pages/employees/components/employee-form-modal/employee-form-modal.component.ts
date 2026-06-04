@@ -68,6 +68,18 @@ export class EmployeeFormModalComponent implements OnInit {
   public availableServices: IService[] = [];
   public selectedServices: IService[] = [];
   public showServicePicker = false;
+  public serviceSearch = '';
+
+  public get filteredServices(): IService[] {
+    const q = this.serviceSearch.trim().toLowerCase();
+    if (!q) return this.availableServices;
+    return this.availableServices.filter(s => s.name.toLowerCase().includes(q));
+  }
+
+  public get allServicesSelected(): boolean {
+    return this.availableServices.length > 0 &&
+      this.availableServices.every(s => this.isServiceSelected(s));
+  }
 
   public get salaryRateOptions() {
     return [
@@ -170,6 +182,21 @@ export class EmployeeFormModalComponent implements OnInit {
 
   public isServiceSelected(service: IService): boolean {
     return this.selectedServices.some((s) => s._id === service._id);
+  }
+
+  public assignAllServices(): void {
+    this.selectedServices = [...this.availableServices];
+    this.cdr.markForCheck();
+  }
+
+  public clearAllServices(): void {
+    this.selectedServices = [];
+    this.cdr.markForCheck();
+  }
+
+  public onServiceSearchChange(value: string): void {
+    this.serviceSearch = value;
+    this.cdr.markForCheck();
   }
 
   // ── Salary rate ────────────────────────────────────────────────────────────
