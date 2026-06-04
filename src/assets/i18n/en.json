@@ -863,6 +863,7 @@
   "PC_DISCOUNT_TYPE": "Type",
   "PC_DISCOUNT_VALUE": "Value",
   "PC_NO_SERVICES": "No services added yet",
+  "PC_NO_SERVICES_HINT": "No services in this department yet",
   "PC_DISCOUNT_PERCENTAGE": "Percentage (%)",
   "PC_DISCOUNT_FIXED": "Fixed price ($)",
   "PC_UPDATED_TOAST": "Promo code updated",

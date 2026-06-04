@@ -860,6 +860,7 @@
   "PC_DISCOUNT_TYPE": "Тип",
   "PC_DISCOUNT_VALUE": "Значення",
   "PC_NO_SERVICES": "Послуг ще не додано",
+  "PC_NO_SERVICES_HINT": "В цьому відділі ще немає послуг",
   "PC_DISCOUNT_PERCENTAGE": "Відсоток (%)",
   "PC_DISCOUNT_FIXED": "Фіксована ціна ($)",
   "PC_UPDATED_TOAST": "Промокод оновлено",

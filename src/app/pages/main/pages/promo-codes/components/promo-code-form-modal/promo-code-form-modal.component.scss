@@ -79,3 +79,22 @@
   }
 }
 
+// Inline hint when no services available for this department
+.no-services-inline {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+  padding: 8px 0;
+  font-style: italic;
+}
+
+// Fix ion-toggle active color — Ionic dark mode override
+ion-toggle {
+  --track-background-checked: var(--ion-color-primary);
+  --handle-background-checked: #ffffff;
+}
+
+// Fix ion-radio active color inside discount-type popover
+ion-radio {
+  --color-checked: var(--ion-color-primary);
+}
+

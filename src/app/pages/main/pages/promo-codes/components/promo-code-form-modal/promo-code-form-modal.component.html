@@ -69,11 +69,15 @@
 
             <ion-item lines="full" [formGroupName]="$index">
               <ion-label position="stacked">{{ 'PC_SERVICE_LABEL' | translate }} <span class="required">*</span></ion-label>
-              <ion-select formControlName="service" interface="action-sheet" [placeholder]="'PC_SELECT_SERVICE' | translate">
-                @for (svc of availableServices; track svc._id) {
-                  <ion-select-option [value]="svc">{{ svc.name }}</ion-select-option>
-                }
-              </ion-select>
+              @if (availableServices.length > 0) {
+                <ion-select formControlName="service" interface="action-sheet" [placeholder]="'PC_SELECT_SERVICE' | translate">
+                  @for (svc of availableServices; track svc._id) {
+                    <ion-select-option [value]="svc">{{ svc.name }}</ion-select-option>
+                  }
+                </ion-select>
+              } @else {
+                <ion-note class="no-services-inline">{{ 'PC_NO_SERVICES_HINT' | translate }}</ion-note>
+              }
             </ion-item>
 
             <div class="discount-row" [formGroupName]="$index">
