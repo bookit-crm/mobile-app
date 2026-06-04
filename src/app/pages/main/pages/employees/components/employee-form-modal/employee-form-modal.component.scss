@@ -4,6 +4,11 @@
   height: 100%;
 }
 
+// Extra bottom padding so schedule rows are not clipped by ion-footer
+ion-content {
+  --padding-bottom: 24px;
+}
+
 // ── Avatar row ─────────────────────────────────────────────
 .avatar-row {
   display: flex;

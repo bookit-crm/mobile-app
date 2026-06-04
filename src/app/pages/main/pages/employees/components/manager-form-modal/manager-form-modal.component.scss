@@ -4,6 +4,22 @@
   height: 100%;
 }
 
+// Extra bottom padding so the last schedule row (with time inputs) is not
+// clipped by the fixed ion-footer when scrolled to the bottom
+ion-content {
+  --padding-bottom: 24px;
+}
+
+// Footer actions — equal-width Cancel / Create buttons
+.modal-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 4px;
+
+  ion-button { margin: 0; }
+}
+
 // ── Avatar row ─────────────────────────────────────────────
 .avatar-row {
   display: flex;
