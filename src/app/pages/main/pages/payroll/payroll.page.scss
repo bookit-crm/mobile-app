@@ -245,7 +245,7 @@ ion-modal.filter-modal {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   padding: 12px 16px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  padding-bottom: 12px; /* ion-footer already handles safe-area */
   border-top: 1px solid var(--ion-color-light-shade);
   background: var(--ion-background-color, #fff);
 
