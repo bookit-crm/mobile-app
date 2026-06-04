@@ -192,7 +192,26 @@
   gap: 6px;
 }
 
+// Cancel + Save row — equal width side by side
+.modal-footer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+// Logout — full-width text button below the action row
 .acc-modal__logout-btn {
   font-size: 14px;
+  margin: 0;
+  --color: var(--ion-color-danger);
+  opacity: 0.85;
+
+  &:hover, &:active {
+    opacity: 1;
+  }
 }
 

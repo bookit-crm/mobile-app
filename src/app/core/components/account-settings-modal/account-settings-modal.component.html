@@ -214,12 +214,9 @@
 <ion-footer class="ion-no-border acc-modal__footer">
   <ion-toolbar>
 
-    <!-- Profile tab: Logout + Cancel + Save in one row -->
+    <!-- Profile tab: Cancel + Save row, then Logout below -->
     @if (activeTab() === 'profile') {
       <div class="modal-footer-actions">
-        <ion-button fill="clear" color="danger" (click)="logout()">
-          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-        </ion-button>
         <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
           {{ 'CANCEL' | translate }}
         </ion-button>
@@ -232,14 +229,15 @@
           {{ 'SAVE' | translate }}
         </ion-button>
       </div>
+      <ion-button class="acc-modal__logout-btn" fill="clear" color="danger" expand="block" (click)="logout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        {{ 'LOG_OUT' | translate }}
+      </ion-button>
     }
 
-    <!-- Security tab: Logout + Cancel + step-specific action in one row -->
+    <!-- Security tab: Cancel + action, then Logout below -->
     @if (activeTab() === 'security') {
       <div class="modal-footer-actions">
-        <ion-button fill="clear" color="danger" (click)="logout()">
-          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-        </ion-button>
         <ion-button fill="outline" color="medium" expand="block" (click)="dismiss()">
           {{ 'CANCEL' | translate }}
         </ion-button>
@@ -274,6 +272,10 @@
           </ion-button>
         }
       </div>
+      <ion-button class="acc-modal__logout-btn" fill="clear" color="danger" expand="block" (click)="logout()">
+        <ion-icon slot="start" name="log-out-outline"></ion-icon>
+        {{ 'LOG_OUT' | translate }}
+      </ion-button>
     }
 
   </ion-toolbar>
