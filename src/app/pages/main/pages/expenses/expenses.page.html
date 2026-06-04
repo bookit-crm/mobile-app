@@ -176,11 +176,9 @@
         @for (exp of expenses(); track exp._id) {
           <ion-item-sliding>
             <ion-item>
-              <ion-icon
-                name="receipt-outline"
-                slot="start"
-                class="expense-icon"
-              ></ion-icon>
+              <div class="list-item-icon" slot="start">
+                <ion-icon name="receipt-outline"></ion-icon>
+              </div>
               <ion-label>
                 <h2>{{ exp.title }}</h2>
                 <p>

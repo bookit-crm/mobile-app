@@ -155,7 +155,7 @@
       <ion-list lines="none">
         @for (period of periods(); track period._id) {
           <ion-item-sliding>
-            <ion-item button (click)="openViewDetail(period)">
+            <ion-item button [detail]="false" (click)="openViewDetail(period)">
               <ion-avatar slot="start">
                 @if (period.employee?.avatar?.url || period.supervisor?.avatar?.url) {
                   <img [src]="period.employee?.avatar?.url || period.supervisor?.avatar?.url" [alt]="getStaffName(period)" />

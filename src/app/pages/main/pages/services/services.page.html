@@ -74,7 +74,7 @@
 
       @for (service of services(); track service._id) {
         <ion-item-sliding>
-          <ion-item class="service-item" [button]="true" (click)="openEditModal(service, $event)">
+          <ion-item class="service-item" [button]="true" [detail]="false" (click)="openEditModal(service, $event)">
             @if (service.coverImage?.url; as coverUrl) {
               <ion-thumbnail slot="start" class="service-item__cover">
                 <img [src]="coverUrl" alt="" />
