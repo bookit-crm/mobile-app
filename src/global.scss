@@ -145,6 +145,44 @@ ion-item-sliding {
   }
 }
 
+// ── ion-select dark-mode fix ──────────────────────────────────────────────────
+// ion-select renders its value + icon at very low opacity in dark mode,
+// making it look disabled even when fully interactive.
+@media (prefers-color-scheme: dark) {
+  ion-select {
+    --placeholder-color: rgba(255, 255, 255, 0.35);
+    --placeholder-opacity: 1;
+    color: var(--ion-text-color, #ffffff) !important;
+    opacity: 1 !important;
+
+    // The chevron / arrow icon inside the select
+    &::part(icon) {
+      color: rgba(255, 255, 255, 0.55);
+      opacity: 1;
+    }
+
+    // Selected value text
+    &::part(text) {
+      color: var(--ion-text-color, #ffffff);
+      opacity: 1;
+    }
+  }
+
+  // Popover select interface — same fix as action-sheet
+  ion-select-popover {
+    ion-radio {
+      --color: rgba(255, 255, 255, 0.65);
+      --color-checked: var(--bk-orange-500, #ff7407);
+    }
+
+    ion-item {
+      --color: var(--ion-text-color, #ffffff);
+      color: var(--ion-text-color, #ffffff) !important;
+      opacity: 1 !important;
+    }
+  }
+}
+
 // ── ion-action-sheet dark-mode fix ───────────────────────────────────────────
 // Default Ionic dark action-sheet renders buttons with very low opacity/contrast
 // making all options look disabled. Override to full-opacity white text.
