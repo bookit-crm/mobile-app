@@ -16,6 +16,7 @@ import { ISchedule, IScheduleQueries } from '@core/models/schedule.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { SchedulerViewType } from '@core/models/calendar.interface';
 import { EUserRole } from '@core/enums/e-user-role';
+import { ENotificationCategory } from '@core/enums/e-notification';
 import { IDragDropResult } from './utils/calendar-utils';
 import { AppointmentsService } from '@core/services/appointments.service';
 import { EmployeeService } from '@core/services/employee.service';
@@ -82,6 +83,23 @@ export class CalendarPage implements OnInit {
       const update = this.websocketService.dashboardUpdateSignal();
       if (!update) return;
       untracked(() => this.scheduleRealtimeReload());
+    });
+
+    // Real-time: when a manager edits/cancels an appointment the backend
+    // emits new_notification to the admin (confirmed working) but may NOT
+    // emit dashboard_update. Listen to newNotificationSignal as a fallback
+    // so the calendar reloads regardless of which WS event fires.
+    // Only trigger for appointment-related categories (new_bookings / cancellations).
+    effect(() => {
+      const notif = this.websocketService.newNotificationSignal();
+      if (!notif) return;
+      const apptCategories: string[] = [
+        ENotificationCategory.NewBookings,
+        ENotificationCategory.Cancellations,
+      ];
+      if (apptCategories.includes(notif.category)) {
+        untracked(() => this.scheduleRealtimeReload());
+      }
     });
   }
 
