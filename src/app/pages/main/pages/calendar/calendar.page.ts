@@ -440,8 +440,9 @@ export class CalendarPage implements OnInit {
       .asObservable()
       .pipe(debounceTime(100), takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        this.appointments.set([]);
-        this.filteredAppointments.set([]);
+        // Do NOT clear appointments/filteredAppointments before loading —
+        // keeping stale data visible avoids the calendar ↔ spinner flicker.
+        // The new data will overwrite them once the request completes.
         this.loadSchedules();
         this.loadAppointments();
       });

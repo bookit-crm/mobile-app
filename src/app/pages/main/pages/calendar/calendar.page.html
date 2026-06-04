@@ -77,15 +77,16 @@
     </div>
   }
 
-  <!-- Loading -->
+  <!-- Loading indicator: thin progress bar instead of full-screen spinner
+       so the calendar stays visible while data refreshes (no flicker) -->
   @if (isLoading()) {
-    <div class="cal-loading">
-      <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <div class="cal-progress-bar">
+      <div class="cal-progress-bar__track"></div>
     </div>
   }
 
-  <!-- Calendar views -->
-  @if (!isLoading()) {
+  <!-- Calendar views — always rendered, no hide/show on loading -->
+  @if (true) {
     @switch (viewType()) {
       @case (SchedulerViewType.Day) {
         <div class="cal-content">
