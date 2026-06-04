@@ -3,7 +3,7 @@
   DestroyRef, effect, inject, NgZone, OnInit, signal, untracked,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { ModalController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { format, parse, startOfWeek, endOfWeek } from 'date-fns';
 import { uk, enUS } from 'date-fns/locale';
@@ -53,6 +53,7 @@ export class CalendarPage implements OnInit {
   private readonly departmentService = inject(DepartmentService);
   private readonly supervisorService = inject(SupervisorService);
   private readonly modalCtrl = inject(ModalController);
+  private readonly alertCtrl = inject(AlertController);
   private readonly websocketService = inject(WebsocketService);
   private readonly t = inject(TranslateService);
   private readonly subscriptionService = inject(SubscriptionService);
@@ -233,8 +234,44 @@ export class CalendarPage implements OnInit {
     }
   }
 
-  /** Drag-and-drop: обновляем время/сотрудника через API и обновляем календарь */
-  public onEventDropped(result: IDragDropResult): void {
+  /**
+   * Drag-and-drop: показываем confirm-модалку с «было → стане», чтобы исключить
+   * случайный перенос, и только после подтверждения обновляем через API.
+   */
+  public async onEventDropped(result: IDragDropResult): Promise<void> {
+    const locale = this.currentLang() === 'ua' ? uk : enUS;
+    const fmt = (start?: string, end?: string): string => {
+      if (!start) return '';
+      const s = new Date(start);
+      const range = end ? `${format(s, 'HH:mm')}–${format(new Date(end), 'HH:mm')}` : format(s, 'HH:mm');
+      return `${format(s, 'EEE, d MMM', { locale })} · ${range}`;
+    };
+
+    const fromText = fmt(result.oldStartDate, result.oldEndDate);
+    const toText = fmt(result.newStartDate, result.newEndDate);
+
+    const message =
+      (fromText
+        ? `<strong>${this.t.instant('MOVE_APPOINTMENT_FROM')}:</strong> ${fromText}<br>`
+        : '') +
+      `<strong>${this.t.instant('MOVE_APPOINTMENT_TO')}:</strong> ${toText}`;
+
+    const alert = await this.alertCtrl.create({
+      header: this.t.instant('MOVE_APPOINTMENT_TITLE'),
+      message,
+      buttons: [
+        { text: this.t.instant('CANCEL'), role: 'cancel' },
+        {
+          text: this.t.instant('MOVE_APPOINTMENT_CONFIRM_BTN'),
+          handler: () => this.applyEventDrop(result),
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  /** Apply a confirmed drag-drop reschedule via API and refresh the calendar. */
+  private applyEventDrop(result: IDragDropResult): void {
     const patch: Record<string, unknown> = {
       startDate: result.newStartDate,
       endDate: result.newEndDate,

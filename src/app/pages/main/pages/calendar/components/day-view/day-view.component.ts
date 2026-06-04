@@ -301,6 +301,8 @@ export class DayViewComponent {
       newStartDate: newStart.toISOString(),
       newEndDate: newEnd.toISOString(),
       newEmployeeId: column.employeeId,
+      oldStartDate: this.dragAppt.startDate,
+      oldEndDate: this.dragAppt.endDate,
     };
   }
 

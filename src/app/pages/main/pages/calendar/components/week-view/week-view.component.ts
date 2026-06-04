@@ -326,6 +326,8 @@ export class WeekViewComponent {
       newStartDate: newStart.toISOString(),
       newEndDate: newEnd.toISOString(),
       newEmployeeId: empId || undefined,
+      oldStartDate: this.dragAppt.startDate,
+      oldEndDate: this.dragAppt.endDate,
     };
   }
 

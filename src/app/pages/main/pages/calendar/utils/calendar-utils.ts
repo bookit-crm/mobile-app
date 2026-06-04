@@ -7,6 +7,8 @@ export interface IDragDropResult {
   newStartDate: string; // ISO string
   newEndDate: string;   // ISO string
   newEmployeeId?: string; // undefined → не менять сотрудника
+  oldStartDate?: string; // ISO string — для confirm-модалки (было)
+  oldEndDate?: string;   // ISO string — для confirm-модалки (было)
 }
 
 export interface ITimeSlot {
