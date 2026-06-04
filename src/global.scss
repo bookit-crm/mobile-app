@@ -145,6 +145,38 @@ ion-item-sliding {
   }
 }
 
+// ── ion-action-sheet dark-mode fix ───────────────────────────────────────────
+// Default Ionic dark action-sheet renders buttons with very low opacity/contrast
+// making all options look disabled. Override to full-opacity white text.
+@media (prefers-color-scheme: dark) {
+  ion-action-sheet {
+    --button-color: var(--ion-text-color, #ffffff);
+    --button-background: rgba(255, 255, 255, 0.06);
+    --button-background-hover: rgba(255, 255, 255, 0.10);
+    --button-background-activated: rgba(255, 255, 255, 0.12);
+    --color: var(--ion-text-color, #ffffff);
+
+    .action-sheet-button {
+      color: var(--ion-text-color, #ffffff) !important;
+      opacity: 1 !important;
+    }
+
+    .action-sheet-title {
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .action-sheet-cancel .action-sheet-button {
+      color: var(--bk-orange-500, #ff7407) !important;
+      font-weight: 600;
+    }
+
+    .action-sheet-selected .action-sheet-button {
+      color: var(--bk-orange-500, #ff7407) !important;
+      font-weight: 600;
+    }
+  }
+}
+
 // ── ion-button dark-mode fix ──────────────────────────────────────────────────
 // Our --ion-color-primary = #252422 (always dark). fill="clear" / fill="outline"
 // buttons without an explicit [color] become invisible on dark backgrounds.
