@@ -100,6 +100,51 @@ ion-item-sliding {
   overflow: hidden;
 }
 
+// ── Form inputs dark-mode fix ─────────────────────────────────────────────────
+// In dark mode all inputs blend into the background — labels and input fields
+// look identical (both black). Give input items a distinct background so the
+// user clearly sees which area is editable.
+@media (prefers-color-scheme: dark) {
+  // ion-item that wraps an input/select/textarea: raised background + border
+  ion-item:has(ion-input),
+  ion-item:has(ion-select),
+  ion-item:has(ion-textarea),
+  ion-item:has(ion-datetime) {
+    --background: rgba(255, 255, 255, 0.06);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --highlight-color-focused: var(--bk-orange-500, #ff7407);
+    border-radius: 8px;
+    margin-bottom: 4px;
+  }
+
+  // Focused state — orange highlight so user knows which field is active
+  ion-item:has(ion-input:focus-within),
+  ion-item:has(ion-select.select-expanded),
+  ion-item:has(ion-textarea:focus-within) {
+    --background: rgba(255, 255, 255, 0.09);
+    --border-color: rgba(255, 116, 7, 0.5);
+  }
+
+  // Stacked label: visually separate from input text
+  ion-label[position="stacked"],
+  ion-label.label-stacked {
+    color: rgba(255, 255, 255, 0.55) !important;
+    font-size: 12px !important;
+  }
+
+  // Placeholder text — slightly muted
+  ion-input,
+  ion-textarea {
+    --placeholder-color: rgba(255, 255, 255, 0.30);
+    --placeholder-opacity: 1;
+  }
+
+  // ion-select value text — ensure readable
+  ion-select {
+    color: var(--ion-text-color, #ffffff);
+  }
+}
+
 // ── ion-button dark-mode fix ──────────────────────────────────────────────────
 // Our --ion-color-primary = #252422 (always dark). fill="clear" / fill="outline"
 // buttons without an explicit [color] become invisible on dark backgrounds.
