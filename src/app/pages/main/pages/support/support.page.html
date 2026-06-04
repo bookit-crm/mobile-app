@@ -44,7 +44,7 @@
 
 <!-- Messages area -->
 <ion-content class="support-chat__content">
-  <ion-refresher (ionRefresh)="handleRefresh($event)">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   <!-- Load more -->

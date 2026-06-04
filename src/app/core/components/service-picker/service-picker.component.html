@@ -78,11 +78,11 @@
                 (ionChange)="toggleService(svc)"
               ></ion-checkbox>
             } @else {
-              <ion-radio
+              <ion-icon
                 slot="start"
-                [value]="svc._id"
-                [checked]="isSelected(svc)"
-              ></ion-radio>
+                [name]="isSelected(svc) ? 'checkmark-circle' : 'ellipse-outline'"
+                [color]="isSelected(svc) ? 'primary' : 'medium'"
+              ></ion-icon>
             }
             <ion-label>
               <h3>{{ svc.name }}</h3>

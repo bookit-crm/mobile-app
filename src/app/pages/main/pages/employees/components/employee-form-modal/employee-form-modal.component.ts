@@ -50,7 +50,7 @@ export class EmployeeFormModalComponent implements OnInit {
   private readonly subscriptionService = inject(SubscriptionService);
   private readonly modalCtrl = inject(ModalController);
   private readonly toastCtrl = inject(ToastController);
-  private readonly cdr = inject(ChangeDetectorRef);
+  protected readonly cdr = inject(ChangeDetectorRef);
   private readonly t = inject(TranslateService);
 
   public readonly ESalaryRateType = ESalaryRateType;

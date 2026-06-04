@@ -90,12 +90,6 @@
             (selectionChange)="selectedServices = $event; cdr.markForCheck()"
           ></app-service-picker>
         </ion-item>
-        <!-- keep empty placeholder so @if closes correctly -->
-        @if (false) {
-          <ion-item></ion-item>
-            }
-          </div>
-        }
       } @else {
         <ion-item><ion-label color="medium">{{ 'EMP_NO_SERVICES_IN_DEPT' | translate }}</ion-label></ion-item>
       }

@@ -11,7 +11,18 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
-import { IService } from '@core/models/service.interface';
+
+/**
+ * Minimal structural shape the picker needs. Kept local so any "service-like"
+ * object (the full service IService, or the lean appointment IService) can be
+ * passed in without type-coupling to a specific model.
+ */
+export interface IServicePickerItem {
+  _id: string;
+  name: string;
+  duration: number;
+  price: number;
+}
 
 /**
  * Reusable service picker — bottom-sheet modal with search.
@@ -42,10 +53,10 @@ import { IService } from '@core/models/service.interface';
 })
 export class ServicePickerComponent implements OnChanges {
   /** Full list of available services */
-  @Input() services: IService[] = [];
+  @Input() services: IServicePickerItem[] = [];
 
   /** Currently selected service(s) */
-  @Input() selected: IService[] = [];
+  @Input() selected: IServicePickerItem[] = [];
 
   /** Allow selecting multiple services */
   @Input() multiple = false;
@@ -57,14 +68,14 @@ export class ServicePickerComponent implements OnChanges {
   @Input() disabled = false;
 
   /** Emits the new selection after user confirms */
-  @Output() selectionChange = new EventEmitter<IService[]>();
+  @Output() selectionChange = new EventEmitter<IServicePickerItem[]>();
 
   // ── Internal state ────────────────────────────────────────────────────────
   isOpen = signal(false);
   searchQuery = '';
-  private draft: IService[] = [];
+  protected draft: IServicePickerItem[] = [];
 
-  get filteredServices(): IService[] {
+  get filteredServices(): IServicePickerItem[] {
     const q = this.searchQuery.trim().toLowerCase();
     if (!q) return this.services;
     return this.services.filter(s => s.name.toLowerCase().includes(q));
@@ -97,11 +108,11 @@ export class ServicePickerComponent implements OnChanges {
     this.searchQuery = '';
   }
 
-  isSelected(svc: IService): boolean {
+  isSelected(svc: IServicePickerItem): boolean {
     return this.draft.some(d => d._id === svc._id);
   }
 
-  toggleService(svc: IService): void {
+  toggleService(svc: IServicePickerItem): void {
     if (!this.multiple) {
       this.draft = [svc];
       this.confirm();
