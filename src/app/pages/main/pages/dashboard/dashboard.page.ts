@@ -69,8 +69,9 @@ export class DashboardPage implements OnInit {
   }
 
   public handleRefresh(event: CustomEvent): void {
+    const refresher = event.target as HTMLIonRefresherElement;
     this.state.init();
-    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+    setTimeout(() => refresher?.complete(), 3000);
   }
 
   public onTabChange(value: string): void {

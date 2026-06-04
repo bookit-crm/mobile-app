@@ -123,8 +123,20 @@ export class ProductHistoryComponent implements OnInit {
   }
 
   public handleRefresh(event: CustomEvent): void {
+    const refresher = event.target as HTMLIonRefresherElement;
+    // Reset stuck loading state
+    this.isLoading.set(false);
+    // Trigger refresh
     this.loadHistory(true);
-    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+    // Complete refresher when data finishes loading (polls isLoading signal)
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += 100;
+      if (!this.isLoading() || elapsed >= 5000) {
+        clearInterval(timer);
+        refresher?.complete();
+      }
+    }, 100);
   }
 
   private loadHistory(reset: boolean): void {

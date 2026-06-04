@@ -157,9 +157,21 @@ export class ClientDetailPage implements OnInit {
   }
 
   public handleRefresh(event: CustomEvent): void {
+    const refresher = event.target as HTMLIonRefresherElement;
+    // Reset stuck loading state
+    this.isLoadingHistory.set(false);
+    // Trigger refresh
     this.loadClient();
     this.loadHistory(true);
-    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+    // Complete refresher when data finishes loading (polls isLoadingHistory signal)
+    let elapsed = 0;
+    const timer = setInterval(() => {
+      elapsed += 100;
+      if (!this.isLoadingHistory() || elapsed >= 5000) {
+        clearInterval(timer);
+        refresher?.complete();
+      }
+    }, 100);
   }
 
   private loadClient(): void {

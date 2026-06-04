@@ -119,8 +119,9 @@ export class SupportPage implements AfterViewChecked {
   }
 
   public handleRefresh(event: CustomEvent): void {
+    const refresher = event.target as HTMLIonRefresherElement;
     this.loadOpenChat();
-    setTimeout(() => (event.target as HTMLIonRefresherElement).complete(), 1500);
+    setTimeout(() => refresher?.complete(), 3000);
   }
 
   private loadOpenChat(): void {
