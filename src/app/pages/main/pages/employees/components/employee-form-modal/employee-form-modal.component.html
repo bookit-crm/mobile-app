@@ -80,62 +80,19 @@
       <ion-list-header><ion-label><strong>{{ 'EMP_ASSIGNED_SERVICES' | translate }}</strong></ion-label></ion-list-header>
 
       @if (availableServices.length > 0) {
-        <!-- Trigger row -->
-        <ion-item button (click)="showServicePicker = !showServicePicker" detail="false">
-          <ion-icon name="briefcase-outline" slot="start"></ion-icon>
-          <ion-label>
-            {{ 'EMP_SELECT_SERVICES' | translate }}
-            @if (selectedServices.length > 0) {
-              <ion-badge color="warning" class="ion-margin-start">{{ selectedServices.length }}</ion-badge>
-            }
-          </ion-label>
-          <ion-icon [name]="showServicePicker ? 'chevron-up-outline' : 'chevron-down-outline'" slot="end"></ion-icon>
+        <ion-item lines="none" class="svc-picker-row">
+          <ion-icon name="briefcase-outline" slot="start" color="medium"></ion-icon>
+          <ion-label position="stacked">{{ 'EMP_SELECT_SERVICES' | translate }}</ion-label>
+          <app-service-picker
+            [services]="availableServices"
+            [selected]="selectedServices"
+            [multiple]="true"
+            (selectionChange)="selectedServices = $event; cdr.markForCheck()"
+          ></app-service-picker>
         </ion-item>
-
-        @if (showServicePicker) {
-          <!-- Search + bulk actions -->
-          <div class="service-picker">
-            <div class="service-picker__toolbar">
-              <ion-searchbar
-                [placeholder]="'EMP_SEARCH_SERVICES' | translate"
-                [value]="serviceSearch"
-                (ionInput)="onServiceSearchChange($event.detail.value ?? '')"
-                (ionClear)="onServiceSearchChange('')"
-                debounce="200"
-              ></ion-searchbar>
-              <div class="service-picker__actions">
-                @if (!allServicesSelected) {
-                  <ion-button fill="clear" size="small" (click)="assignAllServices()">
-                    <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
-                    {{ 'EMP_ASSIGN_ALL' | translate }}
-                  </ion-button>
-                } @else {
-                  <ion-button fill="clear" size="small" color="medium" (click)="clearAllServices()">
-                    <ion-icon name="close-circle-outline" slot="start"></ion-icon>
-                    {{ 'EMP_CLEAR_ALL' | translate }}
-                  </ion-button>
-                }
-              </div>
-            </div>
-
-            @if (filteredServices.length === 0) {
-              <ion-item>
-                <ion-label color="medium">{{ 'NO_RESULTS' | translate }}</ion-label>
-              </ion-item>
-            }
-            @for (svc of filteredServices; track svc._id) {
-              <ion-item (click)="toggleServiceSelection(svc)" button detail="false">
-                <ion-checkbox
-                  slot="start"
-                  [checked]="isServiceSelected(svc)"
-                  (click)="$event.stopPropagation()"
-                  (ionChange)="toggleServiceSelection(svc)"
-                ></ion-checkbox>
-                <ion-label>
-                  <h3>{{ svc.name }}</h3>
-                  <p>{{ svc.duration }} min — {{ svc.price | currency }}</p>
-                </ion-label>
-              </ion-item>
+        <!-- keep empty placeholder so @if closes correctly -->
+        @if (false) {
+          <ion-item></ion-item>
             }
           </div>
         }

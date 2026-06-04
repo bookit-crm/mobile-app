@@ -1,0 +1,121 @@
+<!-- Trigger button — matches the style of ion-item selectors -->
+<button
+  type="button"
+  class="svc-trigger"
+  [class.svc-trigger--disabled]="disabled"
+  [disabled]="disabled"
+  (click)="openPicker()"
+>
+  @if (selected.length > 0) {
+    <span class="svc-trigger__value">{{ displayLabel }}</span>
+    @if (multiple && selected.length > 1) {
+      <span class="svc-trigger__badge">{{ selected.length }}</span>
+    }
+  } @else {
+    <span class="svc-trigger__placeholder">{{ placeholder | translate }}</span>
+  }
+  <ion-icon name="chevron-down-outline" class="svc-trigger__chevron"></ion-icon>
+</button>
+
+<!-- Bottom-sheet modal — same pattern as country picker -->
+<ion-modal
+  class="svc-picker-modal"
+  [isOpen]="isOpen()"
+  (didDismiss)="closePicker()"
+  [breakpoints]="[0, 0.5, 0.85]"
+  [initialBreakpoint]="0.85"
+  [handle]="true"
+>
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>{{ (multiple ? 'SVC_PICKER_TITLE_MULTI' : 'SVC_PICKER_TITLE') | translate }}</ion-title>
+        <ion-buttons slot="end">
+          <ion-button fill="clear" (click)="closePicker()">
+            <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+      <ion-toolbar>
+        <ion-searchbar
+          [placeholder]="'SVC_PICKER_SEARCH' | translate"
+          [debounce]="0"
+          [(ngModel)]="searchQuery"
+        ></ion-searchbar>
+      </ion-toolbar>
+
+      @if (multiple) {
+        <ion-toolbar class="svc-picker__bulk-toolbar">
+          @if (!allSelected) {
+            <ion-button fill="clear" size="small" (click)="selectAll()">
+              <ion-icon name="checkmark-done-outline" slot="start"></ion-icon>
+              {{ 'EMP_ASSIGN_ALL' | translate }}
+            </ion-button>
+          } @else {
+            <ion-button fill="clear" size="small" color="medium" (click)="clearAll()">
+              <ion-icon name="close-circle-outline" slot="start"></ion-icon>
+              {{ 'EMP_CLEAR_ALL' | translate }}
+            </ion-button>
+          }
+        </ion-toolbar>
+      }
+    </ion-header>
+
+    <ion-content>
+      <ion-list lines="full">
+        @for (svc of filteredServices; track svc._id) {
+          <ion-item
+            [button]="true"
+            [detail]="false"
+            [class.svc-picker__item--selected]="isSelected(svc)"
+            (click)="toggleService(svc)"
+          >
+            @if (multiple) {
+              <ion-checkbox
+                slot="start"
+                [checked]="isSelected(svc)"
+                (click)="$event.stopPropagation()"
+                (ionChange)="toggleService(svc)"
+              ></ion-checkbox>
+            } @else {
+              <ion-radio
+                slot="start"
+                [value]="svc._id"
+                [checked]="isSelected(svc)"
+              ></ion-radio>
+            }
+            <ion-label>
+              <h3>{{ svc.name }}</h3>
+              <p>{{ svc.duration }} {{ 'SVC_MIN' | translate }} · {{ svc.price | currency }}</p>
+            </ion-label>
+          </ion-item>
+        }
+        @if (filteredServices.length === 0) {
+          <ion-item>
+            <ion-label color="medium" class="ion-text-center">
+              {{ 'NO_RESULTS' | translate }}
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    </ion-content>
+
+    @if (multiple) {
+      <ion-footer class="ion-no-border">
+        <ion-toolbar>
+          <div class="svc-picker__footer">
+            <ion-button fill="outline" color="medium" expand="block" (click)="closePicker()">
+              {{ 'CANCEL' | translate }}
+            </ion-button>
+            <ion-button fill="solid" color="primary" expand="block" (click)="confirm()">
+              {{ 'CONFIRM' | translate }}
+              @if (draft.length > 0) {
+                ({{ draft.length }})
+              }
+            </ion-button>
+          </div>
+        </ion-toolbar>
+      </ion-footer>
+    }
+  </ng-template>
+</ion-modal>

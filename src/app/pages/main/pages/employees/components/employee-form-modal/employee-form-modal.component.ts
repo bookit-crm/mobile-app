@@ -30,11 +30,12 @@ import { SchedulesService } from '@core/services/schedules.service';
 import { ServicesService } from '@core/services/services.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 import { ImagePickerComponent } from '@core/components/image-picker/image-picker.component';
+import { ServicePickerComponent } from '@core/components/service-picker/service-picker.component';
 
 @Component({
   selector: 'app-employee-form-modal',
   standalone: true,
-  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent, PhoneInputComponent],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule, ImagePickerComponent, PhoneInputComponent, ServicePickerComponent],
   templateUrl: './employee-form-modal.component.html',
   styleUrls: ['./employee-form-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
