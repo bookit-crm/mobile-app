@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <span class="ai-title-icon">✦</span>
+      {{ 'CHAT_HUB_AI' | translate }}
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="ai.toggleHistory()" [class.active]="ai.showHistory()" fill="clear" [title]="'AI_CHAT_HISTORY' | translate">
+        <ion-icon name="time-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <ion-button (click)="newChat()" fill="clear" [title]="'AI_CHAT_NEW' | translate">
+        <ion-icon name="add-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ai-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- History panel -->
+  @if (ai.showHistory()) {
+    <div class="ai-history">
+      <div class="ai-history__header">
+        <span>{{ 'AI_CHAT_HISTORY_TITLE' | translate }}</span>
+        @if (ai.conversations().length > 0) {
+          <span class="ai-history__count">{{ ai.conversations().length }}</span>
+        }
+      </div>
+
+      @if (ai.conversations().length === 0) {
+        <div class="ai-history__empty">
+          <ion-icon name="chatbubbles-outline" class="ai-history__empty-icon"></ion-icon>
+          <p>{{ 'AI_CHAT_NO_HISTORY' | translate }}</p>
+          <span>{{ 'AI_CHAT_START_NEW' | translate }}</span>
+        </div>
+      }
+
+      <div class="ai-history__list">
+        @for (conv of ai.conversations(); track conv.id) {
+          <div class="ai-history__item" (click)="ai.loadConversation(conv)">
+            <div class="ai-history__item-icon">
+              <ion-icon name="chatbubble-outline"></ion-icon>
+            </div>
+            <div class="ai-history__item-body">
+              <div class="ai-history__item-title">{{ conv.title }}</div>
+              <div class="ai-history__item-time">{{ formatDate(conv.date) }}</div>
+            </div>
+            <ion-button fill="clear" size="small" color="medium" (click)="deleteConv($event, conv.id)" [title]="'AI_CHAT_DELETE' | translate">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Messages -->
+  @if (!ai.showHistory()) {
+    <div class="ai-messages">
+
+      @if (ai.messages().length === 0) {
+        <div class="ai-welcome">
+          <div class="ai-welcome__icon">✦</div>
+          <h3>{{ 'AI_CHAT_WELCOME' | translate }}</h3>
+          <p class="ai-welcome__sub">{{ 'AI_CHAT_WELCOME_SUB' | translate }}</p>
+          <div class="ai-quick-btns">
+            <button class="ai-quick-btn" (click)="quickAction('Скільки записів на сьогодні і який загальний дохід?')">
+              📅 {{ 'AI_CHAT_QUICK_APPOINTMENTS' | translate }}
+            </button>
+            <button class="ai-quick-btn" (click)="quickAction('Хто з співробітників вільний сьогодні з 15:00 до 20:00?')">
+              🕐 {{ 'AI_CHAT_QUICK_AVAILABLE' | translate }}
+            </button>
+            <button class="ai-quick-btn" (click)="quickAction('Які товари на складі закінчуються або нижче мінімального залишку?')">
+              📦 {{ 'AI_CHAT_QUICK_STOCK' | translate }}
+            </button>
+            <button class="ai-quick-btn" (click)="quickAction('Покажи статистику за цей тиждень — виручка і кількість записів')">
+              📊 {{ 'AI_CHAT_QUICK_STATS' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @for (msg of ai.messages(); track msg.id) {
+        <div class="ai-msg" [class.ai-msg--user]="msg.role === 'user'" [class.ai-msg--assistant]="msg.role === 'assistant'">
+          @if (msg.role === 'assistant') {
+            <div class="ai-msg__avatar">✦</div>
+          }
+          <div class="ai-msg__bubble">
+            @if (msg.toolCall) {
+              <div class="ai-msg__tool">
+                <span class="ai-msg__tool-dot"></span>
+                {{ getToolLabel(msg.toolCall) }}
+              </div>
+            }
+            <span [innerHTML]="formatText(msg.text)"></span>
+            @if (msg.isStreaming && !msg.text) {
+              <span class="ai-typing">
+                <span></span><span></span><span></span>
+              </span>
+            }
+          </div>
+        </div>
+      }
+
+      <div #messagesEnd></div>
+    </div>
+  }
+
+</ion-content>
+
+<!-- Limit bar -->
+@if (!ai.showHistory() && ai.dailyLimit() > 0) {
+  <div class="ai-limit" [class.ai-limit--warning]="ai.usagePercent() >= 75" [class.ai-limit--danger]="ai.usagePercent() >= 95">
+    <div class="ai-limit__bar">
+      <div class="ai-limit__fill" [style.width.%]="ai.usagePercent()"></div>
+    </div>
+    <span class="ai-limit__text">
+      @if (ai.isLimitReached()) {
+        ⛔ {{ 'AI_CHAT_LIMIT_REACHED' | translate }}
+      } @else {
+        {{ ai.usedToday() }} / {{ ai.dailyLimit() }} {{ 'AI_CHAT_REQUESTS_TODAY' | translate }}
+      }
+    </span>
+  </div>
+}
+
+<!-- Input -->
+@if (!ai.showHistory()) {
+  <div class="ai-input">
+    <textarea
+      class="ai-input__textarea"
+      [(ngModel)]="inputText"
+      (keydown)="onKeydown($event)"
+      [placeholder]="ai.isLimitReached() ? ('AI_CHAT_LIMIT_PLACEHOLDER' | translate) : ('AI_CHAT_PLACEHOLDER' | translate)"
+      rows="1"
+      [disabled]="ai.isStreaming() || ai.isLimitReached()"
+    ></textarea>
+    @if (ai.isStreaming()) {
+      <button class="ai-input__stop" (click)="ai.stopStreaming()">
+        <ion-icon name="stop-circle-outline"></ion-icon>
+      </button>
+    } @else {
+      <button class="ai-input__send" (click)="send()" [disabled]="!inputText.trim() || ai.isLimitReached()">
+        <ion-icon name="send-outline"></ion-icon>
+      </button>
+    }
+  </div>
+}

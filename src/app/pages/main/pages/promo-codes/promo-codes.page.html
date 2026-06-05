@@ -114,18 +114,21 @@
             >
               <ion-icon
                 [name]="promo.isVisible ? 'eye-off-outline' : 'eye-outline'"
-                slot="icon-only"
+                slot="top"
               ></ion-icon>
+              <span class="option-label">{{ (promo.isVisible ? 'HIDE' : 'SHOW') | translate }}</span>
             </ion-item-option>
 
             <!-- Edit -->
             <ion-item-option color="primary" (click)="openEdit(promo, $event)">
-              <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+              <ion-icon name="create-outline" slot="top"></ion-icon>
+              <span class="option-label">{{ 'EDIT' | translate }}</span>
             </ion-item-option>
 
             <!-- Delete -->
             <ion-item-option color="danger" (click)="confirmDelete(promo, $event)">
-              <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+              <ion-icon name="trash-outline" slot="top"></ion-icon>
+              <span class="option-label">{{ 'DELETE' | translate }}</span>
             </ion-item-option>
           </ion-item-options>
         </ion-item-sliding>

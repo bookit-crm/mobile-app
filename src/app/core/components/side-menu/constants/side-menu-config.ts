@@ -15,6 +15,7 @@ export const ADMIN_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'MENU_PAYROLL',        url: '/main/payroll',        icon: 'briefcase-outline',  feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
   { title: 'MENU_PROMO_CODES',    url: '/main/promo-codes',    icon: 'pricetag-outline',   feature: 'promoCodes' },
   { title: 'MENU_NOTIFICATION',   url: '/main/notification',   icon: 'notifications-outline', useSeparator: true },
+  { title: 'MENU_AI',             url: '/main/ai',             icon: 'sparkles-outline' },
   { title: 'MENU_FAQ',            url: '/main/faq',            icon: 'help-circle-outline' },
   { title: 'MENU_SUPPORT',        url: '/main/support',        icon: 'headset-outline' },
 ];
@@ -32,6 +33,7 @@ export const MANAGER_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'MENU_PAYROLL',        url: '/main/payroll',        icon: 'briefcase-outline',  feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
   { title: 'MENU_PROMO_CODES',    url: '/main/promo-codes',    icon: 'pricetag-outline',   feature: 'promoCodes' },
   { title: 'MENU_NOTIFICATION',   url: '/main/notification',   icon: 'notifications-outline', useSeparator: true },
+  { title: 'MENU_AI',             url: '/main/ai',             icon: 'sparkles-outline' },
   { title: 'MENU_FAQ',            url: '/main/faq',            icon: 'help-circle-outline' },
   { title: 'MENU_SUPPORT',        url: '/main/support',        icon: 'headset-outline' },
 ];

@@ -12,6 +12,8 @@ export interface IPayrollPeriod {
   _id: string;
   employee: IEmployee | null;
   supervisor: ISupervisor | null;
+  /** Name snapshot stored at period creation — shown when employee/supervisor is deleted */
+  staffNameSnapshot: string | null;
   periodStart: string;
   periodEnd: string;
   status: EPayrollPeriodStatus;

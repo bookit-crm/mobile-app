@@ -232,10 +232,13 @@ ion-item-sliding {
   }
 }
 
-// ── ion-segment: active indicator & checked label ─────────────────────────────
-// Active indicator defaults to primary (#252422) = invisible on dark bg.
-// Use orange indicator with WHITE checked text (not orange — would be invisible
-// on orange background).
+// Light mode: indicator is orange, active text should be orange to contrast with white background
+ion-segment-button.segment-button-checked {
+  --color-checked: var(--bk-orange-500, #ff7407);
+  --indicator-color: var(--bk-orange-500, #ff7407);
+}
+
+// Dark mode: indicator is orange, text should be white since it sits on dark background
 @media (prefers-color-scheme: dark) {
   ion-segment-button.segment-button-checked {
     --color-checked: #ffffff;
@@ -243,17 +246,29 @@ ion-item-sliding {
   }
 }
 
-// Light mode: indicator is orange, text should also be white for contrast
-ion-segment-button.segment-button-checked {
-  --color-checked: #ffffff;
-  --indicator-color: var(--bk-orange-500, #ff7407);
+// ── ion-alert button text ─────────────────────────────────────────────────────
+// Confirm button → orange (primary accent)
+// Cancel button  → gray (secondary)
+// Destructive    → red
+.alert-button:not(.alert-button-role-cancel):not(.alert-button-role-destructive) {
+  color: var(--bk-orange-500) !important;
+  font-weight: 600 !important;
 }
 
-// ── ion-alert button text ─────────────────────────────────────────────────────
-// Cancel / confirm buttons default to primary (#252422) = invisible on dark alert.
+.alert-button-role-cancel {
+  color: var(--ion-color-medium) !important;
+  font-weight: 400 !important;
+}
+
+.alert-button-role-destructive {
+  color: var(--ion-color-danger) !important;
+  font-weight: 600 !important;
+}
+
+// Dark mode: same hues, just ensure text stays visible
 @media (prefers-color-scheme: dark) {
-  .alert-button:not(.alert-button-role-destructive) {
-    color: var(--ion-text-color) !important;
+  .alert-button-role-cancel {
+    color: rgba(255, 255, 255, 0.55) !important;
   }
 }
 
@@ -318,7 +333,8 @@ ion-list[lines="none"] {
     ion-item {
       --border-radius: 0; // handled by wrapper
       --border-color: transparent;
-      --background: var(--ion-item-background, var(--ion-background-color));
+      --background: var(--ion-background-color, #ffffff);
+      background-color: var(--ion-background-color, #ffffff);
       margin-bottom: 0;
     }
   }
@@ -331,7 +347,8 @@ ion-list[lines="none"] {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 
     ion-item {
-      --background: rgba(255, 255, 255, 0.04);
+      --background: #1e1e1e;
+      background-color: #1e1e1e;
     }
   }
 }

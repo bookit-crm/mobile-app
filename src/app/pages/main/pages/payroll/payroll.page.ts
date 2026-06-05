@@ -131,6 +131,14 @@ export class PayrollPage implements OnInit {
     this.resetAndLoad();
   }
 
+  public goToToday(): void {
+    const now = new Date();
+    this.selectedYear.set(now.getFullYear());
+    this.selectedMonth.set(now.getMonth());
+    this.loadMonthStatuses(now.getFullYear());
+    this.resetAndLoad();
+  }
+
   public selectMonth(index: number): void {
     this.selectedMonth.set(index);
     this.resetAndLoad();
@@ -186,7 +194,9 @@ export class PayrollPage implements OnInit {
   public async confirmDelete(period: IPayrollPeriod, event: Event): Promise<void> {
     event.stopPropagation();
     const staff = period.employee || period.supervisor;
-    const name = `${staff?.firstName ?? ''} ${staff?.lastName ?? ''}`.trim();
+    const name = staff
+      ? `${staff?.firstName ?? ''} ${staff?.lastName ?? ''}`.trim()
+      : (period.staffNameSnapshot || this.t.instant('DELETED_EMPLOYEE'));
     const alert = await this.alertCtrl.create({
       header: this.t.instant('PAY_DELETE_TITLE'),
       message: this.t.instant('PAY_DELETE_MSG', { name }),
@@ -233,7 +243,7 @@ export class PayrollPage implements OnInit {
   // ── Display helpers ───────────────────────────────────────────────────────
   public getStaffName(period: IPayrollPeriod): string {
     const staff = period.employee || period.supervisor;
-    if (!staff) return '—';
+    if (!staff) return period.staffNameSnapshot || this.t.instant('DELETED_EMPLOYEE');
     return `${staff.firstName ?? ''} ${staff.lastName ?? ''}`.trim();
   }
 

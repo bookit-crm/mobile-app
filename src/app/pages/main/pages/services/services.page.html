@@ -72,7 +72,8 @@
         </div>
       }
 
-      @for (service of services(); track service._id) {
+      <ion-list lines="none">
+        @for (service of services(); track service._id) {
         <ion-item-sliding>
           <ion-item class="service-item" [button]="true" [detail]="false" (click)="openEditModal(service, $event)">
             @if (service.coverImage?.url; as coverUrl) {
@@ -125,15 +126,18 @@
           @if (canManage()) {
             <ion-item-options side="end">
               <ion-item-option color="primary" (click)="openEditModal(service, $event)">
-                <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+                <ion-icon slot="top" name="create-outline"></ion-icon>
+                <span class="option-label">{{ 'EDIT' | translate }}</span>
               </ion-item-option>
               <ion-item-option color="danger" (click)="confirmDelete(service, $event)">
-                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+                <ion-icon slot="top" name="trash-outline"></ion-icon>
+                <span class="option-label">{{ 'DELETE' | translate }}</span>
               </ion-item-option>
             </ion-item-options>
           }
         </ion-item-sliding>
-      }
+        }
+      </ion-list>
 
       <!-- Infinite scroll -->
       <ion-infinite-scroll [disabled]="!hasMore()" (ionInfinite)="onInfiniteScroll($event)">

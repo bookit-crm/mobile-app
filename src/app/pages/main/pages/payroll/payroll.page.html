@@ -103,6 +103,9 @@
       <ion-button fill="clear" size="small" (click)="nextYear()">
         <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
       </ion-button>
+      <ion-button fill="clear" size="small" class="today-btn" (click)="goToToday()">
+        {{ 'TODAY' | translate }}
+      </ion-button>
     </div>
 
     <div class="months-row">
@@ -190,11 +193,13 @@
 
             <ion-item-options side="end">
               <ion-item-option color="primary" (click)="openViewDetail(period, $event)">
-                <ion-icon name="eye-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="eye-outline" slot="top"></ion-icon>
+                <span class="option-label">{{ 'VIEW' | translate }}</span>
               </ion-item-option>
               @if (period.status === EPayrollPeriodStatus.Open) {
                 <ion-item-option color="danger" (click)="confirmDelete(period, $event)">
-                  <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  <ion-icon name="trash-outline" slot="top"></ion-icon>
+                  <span class="option-label">{{ 'DELETE' | translate }}</span>
                 </ion-item-option>
               }
             </ion-item-options>

@@ -74,6 +74,11 @@ const routes: Routes = [
           import('./pages/faq/faq.module').then(m => m.FaqPageModule),
       },
       {
+        path: 'ai',
+        loadChildren: () =>
+          import('./pages/ai/ai.module').then(m => m.AiPageModule),
+      },
+      {
         path: 'support',
         loadChildren: () =>
           import('./pages/support/support.module').then(m => m.SupportPageModule),

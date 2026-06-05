@@ -105,10 +105,12 @@
 
             <ion-item-options side="end">
               <ion-item-option color="primary" (click)="openEditEmployee(emp, $event)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="create-outline" slot="top"></ion-icon>
+                <span class="option-label">{{ 'EDIT' | translate }}</span>
               </ion-item-option>
               <ion-item-option color="danger" (click)="confirmDeleteEmployee(emp, $event)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="trash-outline" slot="top"></ion-icon>
+                <span class="option-label">{{ 'DELETE' | translate }}</span>
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
@@ -189,14 +191,17 @@
               >
                 <ion-icon
                   [name]="isManagerAssigned(mgr) ? 'person-remove-outline' : 'person-add-outline'"
-                  slot="icon-only"
+                  slot="top"
                 ></ion-icon>
+                <span class="option-label">{{ (isManagerAssigned(mgr) ? 'UNASSIGN' : 'ASSIGN') | translate }}</span>
               </ion-item-option>
               <ion-item-option color="primary" (click)="openEditManager(mgr, $event)">
-                <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="create-outline" slot="top"></ion-icon>
+                <span class="option-label">{{ 'EDIT' | translate }}</span>
               </ion-item-option>
               <ion-item-option color="danger" (click)="confirmDeleteManager(mgr, $event)">
-                <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                <ion-icon name="trash-outline" slot="top"></ion-icon>
+                <span class="option-label">{{ 'DELETE' | translate }}</span>
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
