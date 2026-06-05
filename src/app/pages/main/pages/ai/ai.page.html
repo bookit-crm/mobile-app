@@ -132,23 +132,62 @@
 
 <!-- Input -->
 @if (!ai.showHistory()) {
-  <div class="ai-input">
-    <textarea
-      class="ai-input__textarea"
-      [(ngModel)]="inputText"
-      (keydown)="onKeydown($event)"
-      [placeholder]="ai.isLimitReached() ? ('AI_CHAT_LIMIT_PLACEHOLDER' | translate) : ('AI_CHAT_PLACEHOLDER' | translate)"
-      rows="1"
-      [disabled]="ai.isStreaming() || ai.isLimitReached()"
-    ></textarea>
-    @if (ai.isStreaming()) {
-      <button class="ai-input__stop" (click)="ai.stopStreaming()">
-        <ion-icon name="stop-circle-outline"></ion-icon>
+  <div class="ai-input" [class.ai-input--recording]="isRecording()">
+
+    @if (isRecording()) {
+      <!-- Recording state -->
+      <div class="ai-recording">
+        <button class="ai-recording__cancel" (click)="cancelRecording()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+        <div class="ai-recording__wave">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span class="ai-recording__time">{{ formatRecordingTime() }}</span>
+      </div>
+      <button
+        class="ai-input__voice ai-input__voice--recording"
+        (touchend)="onVoiceEnd($event)"
+        (mouseup)="onVoiceEnd($event)"
+        (touchcancel)="cancelRecording()"
+      >
+        <ion-icon name="mic-outline"></ion-icon>
       </button>
+
     } @else {
-      <button class="ai-input__send" (click)="send()" [disabled]="!inputText.trim() || ai.isLimitReached()">
-        <ion-icon name="send-outline"></ion-icon>
-      </button>
+      <!-- Normal state -->
+      <textarea
+        class="ai-input__textarea"
+        [(ngModel)]="inputText"
+        (keydown)="onKeydown($event)"
+        [placeholder]="ai.isLimitReached() ? ('AI_CHAT_LIMIT_PLACEHOLDER' | translate) : ('AI_CHAT_PLACEHOLDER' | translate)"
+        rows="1"
+        [disabled]="ai.isStreaming() || ai.isLimitReached()"
+      ></textarea>
+
+      @if (ai.isStreaming()) {
+        <button class="ai-input__stop" (click)="ai.stopStreaming()">
+          <ion-icon name="stop-circle-outline"></ion-icon>
+        </button>
+      } @else if (inputText.trim()) {
+        <button class="ai-input__send" (click)="send()" [disabled]="ai.isLimitReached()">
+          <ion-icon name="send-outline"></ion-icon>
+        </button>
+      } @else if (isVoiceSupported) {
+        <button
+          class="ai-input__voice"
+          (touchstart)="onVoiceStart($event)"
+          (mousedown)="onVoiceStart($event)"
+          [disabled]="ai.isLimitReached()"
+        >
+          <ion-icon name="mic-outline"></ion-icon>
+        </button>
+      } @else {
+        <button class="ai-input__send" (click)="send()" [disabled]="!inputText.trim() || ai.isLimitReached()">
+          <ion-icon name="send-outline"></ion-icon>
+        </button>
+      }
     }
+
   </div>
 }
