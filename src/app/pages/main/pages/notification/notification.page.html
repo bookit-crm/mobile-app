@@ -17,19 +17,24 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-segment
-      [value]="activeTab()"
-      (ionChange)="onTabChange($event.detail.value?.toString())"
-    >
-      <ion-segment-button value="inbox">
+    <div class="bk-tabs">
+      <button
+        class="bk-tab-btn"
+        [class.bk-tab-btn--active]="activeTab() === 'inbox'"
+        (click)="onTabChange('inbox')"
+      >
         <ion-icon name="mail-outline"></ion-icon>
-        <ion-label>{{ 'NOTIF_TAB_INBOX' | translate }}</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="settings">
+        <span>{{ 'NOTIF_TAB_INBOX' | translate }}</span>
+      </button>
+      <button
+        class="bk-tab-btn"
+        [class.bk-tab-btn--active]="activeTab() === 'settings'"
+        (click)="onTabChange('settings')"
+      >
         <ion-icon name="options-outline"></ion-icon>
-        <ion-label>{{ 'NOTIF_TAB_SETTINGS' | translate }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+        <span>{{ 'NOTIF_TAB_SETTINGS' | translate }}</span>
+      </button>
+    </div>
   </ion-toolbar>
 </ion-header>
 

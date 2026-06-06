@@ -6,16 +6,18 @@
     <ion-title>{{ 'FAQ_TITLE' | translate }}</ion-title>
   </ion-toolbar>
 
-  <!-- Segment tabs (расширяемо — добавить FAQ/Q&A в будущем) -->
+  <!-- Tabs (розширюваний — додати Q&A у майбутньому) -->
   <ion-toolbar>
-    <ion-segment [value]="activeTab()" (ionChange)="activeTab.set($any($event.detail.value))">
-      <ion-segment-button value="tutorials">
-        <ion-label>
-          <ion-icon name="play-circle-outline"></ion-icon>
-          {{ 'FAQ_TAB_TUTORIALS' | translate }} ({{ filteredTutorials().length }})
-        </ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <div class="bk-tabs">
+      <button
+        class="bk-tab-btn"
+        [class.bk-tab-btn--active]="activeTab() === 'tutorials'"
+        (click)="activeTab.set('tutorials')"
+      >
+        <ion-icon name="play-circle-outline"></ion-icon>
+        <span>{{ 'FAQ_TAB_TUTORIALS' | translate }} ({{ filteredTutorials().length }})</span>
+      </button>
+    </div>
   </ion-toolbar>
 
   <ion-toolbar>

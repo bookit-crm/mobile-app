@@ -9,14 +9,22 @@
   <!-- Tabs: только для Admin/Owner -->
   @if (!isManager) {
     <ion-toolbar>
-      <ion-segment [value]="activeTab()" (ionChange)="onTabChange($any($event.detail.value))">
-        <ion-segment-button value="employees">
-          <ion-label>{{ 'EMP_TAB_EMPLOYEES' | translate:{ count: employeesTotal() } }}</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="managers">
-          <ion-label>{{ 'EMP_TAB_MANAGERS' | translate:{ count: managersTotal() } }}</ion-label>
-        </ion-segment-button>
-      </ion-segment>
+      <div class="bk-tabs">
+        <button
+          class="bk-tab-btn"
+          [class.bk-tab-btn--active]="activeTab() === 'employees'"
+          (click)="onTabChange('employees')"
+        >
+          <span>{{ 'EMP_TAB_EMPLOYEES' | translate:{ count: employeesTotal() } }}</span>
+        </button>
+        <button
+          class="bk-tab-btn"
+          [class.bk-tab-btn--active]="activeTab() === 'managers'"
+          (click)="onTabChange('managers')"
+        >
+          <span>{{ 'EMP_TAB_MANAGERS' | translate:{ count: managersTotal() } }}</span>
+        </button>
+      </div>
     </ion-toolbar>
   }
 

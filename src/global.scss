@@ -234,18 +234,80 @@ ion-item-sliding {
   }
 }
 
-// Segment button: orange indicator pill, white text on top (works on both light & dark).
-// On iOS the indicator fills the entire button → text must be white to be readable.
-// On MD the indicator is just an underline → white text on light bg is also fine (orange pill).
-ion-segment-button.segment-button-checked {
-  --color-checked: #ffffff;
-  --indicator-color: var(--bk-orange-500, #ff7407);
+// ── .bk-tabs / .bk-tab-btn — shared custom tab bar ──────────────────────────
+//
+// Used instead of ion-segment everywhere (appointments, employees, notifications,
+// payroll-detail, faq). Matches the analytics dashboard tab style exactly.
+// Platform-agnostic: no Ionic shadow DOM, works identically on iOS and Android.
+//
+// Usage:
+//   <div class="bk-tabs">
+//     <button class="bk-tab-btn" [class.bk-tab-btn--active]="…" (click)="…">
+//       <ion-icon name="…"></ion-icon>   ← optional
+//       <span>Label</span>
+//     </button>
+//   </div>
+.bk-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px 12px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar { display: none; }
+}
+
+.bk-tab-btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ion-color-medium, #6d6c6c);
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  ion-icon {
+    font-size: 17px;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+  }
+
+  &--active {
+    background: rgba(255, 116, 7, 0.12);
+    color: var(--bk-orange-500, #ff7407);
+
+    ion-icon { color: var(--bk-orange-500, #ff7407); }
+  }
+
+  &:active:not(&--active) {
+    background: rgba(0, 0, 0, 0.05);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-  ion-segment-button.segment-button-checked {
-    --color-checked: #ffffff;
-    --indicator-color: var(--bk-orange-500, #ff7407);
+  .bk-tab-btn {
+    color: rgba(255, 255, 255, 0.5);
+
+    &--active {
+      background: rgba(255, 116, 7, 0.15);
+      color: var(--bk-orange-400, #ff9039);
+
+      ion-icon { color: var(--bk-orange-400, #ff9039); }
+    }
+
+    &:active:not(&--active) {
+      background: rgba(255, 255, 255, 0.07);
+    }
   }
 }
 

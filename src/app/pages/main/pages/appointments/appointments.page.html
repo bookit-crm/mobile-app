@@ -14,13 +14,17 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-segment [value]="statusFilter()" (ionChange)="onStatusChange($event.detail.value?.toString() ?? 'all')">
+    <div class="bk-tabs">
       @for (opt of statusOptions; track opt.value) {
-        <ion-segment-button [value]="opt.value">
-          <ion-label>{{ opt.label | translate }}</ion-label>
-        </ion-segment-button>
+        <button
+          class="bk-tab-btn"
+          [class.bk-tab-btn--active]="statusFilter() === opt.value"
+          (click)="onStatusChange(opt.value)"
+        >
+          <span>{{ opt.label | translate }}</span>
+        </button>
       }
-    </ion-segment>
+    </div>
   </ion-toolbar>
   <ion-toolbar>
     <ion-searchbar

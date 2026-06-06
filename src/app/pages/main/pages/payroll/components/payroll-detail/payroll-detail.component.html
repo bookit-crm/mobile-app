@@ -9,14 +9,22 @@
   </ion-toolbar>
 
   <ion-toolbar>
-    <ion-segment [value]="activeSegment()" (ionChange)="onSegmentChange($any($event.detail.value))">
-      <ion-segment-button value="overview">
-        <ion-label>{{ 'PAY_TAB_OVERVIEW' | translate }}</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="items">
-        <ion-label>{{ 'PAY_TAB_ITEMS' | translate }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
+    <div class="bk-tabs">
+      <button
+        class="bk-tab-btn"
+        [class.bk-tab-btn--active]="activeSegment() === 'overview'"
+        (click)="onSegmentChange('overview')"
+      >
+        <span>{{ 'PAY_TAB_OVERVIEW' | translate }}</span>
+      </button>
+      <button
+        class="bk-tab-btn"
+        [class.bk-tab-btn--active]="activeSegment() === 'items'"
+        (click)="onSegmentChange('items')"
+      >
+        <span>{{ 'PAY_TAB_ITEMS' | translate }}</span>
+      </button>
+    </div>
   </ion-toolbar>
 </ion-header>
 
