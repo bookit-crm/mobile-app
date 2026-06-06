@@ -79,6 +79,11 @@ export class PayrollPage implements OnInit {
   public filterStatus = signal<EPayrollPeriodStatus | ''>('');
   public filterDepartmentId = signal('');
 
+  public readonly isCurrentPeriod = computed(() => {
+    const now = new Date();
+    return this.selectedYear() === now.getFullYear() && this.selectedMonth() === now.getMonth();
+  });
+
   public readonly activeFiltersCount = computed(() => {
     let n = 0;
     if (this.filterStatus()) n++;

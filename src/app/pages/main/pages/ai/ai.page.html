@@ -27,7 +27,11 @@
   @if (ai.showHistory()) {
     <div class="ai-history">
       <div class="ai-history__header">
-        <span>{{ 'AI_CHAT_HISTORY_TITLE' | translate }}</span>
+        <button class="ai-history__back" (click)="ai.showHistory.set(false)">
+          <ion-icon name="chevron-back-outline"></ion-icon>
+          <span>{{ 'AI_CHAT_BACK' | translate }}</span>
+        </button>
+        <span class="ai-history__title">{{ 'AI_CHAT_HISTORY_TITLE' | translate }}</span>
         @if (ai.conversations().length > 0) {
           <span class="ai-history__count">{{ ai.conversations().length }}</span>
         }

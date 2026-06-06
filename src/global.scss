@@ -74,7 +74,8 @@ ion-skeleton-text {
 @import "@ionic/angular/css/palettes/dark.system.css";
 
 /**
- * Modal footer actions — shared layout for all form/view modals
+ * Modal footer actions — shared layout for all form/view modals.
+ * No side padding here — comes from each modal's own content or the container.
  */
 .modal-footer-actions {
   display: flex;
@@ -83,6 +84,7 @@ ion-skeleton-text {
 
   ion-button {
     flex: 1;
+    margin: 0;
   }
 }
 
@@ -232,18 +234,31 @@ ion-item-sliding {
   }
 }
 
-// Light mode: indicator is orange, active text should be orange to contrast with white background
+// Segment button: orange indicator pill, white text on top (works on both light & dark).
+// On iOS the indicator fills the entire button → text must be white to be readable.
+// On MD the indicator is just an underline → white text on light bg is also fine (orange pill).
 ion-segment-button.segment-button-checked {
-  --color-checked: var(--bk-orange-500, #ff7407);
+  --color-checked: #ffffff;
   --indicator-color: var(--bk-orange-500, #ff7407);
 }
 
-// Dark mode: indicator is orange, text should be white since it sits on dark background
 @media (prefers-color-scheme: dark) {
   ion-segment-button.segment-button-checked {
     --color-checked: #ffffff;
     --indicator-color: var(--bk-orange-500, #ff7407);
   }
+}
+
+// ── Modal footer toolbars: remove default ion-toolbar padding ─────────────────
+// ion-toolbar inside ion-footer has 16px side padding by default (iOS) which
+// creates visible grey strips on either side of the white footer content area.
+// Zero it out here so .filter-modal-footer / .modal-footer-actions control spacing.
+ion-modal ion-footer ion-toolbar {
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --background: transparent;
 }
 
 // ── ion-alert button text ─────────────────────────────────────────────────────

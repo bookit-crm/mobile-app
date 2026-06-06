@@ -193,7 +193,7 @@ export class CalendarPage implements OnInit {
         return `${format(mon, 'd MMM', { locale })} – ${format(sun, 'd MMM yyyy', { locale })}`;
       }
       case SchedulerViewType.Month:
-        return capitalize(format(d, 'MMMM yyyy', { locale }));
+        return capitalize(format(d, 'LLLL yyyy', { locale }));
       default:
         return '';
     }

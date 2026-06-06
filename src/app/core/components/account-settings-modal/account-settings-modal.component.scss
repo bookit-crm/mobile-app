@@ -186,17 +186,15 @@
 //  Footer
 // ──────────────────────────────────────────────
 .acc-modal__footer {
-  padding: 8px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  // ion-footer wrapper — no extra padding needed; toolbar padding zeroed globally
 }
 
-// Cancel + Save row — equal width side by side
+// Cancel + Save row — equal width side by side, with own padding
 .modal-footer-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  padding: 8px 16px 4px;
 
   ion-button {
     margin: 0;

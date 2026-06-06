@@ -63,31 +63,51 @@
   }
 }
 
-// ── Year navigator ────────────────────────────────────────────────────────
-.year-nav {
-  position: relative;
+// ── Year / Month navigator (matches calendar cal-nav style) ──────────────
+.cal-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px 4px;
-}
+  padding: 8px 4px 4px;
+  gap: 4px;
 
-.year-label {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--ion-text-color);
-  min-width: 60px;
-  text-align: center;
-}
+  &__arrow {
+    border: none;
+    background: transparent;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--ion-color-medium, #51504f);
+    font-size: 20px;
+    flex-shrink: 0;
 
-.today-btn {
-  --color: var(--bk-orange-500);
-  font-size: 13px;
-  font-weight: 600;
-  position: absolute;
-  right: 4px;
-  margin: 0;
+    &:active { background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.06); }
+  }
+
+  &__center {
+    flex: 1;
+    text-align: center;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  &__label {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--ion-text-color, #252422);
+    line-height: 1.3;
+  }
+
+  &__today-hint {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bk-orange-500, #ff7407);
+    margin-top: 1px;
+  }
 }
 
 // ── Months row ────────────────────────────────────────────────────────────

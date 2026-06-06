@@ -95,17 +95,19 @@
   } @else {
 
     <!-- ── Month / Year navigator ──────────────────────────────────────────── -->
-    <div class="year-nav">
-      <ion-button fill="clear" size="small" (click)="prevYear()">
-        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <span class="year-label">{{ selectedYear() }}</span>
-      <ion-button fill="clear" size="small" (click)="nextYear()">
-        <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      <ion-button fill="clear" size="small" class="today-btn" (click)="goToToday()">
-        {{ 'TODAY' | translate }}
-      </ion-button>
+    <div class="cal-nav">
+      <button class="cal-nav__arrow" (click)="prevYear()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <div class="cal-nav__center" (click)="goToToday()">
+        <span class="cal-nav__label">{{ selectedYear() }}</span>
+        @if (!isCurrentPeriod()) {
+          <span class="cal-nav__today-hint">{{ 'TODAY' | translate }}</span>
+        }
+      </div>
+      <button class="cal-nav__arrow" (click)="nextYear()">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </button>
     </div>
 
     <div class="months-row">
