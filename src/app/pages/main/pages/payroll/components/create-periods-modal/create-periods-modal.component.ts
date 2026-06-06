@@ -158,9 +158,13 @@ export class CreatePeriodsModalComponent implements OnInit {
       .subscribe({
         next: async (res) => {
           this.isLoading.set(false);
+          void this.modalCtrl.dismiss(res.created > 0);
+
+          let message: string;
+          let color: string;
 
           if (res.created === 0) {
-            let message: string;
+            color = 'warning';
             if (res.alreadyExists > 0) {
               message = this.t.instant('PAY_PERIOD_ALREADY_EXISTS_TOAST');
             } else if (res.noSalaryRate > 0) {
@@ -168,24 +172,13 @@ export class CreatePeriodsModalComponent implements OnInit {
             } else {
               message = this.t.instant('PAY_NO_PERIODS_CREATED_TOAST');
             }
-            const toast = await this.toastCtrl.create({
-              message,
-              duration: 3500,
-              color: 'warning',
-              position: 'top',
-            });
-            await toast.present();
-            this.cdr.markForCheck();
-            return; // keep modal open
+          } else {
+            color = 'success';
+            message = this.t.instant('PAY_CREATED_TOAST', { created: res.created, skipped: res.skipped });
           }
 
-          const toast = await this.toastCtrl.create({
-            message: this.t.instant('PAY_CREATED_TOAST', { created: res.created, skipped: res.skipped }),
-            duration: 2500,
-            color: 'success',
-          });
+          const toast = await this.toastCtrl.create({ message, duration: 3500, color, position: 'top' });
           await toast.present();
-          void this.modalCtrl.dismiss(true);
         },
         error: () => {
           this.isLoading.set(false);
