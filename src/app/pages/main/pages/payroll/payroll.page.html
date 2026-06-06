@@ -102,7 +102,7 @@
       <div class="cal-nav__center" (click)="goToToday()">
         <span class="cal-nav__label">{{ selectedYear() }}</span>
         @if (!isCurrentPeriod()) {
-          <span class="cal-nav__today-hint">{{ 'TODAY' | translate }}</span>
+          <span class="cal-nav__today-hint">{{ 'CAL_TAP_TODAY' | translate }}</span>
         }
       </div>
       <button class="cal-nav__arrow" (click)="nextYear()">
