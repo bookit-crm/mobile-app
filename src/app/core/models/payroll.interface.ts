@@ -73,6 +73,8 @@ export interface ICreatePeriodsResponse {
   message: string;
   created: number;
   skipped: number;
+  alreadyExists?: number;
+  noSalaryRate?: number;
 }
 
 export interface IMonthStatus {

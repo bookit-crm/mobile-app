@@ -158,6 +158,27 @@ export class CreatePeriodsModalComponent implements OnInit {
       .subscribe({
         next: async (res) => {
           this.isLoading.set(false);
+
+          if (res.created === 0) {
+            let message: string;
+            if (res.alreadyExists > 0) {
+              message = this.t.instant('PAY_PERIOD_ALREADY_EXISTS_TOAST');
+            } else if (res.noSalaryRate > 0) {
+              message = this.t.instant('PAY_NO_SALARY_RATE_TOAST');
+            } else {
+              message = this.t.instant('PAY_NO_PERIODS_CREATED_TOAST');
+            }
+            const toast = await this.toastCtrl.create({
+              message,
+              duration: 3500,
+              color: 'warning',
+              position: 'top',
+            });
+            await toast.present();
+            this.cdr.markForCheck();
+            return; // keep modal open
+          }
+
           const toast = await this.toastCtrl.create({
             message: this.t.instant('PAY_CREATED_TOAST', { created: res.created, skipped: res.skipped }),
             duration: 2500,

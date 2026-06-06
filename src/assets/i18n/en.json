@@ -701,6 +701,9 @@
   "PAY_MGR_SECTION": "Managers with Salary Setup",
   "PAY_NO_MANAGERS": "No managers with salary configuration found.",
   "PAY_CREATED_TOAST": "Created: {{created}}, Skipped: {{skipped}}",
+  "PAY_PERIOD_ALREADY_EXISTS_TOAST": "A payroll period for this month already exists for the selected employee(s).",
+  "PAY_NO_SALARY_RATE_TOAST": "Cannot create period: salary rate is not configured. Set it in the employee profile first.",
+  "PAY_NO_PERIODS_CREATED_TOAST": "No periods were created. Please check your selection.",
 
   "PAY_DETAIL_TITLE": "Payroll Period",
   "PAY_TAB_OVERVIEW": "Overview",
