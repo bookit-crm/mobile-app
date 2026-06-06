@@ -221,13 +221,21 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
     } catch {}
 
     let accumulated = '';
+    let consecutiveEmpty = 0;
+    const MAX_CONSECUTIVE_EMPTY = 3; // stop after 3 quick empty sessions (emulator / no mic)
 
     // ── Restart loop ────────────────────────────────────────────────────────
     // Native Android SpeechRecognizer stops automatically on silence (2-5 s).
-    // We restart it immediately so the user never has to tap again.
-    // The loop exits only when recognitionActive is set to false (stopVoice /
-    // sendFromVoice / cancelRecording).
+    // We restart it so the user can keep speaking without tapping again.
+    // Exit conditions:
+    //   • recognitionActive = false (user tapped stop / send / cancel)
+    //   • catch — stop() was called OR hard recognition error
+    //   • session returned too quickly with no phrase (emulator / no mic)
+    //   • MAX_CONSECUTIVE_EMPTY empty sessions in a row
     while (this.recognitionActive) {
+      const sessionStart = Date.now();
+      let phrase = '';
+
       try {
         const result = await SpeechRecognition.start({
           language: this.getRecognitionLang(),
@@ -236,22 +244,36 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
           popup: false,
           prompt: '',
         });
+        phrase = (result?.matches?.[0] ?? '').trim();
+      } catch {
+        // stop() was called (recognitionActive already false) OR hard error → exit
+        break;
+      }
 
-        const phrase = (result?.matches?.[0] ?? '').trim();
-        if (phrase && this.recognitionActive) {
-          accumulated = accumulated ? `${accumulated} ${phrase}` : phrase;
-          this.inputText = accumulated;
-        }
+      const sessionMs = Date.now() - sessionStart;
+
+      if (phrase && this.recognitionActive) {
+        consecutiveEmpty = 0;
+        accumulated = accumulated ? `${accumulated} ${phrase}` : phrase;
+        this.inputText = accumulated;
         this.liveTranscript.set('');
         this.cdr.markForCheck();
+      } else {
+        this.liveTranscript.set('');
+        consecutiveEmpty++;
 
-        // Brief pause before restarting so we don't busy-loop on fast returns
-        if (this.recognitionActive) {
-          await new Promise<void>((r) => setTimeout(r, 200));
+        // If recognition ended in < 1.5 s with no speech: mic likely unavailable
+        // (emulator, permission issue, audio routing). Don't beep-loop — exit.
+        if (sessionMs < 1500 || consecutiveEmpty >= MAX_CONSECUTIVE_EMPTY) {
+          break;
         }
-      } catch {
-        // SpeechRecognition.stop() causes the pending start() to reject → exits loop
-        break;
+
+        this.cdr.markForCheck();
+      }
+
+      // Pause before next session: longer when nothing was heard
+      if (this.recognitionActive) {
+        await new Promise<void>((r) => setTimeout(r, phrase ? 300 : 800));
       }
     }
 
