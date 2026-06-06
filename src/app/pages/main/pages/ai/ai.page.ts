@@ -32,9 +32,12 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
 
   public readonly isRecording = signal(false);
   public readonly recordingSeconds = signal(0);
+  public readonly liveTranscript = signal('');   // partial/live text shown during recording
   public isVoiceSupported = false;
 
   private recordingTimer: any = null;
+  private recognitionActive = false;             // flag to break the restart loop
+  private partialListener: any = null;           // PluginListenerHandle for interim results
 
   @ViewChild('messagesEnd') private messagesEnd!: ElementRef;
 
@@ -120,24 +123,45 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
     return `⚙️ ${tool}...`;
   }
 
+  /** Tap mic in normal state → start recording loop */
   onVoiceStart(event: Event): void {
     event.preventDefault();
     if (this.ai.isStreaming() || this.ai.isLimitReached() || this.isRecording()) return;
     void this.startVoiceRecording();
   }
 
-  onVoiceEnd(event: Event): void {
-    event.preventDefault();
-    if (this.isRecording()) {
-      void this.stopVoiceRecording();
-    }
+  /** Tap mic while recording → stop loop, keep text in input for review */
+  async stopVoice(): Promise<void> {
+    this.recognitionActive = false;
+    try { await SpeechRecognition.stop(); } catch {}
   }
 
+  /** Send button while recording → commit live text, stop loop, send */
+  async sendFromVoice(): Promise<void> {
+    this.recognitionActive = false;
+    // Commit any in-progress partial transcript before stop
+    const committed = (this.inputText || this.liveTranscript()).trim();
+    this.inputText = committed;
+    this.liveTranscript.set('');
+    try { await SpeechRecognition.stop(); } catch {}
+    // Give the loop a tick to exit, then send
+    await new Promise<void>((r) => setTimeout(r, 150));
+    await this.send();
+  }
+
+  /** Cancel button → discard everything */
   cancelRecording(): void {
-    void SpeechRecognition.stop();
+    this.recognitionActive = false;
+    this.inputText = '';
+    this.liveTranscript.set('');
+    try { SpeechRecognition.stop(); } catch {}
+    // Cleanup happens via loop exit; force state reset immediately for UX
     this.isRecording.set(false);
     this.clearRecordingTimer();
     this.recordingSeconds.set(0);
+    try { this.partialListener?.remove(); } catch {}
+    this.partialListener = null;
+    this.cdr.markForCheck();
   }
 
   formatRecordingTime(): string {
@@ -172,42 +196,73 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
   private async startVoiceRecording(): Promise<void> {
     try {
       const status = await SpeechRecognition.requestPermissions();
-      const denied = Object.values(status as Record<string, string>).some((v) => v === 'denied');
+      const denied = Object.values(status as unknown as Record<string, string>).some((v) => v === 'denied');
       if (denied) return;
     } catch {
       return;
     }
 
     this.isRecording.set(true);
+    this.recognitionActive = true;
+    this.inputText = '';
+    this.liveTranscript.set('');
     this.startRecordingTimer();
 
+    // Live partial-results listener — shows what's being recognised in real time
     try {
-      const result = await SpeechRecognition.start({
-        language: this.getRecognitionLang(),
-        maxResults: 1,
-        prompt: '',
-        partialResults: false,
-        popup: false,
-      });
-
-      const transcript = result?.matches?.[0] ?? '';
-      if (transcript.trim()) {
-        this.inputText = transcript.trim();
-        void this.send();
-      }
-    } catch {
-      // cancelled or error — nothing to send
-    } finally {
-      this.isRecording.set(false);
-      this.clearRecordingTimer();
-      this.recordingSeconds.set(0);
-    }
-  }
-
-  private async stopVoiceRecording(): Promise<void> {
-    try {
-      await SpeechRecognition.stop();
+      this.partialListener = await SpeechRecognition.addListener(
+        'partialResults' as any,
+        (data: { matches?: string[] }) => {
+          const partial = data?.matches?.[0] ?? '';
+          this.liveTranscript.set(partial);
+          this.cdr.markForCheck();
+        }
+      );
     } catch {}
+
+    let accumulated = '';
+
+    // ── Restart loop ────────────────────────────────────────────────────────
+    // Native Android SpeechRecognizer stops automatically on silence (2-5 s).
+    // We restart it immediately so the user never has to tap again.
+    // The loop exits only when recognitionActive is set to false (stopVoice /
+    // sendFromVoice / cancelRecording).
+    while (this.recognitionActive) {
+      try {
+        const result = await SpeechRecognition.start({
+          language: this.getRecognitionLang(),
+          maxResults: 1,
+          partialResults: true,   // enables the partialResults listener above
+          popup: false,
+          prompt: '',
+        });
+
+        const phrase = (result?.matches?.[0] ?? '').trim();
+        if (phrase && this.recognitionActive) {
+          accumulated = accumulated ? `${accumulated} ${phrase}` : phrase;
+          this.inputText = accumulated;
+        }
+        this.liveTranscript.set('');
+        this.cdr.markForCheck();
+
+        // Brief pause before restarting so we don't busy-loop on fast returns
+        if (this.recognitionActive) {
+          await new Promise<void>((r) => setTimeout(r, 200));
+        }
+      } catch {
+        // SpeechRecognition.stop() causes the pending start() to reject → exits loop
+        break;
+      }
+    }
+
+    // ── Cleanup ─────────────────────────────────────────────────────────────
+    try { this.partialListener?.remove(); } catch {}
+    this.partialListener = null;
+    this.liveTranscript.set('');
+    this.isRecording.set(false);
+    this.clearRecordingTimer();
+    this.recordingSeconds.set(0);
+    this.cdr.markForCheck();
   }
 
   private startRecordingTimer(): void {

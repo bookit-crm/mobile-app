@@ -361,7 +361,7 @@ ion-button.active {
   transition: background 0.2s;
 
   &--recording {
-    background: color-mix(in srgb, var(--ion-color-danger, #eb445a) 6%, var(--ion-background-color));
+    background: color-mix(in srgb, var(--bk-orange-500, #ff7407) 6%, var(--ion-background-color));
   }
 
   &__textarea {
@@ -396,6 +396,8 @@ ion-button.active {
     flex-shrink: 0;
     font-size: 20px;
     transition: background 0.15s, opacity 0.15s;
+
+    ion-icon { font-size: 20px; pointer-events: none; }
   }
 
   &__send {
@@ -419,8 +421,8 @@ ion-button.active {
     height: 40px;
     border-radius: 12px;
     border: none;
-    background: var(--ion-color-step-100, #f0f0f0);
-    color: var(--ion-color-medium);
+    background: rgba(255, 116, 7, 0.1);
+    color: var(--bk-orange-500, #ff7407);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -429,6 +431,8 @@ ion-button.active {
     font-size: 20px;
     transition: background 0.15s, color 0.15s, box-shadow 0.15s;
     user-select: none;
+
+    ion-icon { font-size: 20px; pointer-events: none; }
     -webkit-user-select: none;
     touch-action: none;
 
@@ -441,12 +445,12 @@ ion-button.active {
     &:disabled { opacity: 0.4; cursor: not-allowed; }
 
     &--recording {
-      background: var(--ion-color-danger, #eb445a);
+      background: var(--bk-orange-500, #ff7407);
       color: #fff;
       border-radius: 50%;
       animation: voice-btn-pulse 1s ease-in-out infinite;
 
-      &:active { background: var(--ion-color-danger, #eb445a); }
+      &:active { background: var(--bk-orange-600, #e86a06); }
     }
   }
 }
@@ -477,6 +481,19 @@ ion-button.active {
     &:active { background: var(--ion-color-step-200, #d0d0d0); }
   }
 
+  // Live partial transcript shown while speaking (replaces wave when text appears)
+  &__transcript {
+    flex: 1;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--bk-orange-500, #ff7407);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    opacity: 0.9;
+  }
+
   &__wave {
     display: flex;
     align-items: center;
@@ -486,7 +503,7 @@ ion-button.active {
     span {
       width: 3px;
       border-radius: 3px;
-      background: var(--ion-color-danger, #eb445a);
+      background: var(--bk-orange-500, #ff7407);
       animation: voice-wave 0.9s ease-in-out infinite;
 
       &:nth-child(1) { height: 8px;  animation-delay: 0.00s; }
@@ -502,7 +519,7 @@ ion-button.active {
   &__time {
     font-size: 14px;
     font-weight: 600;
-    color: var(--ion-color-danger, #eb445a);
+    color: var(--bk-orange-500, #ff7407);
     min-width: 42px;
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -516,6 +533,6 @@ ion-button.active {
 }
 
 @keyframes voice-btn-pulse {
-  0%, 100% { box-shadow: 0 0 0 0   rgba(235, 68, 90, 0.45); }
-  50%      { box-shadow: 0 0 0 10px rgba(235, 68, 90, 0);    }
+  0%, 100% { box-shadow: 0 0 0 0   rgba(255, 116, 7, 0.5); }
+  50%      { box-shadow: 0 0 0 10px rgba(255, 116, 7, 0);   }
 }
