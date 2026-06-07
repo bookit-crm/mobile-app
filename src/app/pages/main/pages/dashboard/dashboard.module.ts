@@ -14,6 +14,7 @@ import { InventoryTabComponent } from './components/inventory-tab/inventory-tab.
 import { ExpensesTabComponent } from './components/expenses-tab/expenses-tab.component';
 import { PromoCodesTabComponent } from './components/promo-codes-tab/promo-codes-tab.component';
 import { ReportsTabComponent } from './components/reports-tab/reports-tab.component';
+import { AiAnalyticsTabComponent } from './components/ai-analytics-tab/ai-analytics-tab.component';
 
 const routes: Routes = [{ path: '', component: DashboardPage }];
 
@@ -34,6 +35,7 @@ const routes: Routes = [{ path: '', component: DashboardPage }];
     ExpensesTabComponent,
     PromoCodesTabComponent,
     ReportsTabComponent,
+    AiAnalyticsTabComponent,
   ],
 })
 export class DashboardPageModule {}
