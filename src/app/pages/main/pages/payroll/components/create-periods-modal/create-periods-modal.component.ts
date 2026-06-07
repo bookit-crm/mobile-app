@@ -165,9 +165,9 @@ export class CreatePeriodsModalComponent implements OnInit {
 
           if (res.created === 0) {
             color = 'warning';
-            if (res.alreadyExists > 0) {
+            if ((res.alreadyExists ?? 0) > 0) {
               message = this.t.instant('PAY_PERIOD_ALREADY_EXISTS_TOAST');
-            } else if (res.noSalaryRate > 0) {
+            } else if ((res.noSalaryRate ?? 0) > 0) {
               message = this.t.instant('PAY_NO_SALARY_RATE_TOAST');
             } else {
               message = this.t.instant('PAY_NO_PERIODS_CREATED_TOAST');

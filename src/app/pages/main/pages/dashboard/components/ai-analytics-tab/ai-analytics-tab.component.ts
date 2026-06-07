@@ -11,32 +11,25 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { IonicModule } from '@ionic/angular';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import { TranslateModule } from '@ngx-translate/core';
-import { forkJoin } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { filter } from 'rxjs/operators';
+import { IBaseQueries } from '@core/models/application.interface';
 import {
   AiAnalyticsService,
+  IAiBranchStat,
+  IAiComplexRequest,
   IAiDailyStats,
-  IAiExpensiveRequest,
   IAiToolStat,
   IAiUsageSummary,
 } from '@core/services/ai-analytics.service';
 import { BarChartOptions, ChartOptions } from '../../models/chart.models';
+import { DashboardStateService } from '../../services/dashboard-state.service';
 
 @Component({
   standalone: true,
   selector: 'app-ai-analytics-tab',
   template: `
     <div class="tab-content">
-      <!-- Range selector -->
-      <div class="range-row">
-        @for (d of ranges; track d) {
-          <ion-chip
-            [class.range-active]="days() === d"
-            (click)="setDays(d)"
-          >{{ ('AI_AN_DAYS' | translate:{ count: d }) }}</ion-chip>
-        }
-      </div>
-
       <!-- KPI cards -->
       @if (loading()) {
         <div class="skeleton-cards">
@@ -55,19 +48,11 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
           </div>
           <div class="kpi-card">
             <div class="kpi-card__header">
-              <ion-icon name="cash-outline" style="color:#22c55e"></ion-icon>
-              <span class="kpi-card__title">{{ 'AI_AN_COST' | translate }}</span>
+              <ion-icon name="construct-outline" style="color:#6366f1"></ion-icon>
+              <span class="kpi-card__title">{{ 'AI_AN_TOOL_CALLS' | translate }}</span>
             </div>
-            <div class="kpi-card__value">{{ formatCost(summary()!.totalCostUSD) }}</div>
-            <div class="kpi-card__subtitle">{{ 'AI_AN_COST_SUB' | translate }}</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-card__header">
-              <ion-icon name="pulse-outline" style="color:#6366f1"></ion-icon>
-              <span class="kpi-card__title">{{ 'AI_AN_AVG_COST' | translate }}</span>
-            </div>
-            <div class="kpi-card__value">{{ formatCost(summary()!.avgCostUSD) }}</div>
-            <div class="kpi-card__subtitle">{{ 'AI_AN_AVG_COST_SUB' | translate }}</div>
+            <div class="kpi-card__value">{{ summary()!.totalToolCalls }}</div>
+            <div class="kpi-card__subtitle">{{ 'AI_AN_TOOL_CALLS_SUB' | translate }}</div>
           </div>
           <div class="kpi-card">
             <div class="kpi-card__header">
@@ -76,6 +61,14 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
             </div>
             <div class="kpi-card__value">{{ (summary()!.avgRounds || 0) | number:'1.0-1' }}</div>
             <div class="kpi-card__subtitle">{{ 'AI_AN_AVG_ROUNDS_SUB' | translate }}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-card__header">
+              <ion-icon name="server-outline" style="color:#22c55e"></ion-icon>
+              <span class="kpi-card__title">{{ 'AI_AN_TOKENS' | translate }}</span>
+            </div>
+            <div class="kpi-card__value">{{ formatTokens(summary()!.totalInputTokens + summary()!.totalOutputTokens) }}</div>
+            <div class="kpi-card__subtitle">{{ 'AI_AN_TOKENS_SUB' | translate }}</div>
           </div>
         </div>
       }
@@ -107,6 +100,24 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
         </div>
       }
 
+      <!-- Branch usage chart -->
+      @if (!loading() && branchChart()) {
+        <div class="chart-card">
+          <h3 class="chart-title">{{ 'AI_AN_BRANCHES_TITLE' | translate }}</h3>
+          <apx-chart
+            [series]="branchChart()!.series"
+            [chart]="branchChart()!.chart"
+            [xaxis]="branchChart()!.xaxis"
+            [yaxis]="branchChart()!.yaxis"
+            [plotOptions]="branchChart()!.plotOptions"
+            [dataLabels]="branchChart()!.dataLabels"
+            [tooltip]="branchChart()!.tooltip"
+            [grid]="branchChart()!.grid"
+            [colors]="branchChart()!.colors"
+          ></apx-chart>
+        </div>
+      }
+
       <!-- Tools chart -->
       @if (!loading() && toolsChart()) {
         <div class="chart-card">
@@ -125,20 +136,20 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
         </div>
       }
 
-      <!-- Most expensive requests -->
-      @if (!loading() && expensive().length) {
+      <!-- Most complex requests -->
+      @if (!loading() && complex().length) {
         <div class="chart-card">
-          <h3 class="chart-title">{{ 'AI_AN_EXPENSIVE_TITLE' | translate }}</h3>
+          <h3 class="chart-title">{{ 'AI_AN_COMPLEX_TITLE' | translate }}</h3>
           <div class="exp-list">
-            @for (req of expensive(); track $index) {
+            @for (req of complex(); track $index) {
               <div class="exp-item">
                 <div class="exp-item__top">
                   <span class="exp-item__summary">{{ req.requestSummary || ('AI_AN_REQUEST' | translate) }}</span>
-                  <span class="exp-item__cost">{{ formatCost(req.costUSD) }}</span>
+                  <span class="exp-item__branch">{{ branchLabel(req) }}</span>
                 </div>
                 <div class="exp-item__meta">
                   {{ 'AI_AN_ROUNDS' | translate:{ count: req.rounds } }} ·
-                  {{ req.toolsUsed?.length || 0 }} {{ 'AI_AN_TOOLS_LABEL' | translate }}
+                  {{ (req.toolsUsed || []).length }} {{ 'AI_AN_TOOLS_LABEL' | translate }}
                 </div>
               </div>
             }
@@ -149,9 +160,6 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
   `,
   styles: [`
     .tab-content { padding: 0 4px 24px; }
-    .range-row { display: flex; gap: 8px; margin-bottom: 14px; }
-    .range-row ion-chip { --background: var(--ion-color-light); }
-    .range-row .range-active { --background: var(--bk-orange-500, #ff7407); --color: #fff; font-weight: 600; }
     .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .kpi-card { background: var(--ion-card-background, #fff); border-radius: 12px; padding: 14px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
     .kpi-card__header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
@@ -169,7 +177,7 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
     .exp-item { border: 1px solid var(--ion-color-light-shade, #e5e7eb); border-radius: 10px; padding: 10px 12px; }
     .exp-item__top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
     .exp-item__summary { font-size: 13px; color: var(--ion-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .exp-item__cost { font-size: 13px; font-weight: 700; color: #22c55e; flex-shrink: 0; }
+    .exp-item__branch { font-size: 11px; font-weight: 600; color: var(--bk-orange-500, #ff7407); flex-shrink: 0; }
     .exp-item__meta { font-size: 11px; color: var(--ion-color-medium); margin-top: 4px; }
   `],
   imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
@@ -177,81 +185,69 @@ import { BarChartOptions, ChartOptions } from '../../models/chart.models';
 })
 export class AiAnalyticsTabComponent implements OnInit {
   private analytics = inject(AiAnalyticsService);
+  private state = inject(DashboardStateService);
   private destroyRef = inject(DestroyRef);
   private cdr = inject(ChangeDetectorRef);
+  private t = inject(TranslateService);
 
-  public readonly ranges = [7, 30, 90];
   public loading = signal(true);
-  public days = signal(30);
-
   public summary = signal<IAiUsageSummary | null>(null);
-  public expensive = signal<IAiExpensiveRequest[]>([]);
+  public complex = signal<IAiComplexRequest[]>([]);
   public dailyChart = signal<ChartOptions | null>(null);
   public toolsChart = signal<BarChartOptions | null>(null);
+  public branchChart = signal<BarChartOptions | null>(null);
 
   public ngOnInit(): void {
-    this.load();
+    this.state.filtersChanged$
+      .pipe(
+        filter((f): f is IBaseQueries => f !== null && !!f['from']),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((f) => this.load(f));
   }
 
-  public setDays(d: number): void {
-    if (this.days() === d) return;
-    this.days.set(d);
-    this.load();
+  public formatTokens(n: number): string {
+    if (!n) return '0';
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+    return `${n}`;
   }
 
-  public formatCost(v: number): string {
-    if (!v) return '$0';
-    if (v < 0.001) return `$${(v * 1000).toFixed(3)}m`;
-    return `$${v.toFixed(4)}`;
+  public branchLabel(b: {
+    _id?: string;
+    name?: string;
+    departmentId?: string;
+    departmentName?: string;
+  }): string {
+    const name = b.name || b.departmentName;
+    const id = b._id || b.departmentId;
+    return name || id || this.t.instant('AI_AN_ADMIN');
   }
 
-  private load(): void {
+  private load(f: IBaseQueries): void {
     this.loading.set(true);
-    const d = this.days();
-    forkJoin({
-      summary: this.analytics.getSummary(d),
-      daily: this.analytics.getDaily(d),
-      tools: this.analytics.getTools(d),
-      expensive: this.analytics.getExpensive(d),
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.summary.set(res.summary);
-          this.expensive.set((res.expensive ?? []).slice(0, 5));
-          this.buildDailyChart(res.daily ?? []);
-          this.buildToolsChart(res.tools ?? []);
-          this.loading.set(false);
-          this.cdr.markForCheck();
-        },
-        error: () => {
-          this.loading.set(false);
-          this.cdr.markForCheck();
-        },
-      });
+    const q = { from: f.from, to: f.to, branchIds: f.departmentId };
+
+    this.analytics.getSummary(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (s) => { this.summary.set(s); this.loading.set(false); this.cdr.markForCheck(); },
+      error: () => { this.loading.set(false); this.cdr.markForCheck(); },
+    });
+    this.analytics.getDaily(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildDailyChart(d ?? []); this.cdr.markForCheck(); });
+    this.analytics.getTools(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildToolsChart(d ?? []); this.cdr.markForCheck(); });
+    this.analytics.getBranches(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildBranchChart(d ?? []); this.cdr.markForCheck(); });
+    this.analytics.getComplex(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.complex.set((d ?? []).slice(0, 8)); this.cdr.markForCheck(); });
   }
 
   private buildDailyChart(data: IAiDailyStats[]): void {
-    if (!data.length) {
-      this.dailyChart.set(null);
-      return;
-    }
+    if (!data.length) { this.dailyChart.set(null); return; }
     this.dailyChart.set({
-      series: [
-        { name: 'Cost ($)', data: data.map((x) => +x.costUSD.toFixed(4)) },
-        { name: 'Requests', data: data.map((x) => x.requests) },
-      ],
+      series: [{ name: this.t.instant('AI_AN_REQUESTS'), data: data.map((x) => x.requests) }],
       chart: { type: 'area', height: 260, fontFamily: 'inherit', toolbar: { show: false }, zoom: { enabled: false } },
-      colors: ['#6366f1', '#22c55e'],
+      colors: ['#6366f1'],
       stroke: { curve: 'smooth', width: 2 },
       fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05 } },
       dataLabels: { enabled: false },
-      xaxis: {
-        categories: data.map((x) => x._id?.slice(5) ?? ''),
-        labels: { style: { fontSize: '10px', colors: '#94a3b8' }, rotate: -45, hideOverlappingLabels: true },
-        axisBorder: { show: false },
-        axisTicks: { show: false },
-      },
+      xaxis: { categories: data.map((x) => (x._id || '').slice(5)), labels: { style: { fontSize: '10px', colors: '#94a3b8' }, rotate: -45, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '10px', colors: '#94a3b8' } } },
       tooltip: { shared: true },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
@@ -260,26 +256,31 @@ export class AiAnalyticsTabComponent implements OnInit {
 
   private buildToolsChart(data: IAiToolStat[]): void {
     const top = data.slice(0, 10);
-    if (!top.length) {
-      this.toolsChart.set(null);
-      return;
-    }
+    if (!top.length) { this.toolsChart.set(null); return; }
     this.toolsChart.set({
-      series: [{ name: 'Calls', data: top.map((t) => t.count) }],
+      series: [{ name: this.t.instant('AI_AN_CALLS'), data: top.map((tl) => tl.count) }],
       chart: { type: 'bar', height: Math.max(220, top.length * 34 + 50), fontFamily: 'inherit', toolbar: { show: false } },
       plotOptions: { bar: { horizontal: true, barHeight: '64%', borderRadius: 4 } },
       colors: ['#6366f1'],
       dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
-      xaxis: { categories: top.map((t) => t._id), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+      xaxis: { categories: top.map((tl) => tl._id), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, maxWidth: 140 } },
-      tooltip: {
-        y: {
-          formatter: (v: number, o: { dataPointIndex?: number } = {}): string => {
-            const item = top[o?.dataPointIndex ?? -1];
-            return `${v} · $${(item?.totalCostUSD ?? 0).toFixed(4)}`;
-          },
-        },
-      },
+      tooltip: { y: { formatter: (v: number) => `${v}` } },
+      grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+    });
+  }
+
+  private buildBranchChart(data: IAiBranchStat[]): void {
+    if (!data.length) { this.branchChart.set(null); return; }
+    this.branchChart.set({
+      series: [{ name: this.t.instant('AI_AN_REQUESTS'), data: data.map((b) => b.requests) }],
+      chart: { type: 'bar', height: Math.max(200, data.length * 40 + 50), fontFamily: 'inherit', toolbar: { show: false } },
+      plotOptions: { bar: { horizontal: true, barHeight: '60%', borderRadius: 4 } },
+      colors: ['#22c55e'],
+      dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
+      xaxis: { categories: data.map((b) => this.branchLabel(b)), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, maxWidth: 140 } },
+      tooltip: { y: { formatter: (v: number) => `${v}` } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
     });
   }
