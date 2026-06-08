@@ -64,9 +64,11 @@ export class DashboardPage implements OnInit {
   public availableTabs = computed<IDashboardTab[]>(() => {
     // Re-read subscription signals to make this reactive
     this.subscriptionService.features();
-    const aiVisible = this.aiSubscriptionService.aiVisible();
+    // AI analytics follows the same access as the assistant: visible whenever
+    // the AI is accessible (active sub, trial left, OR past usage to review).
+    const aiAccessible = this.aiSubscriptionService.aiAccessible();
     return this.allTabs.filter((tab) => {
-      if (tab.requiresAi) return aiVisible;
+      if (tab.requiresAi) return aiAccessible;
       if (!tab.feature) return true;
       return this.subscriptionService.hasFeature(tab.feature as any, tab.minLevel);
     });
