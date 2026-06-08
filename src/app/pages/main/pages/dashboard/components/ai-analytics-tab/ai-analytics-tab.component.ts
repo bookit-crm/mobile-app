@@ -137,7 +137,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
         </div>
       }
 
-      <!-- Most complex requests -->
+      <!-- Recent requests (infinite scroll) -->
       @if (!loading() && complex().length) {
         <div class="chart-card">
           <h3 class="chart-title">{{ 'AI_AN_COMPLEX_TITLE' | translate }}</h3>
@@ -156,6 +156,13 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
               </div>
             }
           </div>
+
+          <ion-infinite-scroll
+            [disabled]="!hasMoreComplex()"
+            (ionInfinite)="onComplexInfinite($event)"
+          >
+            <ion-infinite-scroll-content loadingSpinner="crescent"></ion-infinite-scroll-content>
+          </ion-infinite-scroll>
         </div>
       }
     </div>
@@ -177,9 +184,9 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
     .ai-empty p { margin: 0; font-size: 14px; }
     .exp-list { display: flex; flex-direction: column; gap: 10px; }
     .exp-item { border: 1px solid var(--ion-color-light-shade, #e5e7eb); border-radius: 10px; padding: 10px 12px; }
-    .exp-item__top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-    .exp-item__summary { font-size: 13px; color: var(--ion-text-color); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .exp-item__branch { font-size: 11px; font-weight: 600; color: var(--bk-orange-500, #ff7407); flex-shrink: 0; }
+    .exp-item__top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+    .exp-item__summary { font-size: 13px; color: var(--ion-text-color); flex: 1; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+    .exp-item__branch { font-size: 11px; font-weight: 600; color: var(--bk-orange-500, #ff7407); flex-shrink: 0; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .exp-item__meta { font-size: 11px; color: var(--ion-color-medium); margin-top: 4px; }
   `],
   imports: [CommonModule, IonicModule, NgApexchartsModule, TranslateModule],
@@ -195,9 +202,15 @@ export class AiAnalyticsTabComponent implements OnInit {
   public loading = signal(true);
   public summary = signal<IAiUsageSummary | null>(null);
   public complex = signal<IAiComplexRequest[]>([]);
+  public hasMoreComplex = signal(true);
   public dailyChart = signal<ChartOptions | null>(null);
   public toolsChart = signal<BarChartOptions | null>(null);
   public branchChart = signal<BarChartOptions | null>(null);
+
+  // Infinite-scroll paging for the recent-requests list (offset/limit).
+  private complexOffset = 0;
+  private readonly complexLimit = 15;
+  private currentFilter: IBaseQueries = {};
 
   public ngOnInit(): void {
     this.state.filtersChanged$
@@ -239,6 +252,7 @@ export class AiAnalyticsTabComponent implements OnInit {
 
   private load(f: IBaseQueries): void {
     this.loading.set(true);
+    this.currentFilter = f;
     const q = { from: f.from, to: f.to, branchIds: f.departmentId };
 
     this.analytics.getSummary(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -248,7 +262,48 @@ export class AiAnalyticsTabComponent implements OnInit {
     this.analytics.getDaily(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildDailyChart(d ?? []); this.cdr.markForCheck(); });
     this.analytics.getTools(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildToolsChart(d ?? []); this.cdr.markForCheck(); });
     this.analytics.getBranches(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.buildBranchChart(d ?? []); this.cdr.markForCheck(); });
-    this.analytics.getComplex(q).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((d) => { this.complex.set((d ?? []).slice(0, 8)); this.cdr.markForCheck(); });
+
+    // Recent requests: reset and load the first page; more pages append via scroll.
+    this.complex.set([]);
+    this.complexOffset = 0;
+    this.hasMoreComplex.set(true);
+    this.fetchComplexPage();
+  }
+
+  private fetchComplexPage(event?: CustomEvent): void {
+    const f = this.currentFilter;
+    const q = { from: f.from, to: f.to, branchIds: f.departmentId };
+    this.analytics
+      .getComplex(q, this.complexOffset, this.complexLimit)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => {
+          const results = res?.results ?? [];
+          this.complex.update((prev) => [...prev, ...results]);
+          this.complexOffset += results.length;
+          this.hasMoreComplex.set(this.complex().length < (res?.count ?? 0));
+          this.cdr.markForCheck();
+          (event?.target as { complete?: () => void } | undefined)?.complete?.();
+        },
+        error: () => {
+          this.hasMoreComplex.set(false);
+          this.cdr.markForCheck();
+          (event?.target as { complete?: () => void } | undefined)?.complete?.();
+        },
+      });
+  }
+
+  public onComplexInfinite(event: Event): void {
+    if (!this.hasMoreComplex()) {
+      (event as CustomEvent & { target: { complete: () => void } }).target.complete();
+      return;
+    }
+    this.fetchComplexPage(event as CustomEvent);
+  }
+
+  /** Trim long branch names/ids for compact chart labels. */
+  private shortLabel(label: string): string {
+    return label.length > 14 ? `${label.slice(0, 13)}…` : label;
   }
 
   private buildDailyChart(data: IAiDailyStats[]): void {
@@ -292,9 +347,9 @@ export class AiAnalyticsTabComponent implements OnInit {
       plotOptions: { bar: { horizontal: true, barHeight: '60%', borderRadius: 4 } },
       colors: ['#22c55e'],
       dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
-      xaxis: { categories: data.map((b) => this.branchLabel(b)), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, maxWidth: 140 } },
-      tooltip: { y: { formatter: (v: number) => `${v}` } },
+      xaxis: { categories: data.map((b) => this.shortLabel(this.branchLabel(b))), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, maxWidth: 96, align: 'left' } },
+      tooltip: { y: { formatter: (v: number) => `${v}` }, x: { formatter: (_v: number, opts?: { dataPointIndex: number }) => this.branchLabel(data[opts?.dataPointIndex ?? 0] ?? {}) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
     });
   }

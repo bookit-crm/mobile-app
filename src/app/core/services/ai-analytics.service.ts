@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { HttpHelper } from '@core/helpers/http-helper';
 
 /**
@@ -81,12 +81,14 @@ export class AiAnalyticsService extends HttpHelper {
     return this.httpGetRequest<IAiBranchStat[]>('api/ai/usage/branches', this.toParams(q));
   }
 
-  getComplex(q: IAiUsageQuery = {}): Observable<IAiComplexRequest[]> {
-    // Backend now returns a paginated { count, results } — the mobile tab just
-    // shows the most recent few, so request the first page and map to the list.
+  getComplex(
+    q: IAiUsageQuery = {},
+    offset = 0,
+    limit = 15,
+  ): Observable<{ count: number; results: IAiComplexRequest[] }> {
     return this.httpGetRequest<{ count: number; results: IAiComplexRequest[] }>(
       'api/ai/usage/expensive',
-      { ...this.toParams(q), offset: '0', limit: '8' },
-    ).pipe(map((r) => r?.results ?? []));
+      { ...this.toParams(q), offset: String(offset), limit: String(limit) },
+    );
   }
 }
