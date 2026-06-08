@@ -305,7 +305,7 @@
   "AI_AN_DAILY_TITLE": "Requests per day",
   "AI_AN_TOOLS_TITLE": "Top actions",
   "AI_AN_BRANCHES_TITLE": "Usage by branch",
-  "AI_AN_COMPLEX_TITLE": "Most complex requests",
+  "AI_AN_COMPLEX_TITLE": "Recent requests",
   "AI_AN_REQUEST": "AI request",
   "AI_AN_ROUNDS": "{{count}} rounds",
   "AI_AN_TOOLS_LABEL": "actions",

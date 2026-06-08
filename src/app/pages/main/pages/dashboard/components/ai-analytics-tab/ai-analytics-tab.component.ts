@@ -93,6 +93,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
             [stroke]="dailyChart()!.stroke"
             [fill]="dailyChart()!.fill"
             [dataLabels]="dailyChart()!.dataLabels"
+            [markers]="dailyChart()!.markers ?? {}"
             [tooltip]="dailyChart()!.tooltip"
             [grid]="dailyChart()!.grid"
             [colors]="dailyChart()!.colors"
@@ -148,6 +149,7 @@ import { DashboardStateService } from '../../services/dashboard-state.service';
                   <span class="exp-item__branch">{{ branchLabel(req) }}</span>
                 </div>
                 <div class="exp-item__meta">
+                  {{ req.createdAt | date: 'dd.MM HH:mm' }} ·
                   {{ 'AI_AN_ROUNDS' | translate:{ count: req.rounds } }} ·
                   {{ (req.toolsUsed || []).length }} {{ 'AI_AN_TOOLS_LABEL' | translate }}
                 </div>
@@ -219,9 +221,20 @@ export class AiAnalyticsTabComponent implements OnInit {
     departmentId?: string;
     departmentName?: string;
   }): string {
-    const name = b.name || b.departmentName;
     const id = b._id || b.departmentId;
-    return name || id || this.t.instant('AI_AN_ADMIN');
+    const explicit = b.name || b.departmentName;
+    return explicit || this.deptName(id) || id || this.t.instant('AI_AN_ADMIN');
+  }
+
+  /** Resolve a branch name from the dashboard's loaded departments list. */
+  private deptName(id?: string): string {
+    if (!id) {
+      return '';
+    }
+    const list =
+      (this.state.departments() as { results?: { _id: string; name: string }[] } | null)
+        ?.results ?? [];
+    return list.find((d) => d._id === id)?.name ?? '';
   }
 
   private load(f: IBaseQueries): void {
@@ -247,6 +260,7 @@ export class AiAnalyticsTabComponent implements OnInit {
       stroke: { curve: 'smooth', width: 2 },
       fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05 } },
       dataLabels: { enabled: false },
+      markers: { size: data.length <= 2 ? 6 : 4, strokeWidth: 2, strokeColors: '#fff', hover: { sizeOffset: 3 } },
       xaxis: { categories: data.map((x) => (x._id || '').slice(5)), labels: { style: { fontSize: '10px', colors: '#94a3b8' }, rotate: -45, hideOverlappingLabels: true }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '10px', colors: '#94a3b8' } } },
       tooltip: { shared: true },
