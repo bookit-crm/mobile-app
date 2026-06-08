@@ -12,9 +12,14 @@ export class AiSubscriptionService extends HttpHelper {
   public readonly status = signal<IAiSubscriptionStatus | null>(null);
   public readonly tiers = signal<IAiTier[]>([]);
 
-  /** AI assistant should be shown at all (paid sub OR trial credits left). */
+  /** Active access — can send messages / see analytics (sub OR trial left). */
   public readonly aiVisible: Signal<boolean> = computed(
     () => this.status()?.aiVisible ?? false,
+  );
+
+  /** Can open the chat to read history (active access OR past usage). */
+  public readonly aiAccessible: Signal<boolean> = computed(
+    () => this.status()?.aiAccessible ?? false,
   );
 
   public readonly hasSubscription: Signal<boolean> = computed(

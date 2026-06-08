@@ -67,11 +67,11 @@ export class SideMenuComponent implements OnInit {
           : item,
       );
 
-    // AI assistant: hide unless a paid AI add-on or trial credits are available.
-    // While the AI status is still loading we hide it (avoids a flash of a
-    // locked entry); it appears as soon as `load()` resolves with aiVisible.
-    const aiVisible = this.aiSubscriptionService.aiVisible();
-    const gated = aiVisible
+    // AI assistant: keep the chat reachable whenever it's accessible — active
+    // sub, trial credits left, OR past usage (so users can still READ their
+    // history; sending is blocked separately once limits are exhausted).
+    const aiAccessible = this.aiSubscriptionService.aiAccessible();
+    const gated = aiAccessible
       ? withBadge
       : withBadge.filter((item) => item.url !== '/main/ai');
 

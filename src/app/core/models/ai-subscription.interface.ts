@@ -19,7 +19,10 @@ export interface IAiTier {
 
 export interface IAiSubscriptionStatus {
   hasSubscription: boolean;
+  /** Active access — can send / see analytics (paid sub or trial credits). */
   aiVisible: boolean;
+  /** Can open the chat to READ history (active access OR past usage). */
+  aiAccessible: boolean;
   aiTier: TAiTier | null;
   status: TAiSubscriptionStatus;
   monthly: { used: number; limit: number };
