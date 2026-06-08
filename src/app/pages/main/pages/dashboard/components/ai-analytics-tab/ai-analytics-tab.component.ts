@@ -333,7 +333,7 @@ export class AiAnalyticsTabComponent implements OnInit {
       colors: ['#6366f1'],
       dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
       xaxis: { categories: top.map((tl) => this.shortLabel(tl._id)), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, align: 'left', maxWidth: 104 } },
+      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, align: 'left', maxWidth: 88, offsetX: 0 } },
       tooltip: { y: { formatter: (v: number) => `${v}` }, x: { formatter: (_v: number, opts?: { dataPointIndex: number }) => top[opts?.dataPointIndex ?? 0]?._id ?? '' } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, padding: { left: 0 } },
     });
@@ -348,7 +348,7 @@ export class AiAnalyticsTabComponent implements OnInit {
       colors: ['#22c55e'],
       dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
       xaxis: { categories: data.map((b) => this.shortLabel(this.branchLabel(b))), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
-      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, maxWidth: 104, align: 'left' } },
+      yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, align: 'left', maxWidth: 88, offsetX: 0 } },
       tooltip: { y: { formatter: (v: number) => `${v}` }, x: { formatter: (_v: number, opts?: { dataPointIndex: number }) => this.branchLabel(data[opts?.dataPointIndex ?? 0] ?? {}) } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, padding: { left: 0 } },
     });
