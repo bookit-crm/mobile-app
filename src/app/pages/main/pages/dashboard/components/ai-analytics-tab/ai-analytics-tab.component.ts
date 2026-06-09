@@ -228,6 +228,19 @@ export class AiAnalyticsTabComponent implements OnInit {
     return `${n}`;
   }
 
+  /**
+   * Map a raw AI tool name (e.g. `get_free_slots`) to a human label
+   * (`Find free slots` / `Вільні слоти`). Falls back to the raw name when
+   * the i18n key is missing so newly-added tools degrade gracefully until
+   * they're translated.
+   */
+  public toolLabel(name: string): string {
+    if (!name) return '';
+    const key = 'AI_TOOL_' + name.toUpperCase();
+    const translated = this.t.instant(key);
+    return translated === key ? name : translated;
+  }
+
   public branchLabel(b: {
     _id?: string;
     name?: string;
@@ -332,9 +345,9 @@ export class AiAnalyticsTabComponent implements OnInit {
       plotOptions: { bar: { horizontal: true, barHeight: '64%', borderRadius: 4 } },
       colors: ['#6366f1'],
       dataLabels: { enabled: true, formatter: (v: number) => `${v}`, style: { fontSize: '11px', colors: ['#334155'] }, offsetX: 4 },
-      xaxis: { categories: top.map((tl) => this.shortLabel(tl._id)), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
+      xaxis: { categories: top.map((tl) => this.shortLabel(this.toolLabel(tl._id))), labels: { style: { fontSize: '10px', colors: '#94a3b8' } }, axisBorder: { show: false }, axisTicks: { show: false } },
       yaxis: { labels: { style: { fontSize: '11px', colors: '#334155' }, align: 'left', maxWidth: 88, offsetX: 0 } },
-      tooltip: { y: { formatter: (v: number) => `${v}` }, x: { formatter: (_v: number, opts?: { dataPointIndex: number }) => top[opts?.dataPointIndex ?? 0]?._id ?? '' } },
+      tooltip: { y: { formatter: (v: number) => `${v}` }, x: { formatter: (_v: number, opts?: { dataPointIndex: number }) => this.toolLabel(top[opts?.dataPointIndex ?? 0]?._id ?? '') } },
       grid: { borderColor: '#f1f5f9', strokeDashArray: 4, padding: { left: 0 } },
     });
   }
