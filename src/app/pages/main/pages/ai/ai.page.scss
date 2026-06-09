@@ -536,3 +536,81 @@ ion-button.active {
   0%, 100% { box-shadow: 0 0 0 0   rgba(255, 116, 7, 0.5); }
   50%      { box-shadow: 0 0 0 10px rgba(255, 116, 7, 0);   }
 }
+
+// ── Dark mode adaptation ─────────────────────────────────────────────────────
+// The AI page used a lot of light-grey backgrounds (color-step-50,
+// color-light, color-step-100) that all collapse to near-black in Ionic's
+// dark palette → invisible bubbles, textareas blending into the page, etc.
+// Override the surfaces the user actually looks at so the chat is readable.
+@media (prefers-color-scheme: dark) {
+  .ai-history__header,
+  .ai-limit,
+  .ai-input {
+    border-top-color: rgba(255, 255, 255, 0.10);
+    border-bottom-color: rgba(255, 255, 255, 0.10);
+  }
+
+  .ai-history__item {
+    &:active {
+      background: rgba(255, 255, 255, 0.06);
+    }
+  }
+
+  .ai-history__item-icon {
+    background: rgba(255, 116, 7, 0.18);
+    color: var(--bk-orange-400, #ff9039);
+  }
+
+  // Quick-action chips on the welcome screen — were near-invisible
+  .ai-quick-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ion-text-color, #ffffff);
+
+    &:active {
+      background: rgba(255, 116, 7, 0.14);
+      border-color: rgba(255, 116, 7, 0.5);
+    }
+  }
+
+  // Assistant message bubbles — light grey on near-black was unreadable
+  .ai-msg--assistant .ai-msg__bubble {
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--ion-text-color, #ffffff);
+  }
+
+  // User input field
+  .ai-input__textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: var(--ion-text-color, #ffffff);
+
+    &:focus {
+      border-color: var(--bk-orange-500, #ff7407);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+  }
+
+  // Voice button — soft orange tint on dark
+  .ai-input__voice {
+    background: rgba(255, 116, 7, 0.18);
+    color: var(--bk-orange-400, #ff9039);
+  }
+
+  // Cancel button during recording — was light grey, invisible
+  .ai-recording__cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.75);
+
+    &:active { background: rgba(255, 255, 255, 0.14); }
+  }
+
+  // Limit bar track
+  .ai-limit__bar {
+    background: rgba(255, 255, 255, 0.10);
+  }
+}

@@ -169,7 +169,11 @@ ion-item {
 .appt-price {
   font-size: 14px;
   font-weight: 600;
-  color: var(--ion-color-primary);
+  // Was var(--ion-color-primary) = #252422 (our brand black, always dark) —
+  // invisible against the dark card background. Use the page text color so
+  // the price stays readable in both themes; discount state still uses
+  // success-green which adapts on its own.
+  color: var(--ion-text-color);
 
   &--discounted {
     color: var(--ion-color-success);

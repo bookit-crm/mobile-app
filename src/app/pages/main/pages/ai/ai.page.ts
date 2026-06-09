@@ -202,6 +202,14 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
       return;
     }
 
+    // Hard reset the native plugin before starting a new session — without
+    // this, the SECOND tap on the mic (after the first session exited via
+    // the early-bail path below) would silently no-op because the native
+    // SpeechRecognizer thought it was still busy. Stop + tiny delay puts it
+    // back into a clean idle state.
+    try { await SpeechRecognition.stop(); } catch {}
+    await new Promise<void>((r) => setTimeout(r, 120));
+
     this.isRecording.set(true);
     this.recognitionActive = true;
     this.inputText = '';
@@ -222,7 +230,10 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
 
     let accumulated = '';
     let consecutiveEmpty = 0;
-    const MAX_CONSECUTIVE_EMPTY = 3; // stop after 3 quick empty sessions (emulator / no mic)
+    // Raised from 3 → 5 so a real user that pauses briefly while thinking
+    // of the next word doesn't trigger the auto-exit. The visible cancel
+    // button is always there if they want to bail manually.
+    const MAX_CONSECUTIVE_EMPTY = 5;
 
     // ── Restart loop ────────────────────────────────────────────────────────
     // Native Android SpeechRecognizer stops automatically on silence (2-5 s).
@@ -261,10 +272,18 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
       } else {
         this.liveTranscript.set('');
         consecutiveEmpty++;
+        // Used to break on `sessionMs < 1500` immediately — that was killing
+        // the very first session on real devices where mic init takes a
+        // moment, so the user saw the wave for one second and then couldn't
+        // restart because the native plugin was in a half-state. Now we
+        // only count quick sessions as 2x against the consecutiveEmpty cap
+        // (still bails out on emulators that loop with no audio at all)
+        // but never break on the first short session.
+        if (sessionMs < 1500) {
+          consecutiveEmpty++;
+        }
 
-        // If recognition ended in < 1.5 s with no speech: mic likely unavailable
-        // (emulator, permission issue, audio routing). Don't beep-loop — exit.
-        if (sessionMs < 1500 || consecutiveEmpty >= MAX_CONSECUTIVE_EMPTY) {
+        if (consecutiveEmpty >= MAX_CONSECUTIVE_EMPTY) {
           break;
         }
 
@@ -281,6 +300,10 @@ export class AiPage implements AfterViewChecked, OnInit, OnDestroy {
     try { this.partialListener?.remove(); } catch {}
     this.partialListener = null;
     this.liveTranscript.set('');
+    // Belt-and-braces: explicitly clear `recognitionActive` so a re-tap of
+    // the mic enters startVoiceRecording() with a fully fresh state. The
+    // next start() will set it back to true.
+    this.recognitionActive = false;
     this.isRecording.set(false);
     this.clearRecordingTimer();
     this.recordingSeconds.set(0);

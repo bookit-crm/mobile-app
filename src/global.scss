@@ -467,7 +467,35 @@ ion-list[lines="none"] {
   }
 
   ion-radio {
+    // Inactive radio ring was rendered in --ion-color-medium which is the
+    // same dark grey as the page background → invisible. Lift to a readable
+    // off-white outline; checked dot stays brand-orange.
+    --color: rgba(255, 255, 255, 0.55);
     --color-checked: var(--bk-orange-500, #ff7407);
+    --inner-border-radius: 50%;
+  }
+}
+
+// ── Toolbar icons (menu / back / filter): dark-mode fix ─────────────────────
+// Default Ionic dark.system.css does not give ion-menu-button / ion-back-button
+// a strong contrast color — they ended up rendered in a dim grey against the
+// dark toolbar background, almost invisible. Force them to the toolbar text
+// color. Same for filter buttons that hardcoded `color="medium"` in markup.
+@media (prefers-color-scheme: dark) {
+  ion-toolbar {
+    ion-menu-button,
+    ion-back-button {
+      --color: var(--ion-text-color, #ffffff);
+      color: var(--ion-text-color, #ffffff);
+    }
+
+    ion-buttons ion-button[color="medium"] {
+      --color: rgba(255, 255, 255, 0.80);
+    }
+
+    ion-buttons ion-button:not([color]) {
+      --color: var(--ion-text-color, #ffffff);
+    }
   }
 }
 
