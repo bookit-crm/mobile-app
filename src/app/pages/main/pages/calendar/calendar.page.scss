@@ -8,6 +8,10 @@
 ion-content::part(scroll) {
   display: flex;
   flex-direction: column;
+  // `contain` (not `none`) prevents scroll chaining + over-scroll past the
+  // page edges, while still allowing the ion-refresher pull-down gesture
+  // at the very top of the page to fire.
+  overscroll-behavior: contain;
 }
 
 

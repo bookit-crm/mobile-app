@@ -145,7 +145,10 @@ export class AppointmentSlotGridComponent implements OnChanges {
             return { info: emp, freeSlots, isDayOff };
           });
 
-          this.rows.set(computed);
+          // Put the currently active employee on top so the row the user has
+          // been working with stays visible after a slot recalculation,
+          // instead of disappearing into the middle of a long list.
+          this.rows.set(this.sortByActiveEmployee(computed));
           this.isLoading.set(false);
           this.cdr.markForCheck();
 
@@ -157,6 +160,19 @@ export class AppointmentSlotGridComponent implements OnChanges {
           this.cdr.markForCheck();
         },
       });
+  }
+
+  /**
+   * Reorder rows so the active employee is first while preserving the
+   * relative order of the rest. Stable when activeEmployeeId is null or
+   * doesn't match any row.
+   */
+  private sortByActiveEmployee(rows: IEmployeeSlotRow[]): IEmployeeSlotRow[] {
+    const activeId = this.activeEmployeeId();
+    if (!activeId) return rows;
+    const idx = rows.findIndex((r) => r.info.employee._id === activeId);
+    if (idx <= 0) return rows;
+    return [rows[idx], ...rows.slice(0, idx), ...rows.slice(idx + 1)];
   }
 
   private isoToHHmm(iso: string): string {
