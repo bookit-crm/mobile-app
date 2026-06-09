@@ -479,7 +479,17 @@ export class CalendarPage implements OnInit {
 
   private initEmployees(): void {
     const deptId = this.effectiveDepartmentId;
-    const filters: Record<string, unknown> = deptId ? { departmentId: deptId } : {};
+    // ⚠ The backend defaults `limit` to 10 when not supplied
+    // (employee.service.ts: `parseInt(limit, 10) || 10`). The desktop client
+    // works around that with offset/limit + infinite scroll; the mobile
+    // calendar grid needs every employee at once for column rendering, so we
+    // request a single big page that covers the realistic salon size. If a
+    // tenant ever crosses 100 employees per branch we'll need to switch to
+    // paginated loading here too.
+    const filters: Record<string, unknown> = {
+      limit: 100,
+      ...(deptId ? { departmentId: deptId } : {}),
+    };
     this.employeeService
       .getEmployees(filters)
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
