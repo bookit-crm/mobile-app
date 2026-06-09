@@ -19,6 +19,11 @@
   "NO_SUBSCRIPTION_TEXT": "Your account doesn't have an active subscription. Purchase a plan on the Bookit website to continue.",
   "NO_SUBSCRIPTION_CTA": "View pricing plans →",
 
+  "SUBSCRIPTION_WARNING_TITLE": "Subscription expiring soon",
+  "SUBSCRIPTION_WARNING_MESSAGE": "Renew to keep using ScheDay.",
+  "SUBSCRIPTION_WARNING_NEXT_PAYMENT": "Next payment: {{value}}",
+  "SUBSCRIPTION_WARNING_CTA": "Renew",
+
   "APPOINTMENTS": "Appointments",
   "FILTERS": "Filters",
   "FILTER_DEPARTMENT": "Location",

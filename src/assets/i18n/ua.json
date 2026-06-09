@@ -16,6 +16,11 @@
   "ERROR_EMAIL_PATTERN": "Введіть дійсну електронну адресу",
   "ERROR_PASSWORD_REQUIRED": "Пароль обов'язковий",
 
+  "SUBSCRIPTION_WARNING_TITLE": "Підписка скоро закінчиться",
+  "SUBSCRIPTION_WARNING_MESSAGE": "Поновіть, щоб продовжити користуватися ScheDay.",
+  "SUBSCRIPTION_WARNING_NEXT_PAYMENT": "Наступний платіж: {{value}}",
+  "SUBSCRIPTION_WARNING_CTA": "Поновити",
+
   "APPOINTMENTS": "Записи",
   "FILTERS": "Фільтри",
   "FILTER_DEPARTMENT": "Філіал",
