@@ -20,13 +20,24 @@
   }
 
   &__row {
-    padding: 10px 0;
+    padding: 10px 0 10px 9px;
     border-bottom: 1px solid var(--ion-color-light-shade, #e0e0e0);
+    // Always reserve the 3 px the active-state border consumes so content
+    // doesn't shift horizontally when the row becomes active.
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-left-color 0.15s;
 
     &:last-child { border-bottom: none; }
 
     &--dayoff {
       opacity: 0.5;
+    }
+
+    // Sticky "active employee" highlight — survives slot recalculations so
+    // the user doesn't lose track of who they had picked on a small screen.
+    &--active {
+      background: var(--bk-orange-50, #fff1e6);
+      border-left-color: var(--bk-orange-500, #ff7407);
     }
   }
 
