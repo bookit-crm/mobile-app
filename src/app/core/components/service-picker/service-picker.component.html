@@ -17,13 +17,19 @@
   <ion-icon name="chevron-down-outline" class="svc-trigger__chevron"></ion-icon>
 </button>
 
-<!-- Bottom-sheet modal — same pattern as country picker -->
+<!--
+  Bottom-sheet modal. Breakpoints used to include 0.5 which let the user
+  swipe the sheet halfway down — and at that height the Cancel/Confirm
+  footer sat below the visible viewport, looking like the picker had no
+  action buttons at all. Dropped the half-stop so the sheet is either
+  closed or near-fullscreen and the footer is always reachable.
+-->
 <ion-modal
   class="svc-picker-modal"
   [isOpen]="isOpen()"
   (didDismiss)="closePicker()"
-  [breakpoints]="[0, 0.5, 0.85]"
-  [initialBreakpoint]="0.85"
+  [breakpoints]="[0, 0.95]"
+  [initialBreakpoint]="0.95"
   [handle]="true"
 >
   <ng-template>
@@ -101,18 +107,18 @@
     </ion-content>
 
     @if (multiple) {
-      <ion-footer class="ion-no-border">
+      <ion-footer class="ion-no-border svc-picker__footer-bar">
         <ion-toolbar>
           <div class="svc-picker__footer">
-            <ion-button fill="outline" color="medium" expand="block" (click)="closePicker()">
+            <button type="button" class="svc-picker__btn svc-picker__btn--cancel" (click)="closePicker()">
               {{ 'CANCEL' | translate }}
-            </ion-button>
-            <ion-button fill="solid" color="primary" expand="block" (click)="confirm()">
+            </button>
+            <button type="button" class="svc-picker__btn svc-picker__btn--confirm" (click)="confirm()">
               {{ 'CONFIRM' | translate }}
               @if (draft.length > 0) {
                 ({{ draft.length }})
               }
-            </ion-button>
+            </button>
           </div>
         </ion-toolbar>
       </ion-footer>
