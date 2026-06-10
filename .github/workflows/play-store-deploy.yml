@@ -139,7 +139,6 @@ jobs:
           releaseFiles: ${{ steps.aab.outputs.path }}
           track: ${{ inputs.track }}
           status: completed
-          userFraction: ${{ inputs.rollout_percentage }}
           whatsNewDirectory: android/fastlane/metadata/android
           # Mapping file would go here if we ever enable R8/Proguard minification:
           # mappingFile: android/app/build/outputs/mapping/release/mapping.txt
