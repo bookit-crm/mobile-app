@@ -79,11 +79,23 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp "$PROFILE_PATH" ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: Prepare App Store Connect API key
+        env:
+          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
+        run: |
+          RAW_KEY_PATH="$RUNNER_TEMP/AuthKey_raw.p8"
+          KEY_PATH="$RUNNER_TEMP/AuthKey.p8"
+          echo "$ASC_KEY_CONTENT" > "$RAW_KEY_PATH"
+          # Re-encode with the curve explicitly embedded — fastlane's
+          # OpenSSL::PKey::EC.new can't resolve the curve on some
+          # PKCS#8-formatted .p8 keys without this.
+          openssl ec -in "$RAW_KEY_PATH" -out "$KEY_PATH"
+          echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
       - name: Build and upload to TestFlight
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_CONTENT: ${{ secrets.ASC_KEY_CONTENT }}
         working-directory: ios/App
         run: bundle exec fastlane ${{ github.event.inputs.lane }}
 
