@@ -134,71 +134,35 @@
   </div>
 }
 
-<!-- Input -->
+<!--
+  Input. Voice input (mic button + native SpeechRecognition) was removed —
+  it crashed the app on real devices under several edge cases. The chat
+  works text-only for now; voice can come back as a follow-up using a
+  more stable approach.
+-->
 @if (!ai.showHistory()) {
-  <div class="ai-input" [class.ai-input--recording]="isRecording()">
+  <div class="ai-input">
+    <textarea
+      class="ai-input__textarea"
+      [(ngModel)]="inputText"
+      (keydown)="onKeydown($event)"
+      [placeholder]="ai.isLimitReached() ? ('AI_CHAT_LIMIT_PLACEHOLDER' | translate) : ('AI_CHAT_PLACEHOLDER' | translate)"
+      rows="1"
+      [disabled]="ai.isStreaming() || ai.isLimitReached()"
+    ></textarea>
 
-    @if (isRecording()) {
-      <!-- Recording state: tap mic to stop (text stays), tap send to stop+send -->
-      <div class="ai-recording">
-        <button class="ai-recording__cancel" (click)="cancelRecording()">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-        @if (liveTranscript()) {
-          <!-- Show live transcript while speaking -->
-          <span class="ai-recording__transcript">{{ liveTranscript() }}</span>
-        } @else {
-          <div class="ai-recording__wave">
-            <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-          </div>
-        }
-        <span class="ai-recording__time">{{ formatRecordingTime() }}</span>
-      </div>
-      <!-- Tap mic to stop recording (text remains for review/edit) -->
-      <button class="ai-input__voice ai-input__voice--recording" (click)="stopVoice()">
-        <ion-icon name="mic-outline"></ion-icon>
+    @if (ai.isStreaming()) {
+      <button class="ai-input__stop" (click)="ai.stopStreaming()">
+        <ion-icon name="stop-circle-outline"></ion-icon>
       </button>
-      <!-- Send is always available during recording -->
+    } @else {
       <button
         class="ai-input__send"
-        (click)="sendFromVoice()"
-        [disabled]="!inputText.trim() && !liveTranscript().trim()"
+        (click)="send()"
+        [disabled]="!inputText.trim() || ai.isLimitReached()"
       >
         <ion-icon name="send-outline"></ion-icon>
       </button>
-
-    } @else {
-      <!-- Normal state -->
-      <textarea
-        class="ai-input__textarea"
-        [(ngModel)]="inputText"
-        (keydown)="onKeydown($event)"
-        [placeholder]="ai.isLimitReached() ? ('AI_CHAT_LIMIT_PLACEHOLDER' | translate) : ('AI_CHAT_PLACEHOLDER' | translate)"
-        rows="1"
-        [disabled]="ai.isStreaming() || ai.isLimitReached()"
-      ></textarea>
-
-      @if (ai.isStreaming()) {
-        <button class="ai-input__stop" (click)="ai.stopStreaming()">
-          <ion-icon name="stop-circle-outline"></ion-icon>
-        </button>
-      } @else {
-        <!-- Mic: tap to start recording (toggle, not hold) -->
-        @if (isVoiceSupported && !inputText.trim()) {
-          <button
-            class="ai-input__voice"
-            (click)="onVoiceStart($event)"
-            [disabled]="ai.isLimitReached()"
-          >
-            <ion-icon name="mic-outline"></ion-icon>
-          </button>
-        }
-        <!-- Send: always visible, disabled when empty -->
-        <button class="ai-input__send" (click)="send()" [disabled]="!inputText.trim() || ai.isLimitReached()">
-          <ion-icon name="send-outline"></ion-icon>
-        </button>
-      }
     }
-
   </div>
 }
