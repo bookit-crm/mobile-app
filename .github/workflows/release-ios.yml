@@ -89,12 +89,12 @@ jobs:
 
           echo "Secret as given: $(wc -c < "$RAW_KEY_PATH") bytes, $(wc -l < "$RAW_KEY_PATH") lines"
 
-          # Accept either the raw .p8 PEM or its base64 encoding.
+          # Secret may be just the base64 body without the PEM armor lines — re-wrap it.
           if ! grep -q "BEGIN" "$RAW_KEY_PATH"; then
-            echo "No PEM header found — treating secret as base64 and decoding"
-            openssl base64 -d -A -in "$RAW_KEY_PATH" -out "$RAW_KEY_PATH.decoded"
-            mv "$RAW_KEY_PATH.decoded" "$RAW_KEY_PATH"
-            echo "After base64 decode: $(wc -c < "$RAW_KEY_PATH") bytes, $(wc -l < "$RAW_KEY_PATH") lines"
+            echo "No PEM header found — wrapping as PKCS8 PEM"
+            BODY="$(cat "$RAW_KEY_PATH")"
+            { echo "-----BEGIN PRIVATE KEY-----"; printf '%s\n' "$BODY"; echo "-----END PRIVATE KEY-----"; } > "$RAW_KEY_PATH.pem"
+            mv "$RAW_KEY_PATH.pem" "$RAW_KEY_PATH"
           fi
 
           # Re-encode with the curve explicitly embedded — fastlane's
