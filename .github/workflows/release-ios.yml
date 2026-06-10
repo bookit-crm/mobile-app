@@ -97,10 +97,9 @@ jobs:
             mv "$RAW_KEY_PATH.pem" "$RAW_KEY_PATH"
           fi
 
-          # Re-encode with the curve explicitly embedded — fastlane's
-          # OpenSSL::PKey::EC.new can't resolve the curve on some
-          # PKCS#8-formatted .p8 keys without this.
-          openssl ec -in "$RAW_KEY_PATH" -out "$KEY_PATH"
+          # altool requires the original PKCS8 "PRIVATE KEY" format —
+          # do not re-encode as SEC1 "EC PRIVATE KEY" here.
+          mv "$RAW_KEY_PATH" "$KEY_PATH"
           echo "ASC_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
 
       - name: Build and upload to TestFlight
