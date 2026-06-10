@@ -1,7 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
-import { SubscriptionService } from './subscription.service';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -22,15 +21,6 @@ export interface AiConversation {
 
 const USAGE_KEY = 'ai_usage';
 
-/** Daily message limits per subscription tier (client-side display only) */
-export const TIER_LIMITS: Record<string, number> = {
-  individual: 0,
-  starter: 50,
-  professional: 150,
-  enterprise: 500,
-  default: 50,
-};
-
 export interface AiUsage {
   date: string; // YYYY-MM-DD
   count: number;
@@ -38,7 +28,6 @@ export interface AiUsage {
 
 @Injectable({ providedIn: 'root' })
 export class AiChatService {
-  private readonly subscriptionService = inject(SubscriptionService);
   private readonly authService = inject(AuthService);
 
   public readonly messages = signal<AiMessage[]>([]);
@@ -46,10 +35,10 @@ export class AiChatService {
   public readonly showHistory = signal(false);
   public readonly conversations = signal<AiConversation[]>([]);
 
-  public readonly tier = computed(() => this.subscriptionService.currentTier() as string);
   public readonly usedToday = signal<number>(0);
+  /** Daily credit cap from the AI add-on (server-driven). 0 = no access. */
+  public readonly dailyLimit = signal<number>(0);
 
-  public readonly dailyLimit = computed(() => TIER_LIMITS[this.tier()] ?? TIER_LIMITS['default']);
   public readonly usagePercent = computed(() =>
     this.dailyLimit() > 0 ? Math.min(100, (this.usedToday() / this.dailyLimit()) * 100) : 0,
   );
@@ -63,6 +52,7 @@ export class AiChatService {
   constructor() {
     this.loadHistory();
     this.loadUsage();
+    void this.loadUsageFromServer();
   }
 
   private get aiUrl(): string {
@@ -166,6 +156,8 @@ export class AiChatService {
                   m.id === assistantId ? { ...m, isStreaming: false, toolCall: undefined } : m,
                 ),
               );
+              // Sync real usage (credits) from server after the AI responds.
+              void this.loadUsageFromServer();
             }
           } catch {
             // skip invalid JSON
@@ -254,6 +246,21 @@ export class AiChatService {
       } else {
         localStorage.removeItem(USAGE_KEY);
       }
+    } catch {}
+  }
+
+  /** Authoritative usage + daily cap from the AI add-on subscription. */
+  async loadUsageFromServer(): Promise<void> {
+    const token = this.getToken();
+    if (!token) return;
+    try {
+      const res = await fetch(`${this.aiUrl}/api/ai/usage`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data: { used: number; limit: number } = await res.json();
+      this.usedToday.set(data.used ?? 0);
+      this.dailyLimit.set(data.limit === -1 ? 999999 : data.limit ?? 0);
     } catch {}
   }
 

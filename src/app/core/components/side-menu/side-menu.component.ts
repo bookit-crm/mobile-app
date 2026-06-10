@@ -12,6 +12,7 @@ import { EUserRole } from '@core/enums/e-user-role';
 import { AuthService } from '@core/services/auth.service';
 import { SupervisorService } from '@core/services/supervisor.service';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { AiSubscriptionService } from '@core/services/ai-subscription.service';
 import { SupportChatWebsocketService } from '@core/services/support-chat-websocket.service';
 import { AccountSettingsModalComponent } from '@core/components/account-settings-modal/account-settings-modal.component';
 import { NotificationsService } from '@core/services/notifications.service';
@@ -33,6 +34,7 @@ import { TranslateModule } from '@ngx-translate/core';
 export class SideMenuComponent implements OnInit {
   private supervisorService    = inject(SupervisorService);
   private subscriptionService  = inject(SubscriptionService);
+  private aiSubscriptionService = inject(AiSubscriptionService);
   private notificationsService = inject(NotificationsService);
   private websocketService     = inject(WebsocketService);
   private authService          = inject(AuthService);
@@ -65,12 +67,20 @@ export class SideMenuComponent implements OnInit {
           : item,
       );
 
+    // AI assistant: keep the chat reachable whenever it's accessible — active
+    // sub, trial credits left, OR past usage (so users can still READ their
+    // history; sending is blocked separately once limits are exhausted).
+    const aiAccessible = this.aiSubscriptionService.aiAccessible();
+    const gated = aiAccessible
+      ? withBadge
+      : withBadge.filter((item) => item.url !== '/main/ai');
+
     // Подписка ещё не загружена — показываем все пункты без feature-gate
     if (!this.subscriptionService.currentSubscription()) {
-      return withBadge;
+      return gated;
     }
 
-    return withBadge.filter((item) => {
+    return gated.filter((item) => {
       if (!item.feature) return true;
       return this.subscriptionService.hasFeature(item.feature, item.minLevel);
     });
@@ -80,6 +90,9 @@ export class SideMenuComponent implements OnInit {
     if (!this.supervisorService.authUserSignal()) {
       this.supervisorService.getSelf().pipe(take(1)).subscribe();
     }
+    this.aiSubscriptionService.load().pipe(take(1)).subscribe({
+      error: () => undefined,
+    });
   }
 
   public closeMenu(): void {

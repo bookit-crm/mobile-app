@@ -107,11 +107,50 @@
   }
 
   &__service-list {
+    // Override the global ion-list[lines="none"] rule (defined in global.scss
+    // for swipeable card lists). Without these overrides the services list
+    // inherits `display:flex; gap:8px; padding:8px 12px !important;` which
+    // makes the items render as a column of empty stripes with no visible
+    // service info — that global rule is designed for ion-item-sliding
+    // cards, not the plain ion-items we use here.
+    display: block !important;
+    padding: 0 !important;
+    gap: 0 !important;
+
     border: 1px solid var(--ion-color-light);
     border-radius: 8px;
     overflow: hidden;
     max-height: 300px;
     overflow-y: auto;
+    background: var(--ion-background-color, #fff);
+
+    // Without lines + with default ion-item background = white-on-white →
+    // items rendered invisible. Force a visible separator and a minimum row
+    // height so the list is readable as a stack of tap targets.
+    ion-item {
+      --background: transparent;
+      --color: var(--ion-text-color);
+      --padding-start: 12px;
+      --inner-padding-end: 12px;
+      --min-height: 52px;
+      border-bottom: 1px solid var(--ion-color-light);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      ion-label h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ion-text-color);
+      }
+
+      ion-label p {
+        font-size: 12px;
+        color: var(--ion-color-medium);
+        margin-top: 2px;
+      }
+    }
   }
 
   &__svc-summary {

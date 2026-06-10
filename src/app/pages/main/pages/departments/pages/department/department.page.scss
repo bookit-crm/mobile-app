@@ -323,7 +323,16 @@
 }
 
 .schedule-card {
-  ion-card-content { padding: 8px 16px 16px; }
+  // Override the .info-card chrome (rounded card + drop-shadow + side margins)
+  // on the schedule tab — the day rows below already carry their own visual
+  // structure, the outer card just steals horizontal space and looks like a
+  // nested container-in-a-container on a small phone screen.
+  border-radius: 0;
+  box-shadow: none;
+  margin: 0;
+  background: transparent;
+
+  ion-card-content { padding: 0 4px 16px; }
 
   &--locked {
     opacity: 0.6;
@@ -375,13 +384,18 @@
   &__times {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     margin-top: 10px;
   }
 }
 
 .time-field {
-  flex: 1;
+  flex: 1 1 0;
+  // CRITICAL: native <input type="time"> has an intrinsic min-width based on
+  // its content — without `min-width: 0` the flex item refuses to shrink
+  // and the two time inputs overflow the row, making the separator dash
+  // overlap the right edge of the "from" input.
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -431,9 +445,14 @@
 }
 
 .time-field__separator {
-  margin-top: 20px;
+  // Aligned with the input center (label ~16 px + gap 4 px above the input).
+  margin-top: 22px;
+  flex-shrink: 0;
+  width: 12px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--ion-color-medium);
-  font-weight: 600;
 }
 
 .no-data {

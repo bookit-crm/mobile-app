@@ -67,6 +67,16 @@ export class ServicePickerComponent implements OnChanges {
   /** Whether the picker trigger button is disabled */
   @Input() disabled = false;
 
+  /**
+   * Show the "Assign all / Clear all" toolbar inside the bottom of the
+   * picker header. Defaults to true to keep the existing
+   * employee → assign-services flow unchanged. The new-appointment flow
+   * passes false because picking every service for a single booking
+   * makes no sense — and the toolbar took up vertical space that pushed
+   * the actual list down.
+   */
+  @Input() showBulkActions = true;
+
   /** Emits the new selection after user confirms */
   @Output() selectionChange = new EventEmitter<IServicePickerItem[]>();
 

@@ -8,9 +8,11 @@
   signal,
 } from '@angular/core';
 import { SubscriptionService } from '@core/services/subscription.service';
+import { AiSubscriptionService } from '@core/services/ai-subscription.service';
 import { EFeatureLevel } from '@core/models/subscription.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { IEmployee } from '@core/models/employee.interface';
+import { take } from 'rxjs';
 
 import { DashboardStateService } from './services/dashboard-state.service';
 
@@ -20,6 +22,8 @@ interface IDashboardTab {
   icon: string;
   feature?: string;
   minLevel?: EFeatureLevel;
+  /** Gated by an active AI add-on / trial instead of a base-plan feature. */
+  requiresAi?: boolean;
 }
 
 @Component({
@@ -34,6 +38,7 @@ interface IDashboardTab {
 export class DashboardPage implements OnInit {
   public state = inject(DashboardStateService);
   private subscriptionService = inject(SubscriptionService);
+  private aiSubscriptionService = inject(AiSubscriptionService);
   private cdr = inject(ChangeDetectorRef);
 
   public activeTab = signal<string>('revenue');
@@ -52,13 +57,18 @@ export class DashboardPage implements OnInit {
     { value: 'inventory',   display: 'INVENTORY',  icon: 'cube-outline',         feature: 'warehouse',       minLevel: EFeatureLevel.BASIC },
     { value: 'expenses',    display: 'EXPENSES',   icon: 'cash-outline',         feature: 'expensesPayroll', minLevel: EFeatureLevel.BASIC },
     { value: 'promo-codes', display: 'PROMO',      icon: 'pricetag-outline',     feature: 'promoCodes' },
+    { value: 'ai',          display: 'AI_AN_TAB',  icon: 'sparkles-outline',     requiresAi: true },
     { value: 'reports',     display: 'REPORTS',    icon: 'bar-chart-outline',    feature: 'analytics',       minLevel: EFeatureLevel.ADVANCED },
   ];
 
   public availableTabs = computed<IDashboardTab[]>(() => {
-    // Re-read subscription signal to make this reactive
+    // Re-read subscription signals to make this reactive
     this.subscriptionService.features();
+    // AI analytics follows the same access as the assistant: visible whenever
+    // the AI is accessible (active sub, trial left, OR past usage to review).
+    const aiAccessible = this.aiSubscriptionService.aiAccessible();
     return this.allTabs.filter((tab) => {
+      if (tab.requiresAi) return aiAccessible;
       if (!tab.feature) return true;
       return this.subscriptionService.hasFeature(tab.feature as any, tab.minLevel);
     });
@@ -66,6 +76,9 @@ export class DashboardPage implements OnInit {
 
   public ngOnInit(): void {
     this.state.init();
+    this.aiSubscriptionService.load().pipe(take(1)).subscribe({
+      error: () => undefined,
+    });
   }
 
   public handleRefresh(event: CustomEvent): void {

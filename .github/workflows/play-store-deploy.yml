@@ -1,0 +1,158 @@
+name: Deploy to Google Play Store
+
+# Manual-only trigger from the GitHub Actions tab.
+# Inputs let you pick the track (internal / alpha / beta / production)
+# and the user-visible version name, plus release notes for the store.
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: 'Play Store release track'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      version_name:
+        description: 'User-visible version (e.g. 1.0.5)'
+        required: true
+        default: '1.0.0'
+        type: string
+      release_notes:
+        description: 'Release notes (en-US) — what changed in this build'
+        required: false
+        default: 'Bug fixes and improvements.'
+        type: string
+      rollout_percentage:
+        description: 'Staged rollout fraction (0.0–1.0). 1.0 = 100% of users on the chosen track.'
+        required: false
+        default: '1.0'
+        type: string
+
+# Avoid two deploys overlapping — Play Store API serializes uploads anyway.
+concurrency:
+  group: play-store-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build AAB and upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Set up Java 21 (required by AGP 8)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('android/**/*.gradle*', 'android/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install npm dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build Angular web bundle
+        run: npm run build -- --configuration production
+
+      - name: Capacitor sync (copy web bundle into Android project)
+        run: npx cap sync android
+
+      # ── Decode keystore from the base64 secret into a file gradle can read.
+      - name: Decode upload keystore
+        run: |
+          mkdir -p android/app/keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/app/keystore/upload-keystore.jks
+          # Sanity: keystore is a non-empty binary file
+          test -s android/app/keystore/upload-keystore.jks
+
+      # ── Bump versionCode so each Play Store upload is unique.
+      # versionCode = 100 + GITHUB_RUN_NUMBER. Adjust the 100 offset if you
+      # ever blow past it; Play Store cares only that this monotonically grows.
+      - name: Compute and apply versionCode
+        id: bump
+        run: |
+          VERSION_CODE=$(( 100 + GITHUB_RUN_NUMBER ))
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Setting versionCode=$VERSION_CODE, versionName=${{ inputs.version_name }}"
+          # Replace numeric versionCode and versionName in build.gradle
+          sed -i -E "s/(versionCode )[0-9]+/\1${VERSION_CODE}/" android/app/build.gradle
+          sed -i -E "s/(versionName )\"[^\"]+\"/\1\"${{ inputs.version_name }}\"/" android/app/build.gradle
+          grep -E "versionCode |versionName " android/app/build.gradle
+
+      - name: Build signed release AAB
+        working-directory: android
+        env:
+          # Read by android/app/build.gradle's signingConfigs.release block.
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/mobile-app/android/app/keystore/upload-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bundleRelease --no-daemon --stacktrace
+
+      - name: Locate AAB
+        id: aab
+        run: |
+          AAB_PATH=$(find android/app/build/outputs/bundle/release -name '*.aab' | head -n1)
+          test -n "$AAB_PATH"
+          echo "path=$AAB_PATH" >> $GITHUB_OUTPUT
+          ls -lh "$AAB_PATH"
+
+      # ── Write release notes for the en-US locale (what users see on Play).
+      - name: Prepare release notes
+        run: |
+          mkdir -p android/fastlane/metadata/android/en-US/changelogs
+          # Truncate to Play Store's 500-character limit
+          echo "${{ inputs.release_notes }}" | cut -c1-500 > \
+            android/fastlane/metadata/android/en-US/changelogs/default.txt
+
+      # ── Upload to Play Store via the official Google Play Publisher API.
+      # The action handles versionCode collision, signature mismatch, etc.,
+      # with clear errors.
+      - name: Upload AAB to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: app.scheday
+          releaseFiles: ${{ steps.aab.outputs.path }}
+          track: ${{ inputs.track }}
+          status: completed
+          userFraction: ${{ inputs.rollout_percentage }}
+          whatsNewDirectory: android/fastlane/metadata/android
+          # Mapping file would go here if we ever enable R8/Proguard minification:
+          # mappingFile: android/app/build/outputs/mapping/release/mapping.txt
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### 📦 Play Store deploy summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Track | \`${{ inputs.track }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version name | \`${{ inputs.version_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Version code | \`${{ steps.bump.outputs.version_code }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rollout | \`${{ inputs.rollout_percentage }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Package | \`app.scheday\` |" >> $GITHUB_STEP_SUMMARY

@@ -1,4 +1,12 @@
-:host { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  // Pin edges so iOS bounce / Android over-scroll doesn't expose blank
+  // page background past the grid's top or left.
+  overscroll-behavior: none;
+}
 
 .week-view__emp-bar {
   display: flex;

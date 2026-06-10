@@ -9,7 +9,11 @@
 } @else {
   <div class="slot-grid">
     @for (row of rows(); track row.info.employee._id) {
-      <div class="slot-grid__row" [class.slot-grid__row--dayoff]="row.isDayOff">
+      <div
+        class="slot-grid__row"
+        [class.slot-grid__row--dayoff]="row.isDayOff"
+        [class.slot-grid__row--active]="isEmployeeActive(row)"
+      >
         <!-- Employee -->
         <div class="slot-grid__emp">
           <div class="slot-grid__emp-avatar">

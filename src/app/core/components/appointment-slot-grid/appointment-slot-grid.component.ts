@@ -66,14 +66,36 @@ export class AppointmentSlotGridComponent implements OnChanges {
   readonly rows = signal<IEmployeeSlotRow[]>([]);
   readonly isLoading = signal(false);
 
+  /**
+   * Sticky "active employee" highlight — the entire row of the most recently
+   * picked employee stays visually selected even when their previously
+   * chosen slot disappears after a recalculation (extra service added,
+   * slot taken by another booking, etc.). Without this the user would lose
+   * track of which staff member they had already chosen on a small mobile
+   * screen. Only reset when the user explicitly picks another employee.
+   */
+  readonly activeEmployeeId = signal<string | null>(null);
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['departmentId'] || changes['date'] || changes['slotDuration']) {
       this.reload();
+    }
+    // Sync from external selection (parent set selectedSlot from edit-mode
+    // or programmatically). We DON'T clear activeEmployeeId when selectedSlot
+    // becomes null — the whole point is to survive a slot disappearing.
+    if (changes['selectedSlot']) {
+      const sel = this.selectedSlot();
+      if (sel?.employeeId) {
+        this.activeEmployeeId.set(sel.employeeId);
+      }
     }
   }
 
   selectSlot(row: IEmployeeSlotRow, slotTime: string): void {
     const endTime = this.addMinutes(slotTime, this.slotDuration());
+    // Update sticky highlight immediately for instant visual feedback,
+    // independent of the parent's selectedSlot round-trip.
+    this.activeEmployeeId.set(row.info.employee._id);
     this.slotSelected.emit({
       employeeId: row.info.employee._id,
       employee: row.info.employee,
@@ -85,6 +107,10 @@ export class AppointmentSlotGridComponent implements OnChanges {
   isSelected(row: IEmployeeSlotRow, slotTime: string): boolean {
     const s = this.selectedSlot();
     return s?.employeeId === row.info.employee._id && s?.startTime === slotTime;
+  }
+
+  isEmployeeActive(row: IEmployeeSlotRow): boolean {
+    return this.activeEmployeeId() === row.info.employee._id;
   }
 
   private reload(): void {
@@ -119,7 +145,10 @@ export class AppointmentSlotGridComponent implements OnChanges {
             return { info: emp, freeSlots, isDayOff };
           });
 
-          this.rows.set(computed);
+          // Put the currently active employee on top so the row the user has
+          // been working with stays visible after a slot recalculation,
+          // instead of disappearing into the middle of a long list.
+          this.rows.set(this.sortByActiveEmployee(computed));
           this.isLoading.set(false);
           this.cdr.markForCheck();
 
@@ -131,6 +160,19 @@ export class AppointmentSlotGridComponent implements OnChanges {
           this.cdr.markForCheck();
         },
       });
+  }
+
+  /**
+   * Reorder rows so the active employee is first while preserving the
+   * relative order of the rest. Stable when activeEmployeeId is null or
+   * doesn't match any row.
+   */
+  private sortByActiveEmployee(rows: IEmployeeSlotRow[]): IEmployeeSlotRow[] {
+    const activeId = this.activeEmployeeId();
+    if (!activeId) return rows;
+    const idx = rows.findIndex((r) => r.info.employee._id === activeId);
+    if (idx <= 0) return rows;
+    return [rows[idx], ...rows.slice(0, idx), ...rows.slice(idx + 1)];
   }
 
   private isoToHHmm(iso: string): string {

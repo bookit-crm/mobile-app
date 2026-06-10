@@ -17,14 +17,20 @@
   <ion-icon name="chevron-down-outline" class="svc-trigger__chevron"></ion-icon>
 </button>
 
-<!-- Bottom-sheet modal — same pattern as country picker -->
+<!--
+  Full-screen modal (was a bottom-sheet). When the services picker is
+  opened from inside another open modal (the new-appointment flow), the
+  sheet's footer layout breaks: the list extends past the visible bottom
+  and the Cancel/Confirm buttons go below the screen edge. A regular
+  modal pins ion-footer to the device bottom unconditionally and the
+  buttons are always reachable. We keep the orange Confirm / outline
+  Cancel styling that was added during the sheet attempt — it works
+  identically here.
+-->
 <ion-modal
   class="svc-picker-modal"
   [isOpen]="isOpen()"
   (didDismiss)="closePicker()"
-  [breakpoints]="[0, 0.5, 0.85]"
-  [initialBreakpoint]="0.85"
-  [handle]="true"
 >
   <ng-template>
     <ion-header>
@@ -44,7 +50,7 @@
         ></ion-searchbar>
       </ion-toolbar>
 
-      @if (multiple) {
+      @if (multiple && showBulkActions) {
         <ion-toolbar class="svc-picker__bulk-toolbar">
           @if (!allSelected) {
             <ion-button fill="clear" size="small" (click)="selectAll()">
@@ -101,18 +107,18 @@
     </ion-content>
 
     @if (multiple) {
-      <ion-footer class="ion-no-border">
+      <ion-footer class="ion-no-border svc-picker__footer-bar">
         <ion-toolbar>
           <div class="svc-picker__footer">
-            <ion-button fill="outline" color="medium" expand="block" (click)="closePicker()">
+            <button type="button" class="svc-picker__btn svc-picker__btn--cancel" (click)="closePicker()">
               {{ 'CANCEL' | translate }}
-            </ion-button>
-            <ion-button fill="solid" color="primary" expand="block" (click)="confirm()">
+            </button>
+            <button type="button" class="svc-picker__btn svc-picker__btn--confirm" (click)="confirm()">
               {{ 'CONFIRM' | translate }}
               @if (draft.length > 0) {
                 ({{ draft.length }})
               }
-            </ion-button>
+            </button>
           </div>
         </ion-toolbar>
       </ion-footer>

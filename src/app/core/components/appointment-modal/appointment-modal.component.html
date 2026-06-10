@@ -142,21 +142,19 @@
       <div class="apt-modal__section">
         <div class="apt-modal__section-title">{{ 'SERVICES' | translate }} <span class="req">*</span></div>
         @if (services().length > 0) {
-          <ion-list lines="none" class="apt-modal__service-list">
-            @for (svc of services(); track svc._id) {
-              <ion-item [button]="true" [detail]="false" (click)="toggleService(svc._id)">
-                <ion-label>
-                  <h3>{{ svc.name }}</h3>
-                  <p>{{ svc.duration }} min · {{ svc.price | currency }}</p>
-                </ion-label>
-                @if (isServiceSelected(svc._id)) {
-                  <ion-icon name="checkmark-circle" color="primary" slot="end"></ion-icon>
-                } @else {
-                  <ion-icon name="ellipse-outline" color="medium" slot="end"></ion-icon>
-                }
-              </ion-item>
-            }
-          </ion-list>
+          <!--
+            Bottom-sheet picker with search + "select all" — same UX as the
+            "assign services to employee" flow. The inline ion-list rendered
+            here previously was breaking due to global ion-list[lines="none"]
+            rules and made the list look empty even when services existed.
+          -->
+          <app-service-picker
+            [services]="servicePickerItems()"
+            [selected]="selectedServiceItems()"
+            [multiple]="true"
+            [showBulkActions]="false"
+            (selectionChange)="onServicesPicked($event)"
+          ></app-service-picker>
         } @else {
           <p class="apt-modal__hint">
             @if (!form.get('departmentId')?.value && !singleDepartmentMode()) {

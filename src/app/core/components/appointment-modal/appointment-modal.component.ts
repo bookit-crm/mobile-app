@@ -33,6 +33,7 @@ import { DateFnsHelper } from '@core/helpers/date-fns.helper';
 import { AppointmentDayScrollerComponent } from '@core/components/appointment-day-scroller/appointment-day-scroller.component';
 import { AppointmentSlotGridComponent, ISlotSelection } from '@core/components/appointment-slot-grid/appointment-slot-grid.component';
 import { PhoneInputComponent } from '@core/components/phone-input/phone-input.component';
+import { ServicePickerComponent, IServicePickerItem } from '@core/components/service-picker/service-picker.component';
 
 export interface IAppointmentModalPayload {
   _id?: string;          // если задан → edit mode
@@ -47,7 +48,7 @@ export interface IAppointmentModalPayload {
   selector: 'app-appointment-modal',
   standalone: true,
   imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule,
-    TranslateModule, AppointmentDayScrollerComponent, AppointmentSlotGridComponent, PhoneInputComponent],
+    TranslateModule, AppointmentDayScrollerComponent, AppointmentSlotGridComponent, PhoneInputComponent, ServicePickerComponent],
   templateUrl: './appointment-modal.component.html',
   styleUrls: ['./appointment-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -362,6 +363,40 @@ export class AppointmentModalComponent implements OnInit {
 
   public isServiceSelected(id: string): boolean {
     return (this.form.get('serviceIds')?.value ?? []).includes(id);
+  }
+
+  /**
+   * Map the currently selected service IDs to the lean shape the
+   * `<app-service-picker>` understands. Picker only needs _id, name,
+   * duration, price — the rest of IService stays out of its API surface.
+   */
+  public selectedServiceItems = computed<IServicePickerItem[]>(() => {
+    const ids = this.selectedServiceIds();
+    return this.services()
+      .filter((s) => ids.includes(s._id))
+      .map((s) => ({ _id: s._id, name: s.name, duration: s.duration, price: s.price }));
+  });
+
+  /**
+   * Map the full list of services to the picker's lean shape. Used as
+   * `[services]` on the picker so the bottom-sheet shows every available
+   * service for the current department.
+   */
+  public servicePickerItems = computed<IServicePickerItem[]>(() =>
+    this.services().map((s) => ({ _id: s._id, name: s.name, duration: s.duration, price: s.price })),
+  );
+
+  /**
+   * Apply the picker's confirmed selection to our reactive form. Replaces
+   * the whole array at once (the picker confirms a full set) rather than
+   * incrementally toggling like toggleService does.
+   */
+  public onServicesPicked(items: IServicePickerItem[]): void {
+    const ids = items.map((i) => i._id);
+    this.form.get('serviceIds')?.setValue(ids);
+    this.selectedServiceIds.set(ids);
+    this.validateAndMaybeResetSlot();
+    this.recalculate();
   }
 
   public onServicesChange(): void {
