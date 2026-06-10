@@ -1,17 +1,22 @@
 import { test, expect } from '../fixtures';
 import { goTo, searchIn } from '../helpers';
 
+// The Appointments page (and every other page that used to use ion-segment)
+// migrated to a custom `.bk-tabs > .bk-tab-btn` tab bar — same look on iOS
+// and Android, no Ionic shadow DOM. These specs target the new selectors;
+// see global.scss `.bk-tabs` and `.bk-tab-btn` for the source of truth.
+
 test.describe('Appointments', () => {
   test.beforeEach(async ({ mobilePage: page }) => {
     await goTo(page, 'main/appointments', 3000);
   });
 
-  test('should display Appointments title and status segments', async ({ mobilePage: page }) => {
+  test('should display Appointments title and status tabs', async ({ mobilePage: page }) => {
     // filter({ visible: true }) skips hidden side-menu ion-title; language-agnostic
     await expect(page.locator('ion-title').filter({ visible: true }).first()).toBeVisible();
-    await expect(page.locator('ion-segment')).toBeVisible();
-    await expect(page.locator('ion-segment-button').nth(0)).toBeVisible();
-    await expect(page.locator('ion-segment-button').nth(1)).toBeVisible();
+    await expect(page.locator('.bk-tabs').first()).toBeVisible();
+    await expect(page.locator('.bk-tab-btn').nth(0)).toBeVisible();
+    await expect(page.locator('.bk-tab-btn').nth(1)).toBeVisible();
   });
 
   test('should show appointment items in the list', async ({ mobilePage: page }) => {
@@ -21,28 +26,28 @@ test.describe('Appointments', () => {
     expect(count).toBeGreaterThanOrEqual(0); // may be empty; just no crash
   });
 
-  test('should show all appointments in "All" segment', async ({ mobilePage: page }) => {
-    const segBtn = page.locator('ion-segment-button').first();
-    if (await segBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await segBtn.click();
+  test('should show all appointments in "All" tab', async ({ mobilePage: page }) => {
+    const tabBtn = page.locator('.bk-tab-btn').first();
+    if (await tabBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await tabBtn.click();
       await page.waitForTimeout(800);
     }
     await expect(page.locator('ion-content').last()).toBeVisible();
   });
 
   test('should filter to "New" appointments', async ({ mobilePage: page }) => {
-    const segBtn = page.locator('ion-segment-button').nth(1);
-    if (await segBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await segBtn.click();
+    const tabBtn = page.locator('.bk-tab-btn').nth(1);
+    if (await tabBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await tabBtn.click();
       await page.waitForTimeout(800);
     }
     await expect(page.locator('ion-content').last()).toBeVisible();
   });
 
   test('should filter to "Completed" appointments', async ({ mobilePage: page }) => {
-    const segBtn = page.locator('ion-segment-button').nth(2);
-    if (await segBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      await segBtn.click();
+    const tabBtn = page.locator('.bk-tab-btn').nth(2);
+    if (await tabBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      await tabBtn.click();
       await page.waitForTimeout(800);
     }
     await expect(page.locator('ion-content').last()).toBeVisible();
