@@ -18,19 +18,19 @@
 </button>
 
 <!--
-  Bottom-sheet modal. Breakpoints used to include 0.5 which let the user
-  swipe the sheet halfway down — and at that height the Cancel/Confirm
-  footer sat below the visible viewport, looking like the picker had no
-  action buttons at all. Dropped the half-stop so the sheet is either
-  closed or near-fullscreen and the footer is always reachable.
+  Full-screen modal (was a bottom-sheet). When the services picker is
+  opened from inside another open modal (the new-appointment flow), the
+  sheet's footer layout breaks: the list extends past the visible bottom
+  and the Cancel/Confirm buttons go below the screen edge. A regular
+  modal pins ion-footer to the device bottom unconditionally and the
+  buttons are always reachable. We keep the orange Confirm / outline
+  Cancel styling that was added during the sheet attempt — it works
+  identically here.
 -->
 <ion-modal
   class="svc-picker-modal"
   [isOpen]="isOpen()"
   (didDismiss)="closePicker()"
-  [breakpoints]="[0, 0.95]"
-  [initialBreakpoint]="0.95"
-  [handle]="true"
 >
   <ng-template>
     <ion-header>
