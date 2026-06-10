@@ -50,7 +50,7 @@
         ></ion-searchbar>
       </ion-toolbar>
 
-      @if (multiple) {
+      @if (multiple && showBulkActions) {
         <ion-toolbar class="svc-picker__bulk-toolbar">
           @if (!allSelected) {
             <ion-button fill="clear" size="small" (click)="selectAll()">

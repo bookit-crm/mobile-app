@@ -152,6 +152,7 @@
             [services]="servicePickerItems()"
             [selected]="selectedServiceItems()"
             [multiple]="true"
+            [showBulkActions]="false"
             (selectionChange)="onServicesPicked($event)"
           ></app-service-picker>
         } @else {
