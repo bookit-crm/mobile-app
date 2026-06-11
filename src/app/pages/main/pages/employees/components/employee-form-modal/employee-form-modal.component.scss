@@ -9,6 +9,46 @@ ion-content {
   --padding-bottom: 24px;
 }
 
+// ── Password status indicator ───────────────────────────────
+.pwd-status-item {
+  --background: var(--ion-color-success-tint, #e6f7ed);
+  --border-radius: 8px;
+  margin: 4px 16px 0;
+  --inner-padding-end: 8px;
+
+  ion-icon {
+    font-size: 22px;
+  }
+}
+.pwd-status-title {
+  font-size: 0.95rem !important;
+  font-weight: 600;
+  color: var(--ion-color-success-shade, #1f7a3a) !important;
+  margin: 0;
+}
+.pwd-status-hint {
+  font-size: 0.8rem;
+  color: var(--bk-grey-200, #767676);
+  margin: 2px 0 0;
+  white-space: normal;
+}
+.pwd-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 16px 8px !important;
+  color: var(--ion-color-warning-shade, #b07206) !important;
+
+  ion-icon {
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+.profile-actions {
+  padding: 8px 16px 4px;
+}
+
 // ── Service picker dropdown ────────────────────────────────
 .service-picker {
   border: 1px solid var(--ion-color-step-150, #e0e0e0);
@@ -77,15 +117,8 @@ ion-content {
   }
 }
 
-.schedule-card {
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-  ion-card-content { padding: 8px 16px 16px; }
-}
-
 .schedule-row {
-  padding: 12px 0;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--ion-color-light);
 
   &:last-child { border-bottom: none; }

@@ -19,7 +19,7 @@ import {
 } from '@core/services/payroll.service';
 import { SubscriptionService } from '@core/services/subscription.service';
 
-type PeriodKey = 'week' | 'month' | 'quarter';
+type PeriodKey = 'today' | 'week' | 'month' | 'quarter' | 'halfyear' | 'year';
 
 /**
  * Employee performance page: own stats (revenue, visits, top services,
@@ -45,9 +45,12 @@ export class PerformancePage implements OnInit {
   public payroll = signal<ISelfPayroll | null>(null);
 
   public readonly periodOptions: Array<{ value: PeriodKey; label: string }> = [
+    { value: 'today', label: 'PERF_PERIOD_TODAY' },
     { value: 'week', label: 'PERF_PERIOD_WEEK' },
     { value: 'month', label: 'PERF_PERIOD_MONTH' },
     { value: 'quarter', label: 'PERF_PERIOD_QUARTER' },
+    { value: 'halfyear', label: 'PERF_PERIOD_HALFYEAR' },
+    { value: 'year', label: 'PERF_PERIOD_YEAR' },
   ];
 
   /** Payroll module is feature-gated per subscription */
@@ -115,11 +118,20 @@ export class PerformancePage implements OnInit {
     from.setHours(0, 0, 0, 0);
 
     switch (this.period()) {
+      case 'today':
+        // `from` already at 00:00 of today — no shift needed
+        break;
       case 'week':
         from.setDate(from.getDate() - 6);
         break;
       case 'quarter':
         from.setMonth(from.getMonth() - 3);
+        break;
+      case 'halfyear':
+        from.setMonth(from.getMonth() - 6);
+        break;
+      case 'year':
+        from.setFullYear(from.getFullYear() - 1);
         break;
       case 'month':
       default:

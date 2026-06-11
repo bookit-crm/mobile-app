@@ -18,13 +18,6 @@
     ></app-image-picker>
   </div>
 
-  @if (departmentName()) {
-    <div class="profile-dept">
-      <ion-icon name="business-outline"></ion-icon>
-      <span>{{ departmentName() }}</span>
-    </div>
-  }
-
   <form [formGroup]="form">
     <ion-list lines="full">
       <!-- ── Personal info ───────────────────────────────── -->
@@ -61,10 +54,27 @@
         <app-phone-input formControlName="phone"></app-phone-input>
       </ion-item>
 
-      <ion-item>
+      <ion-item class="dob-item">
         <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
-        <ion-input formControlName="dateOfBirth" type="date"></ion-input>
+        <ion-input
+          formControlName="dateOfBirth"
+          type="date"
+          [placeholder]="'SELECT_DATE_OF_BIRTH' | translate"
+        ></ion-input>
+        @if (!form.controls.dateOfBirth.value) {
+          <!-- Native <input type="date"> ignores the placeholder attribute,
+               so we overlay a faux placeholder until a value is picked. -->
+          <span class="dob-placeholder">{{ 'SELECT_DATE_OF_BIRTH' | translate }}</span>
+        }
       </ion-item>
+
+      @if (departmentName()) {
+        <ion-item class="profile-branch-item">
+          <ion-label position="stacked">{{ 'PROFILE_BRANCH' | translate }}</ion-label>
+          <ion-input [value]="departmentName()" readonly></ion-input>
+          <ion-icon name="business-outline" slot="end" color="medium"></ion-icon>
+        </ion-item>
+      }
 
       <div class="profile-actions">
         <ion-button

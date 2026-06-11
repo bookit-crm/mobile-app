@@ -4,20 +4,6 @@
   padding: 20px 0 8px;
 }
 
-.profile-dept {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding-bottom: 8px;
-  color: var(--bk-grey-200, #767676);
-  font-size: 0.85rem;
-
-  ion-icon {
-    font-size: 16px;
-  }
-}
-
 .field-error {
   display: block;
   padding: 4px 16px 0;
@@ -43,17 +29,49 @@ ion-list-header {
   margin-top: 16px;
 }
 
+// Phone input lives inside an ion-item so its label/padding visually matches
+// the other stacked-label fields. Strip the wrapper border and align padding
+// to ion-item's content area; suppress the internal label since ion-label
+// provides it.
 .phone-item {
+  --inner-padding-end: 0;
+
   ::ng-deep app-phone-input {
     width: 100%;
     margin: 6px 0 4px;
+
     .phone-wrapper {
       border: none;
       border-radius: 0;
       padding-left: 0;
       height: 40px;
+      align-items: center;
     }
+
+    .country-btn { padding-left: 0; }
     .phone-label { display: none; }
+  }
+}
+
+.profile-branch-item {
+  --background: transparent;
+  ion-input { --color: var(--bk-grey-200, #767676); }
+  ion-icon { font-size: 20px; }
+}
+
+// Faux placeholder for native <input type="date"> — sits inside the ion-item
+// at the same place the date text would render. Pointer-events disabled so it
+// doesn't intercept taps to open the picker.
+.dob-item {
+  position: relative;
+
+  .dob-placeholder {
+    position: absolute;
+    left: 16px;
+    bottom: 12px;
+    pointer-events: none;
+    color: var(--ion-color-medium, #92949c);
+    font-size: 0.95rem;
   }
 }
 

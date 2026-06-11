@@ -18,6 +18,8 @@ export interface ISupervisor {
   baseAmount?: number;
   commissionPercent?: number;
   lang?: string;
+  /** true if a mobile-app password has been set for this supervisor/manager */
+  hasPassword?: boolean;
 }
 
 export interface ISupervisorList {

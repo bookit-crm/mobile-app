@@ -17,6 +17,8 @@ export interface IEmployee {
   salaryRateType?: ESalaryRateType;
   baseAmount?: number;
   commissionPercent?: number;
+  /** true if a mobile-app password has been set for this employee */
+  hasPassword?: boolean;
 }
 
 export interface IEmployeeList {

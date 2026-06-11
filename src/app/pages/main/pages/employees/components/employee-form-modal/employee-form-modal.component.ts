@@ -60,6 +60,10 @@ export class EmployeeFormModalComponent implements OnInit {
 
   public isSubmitting = false;
   public isEditMode = false;
+  /** Reveals the password fields when the admin clicks "Set new password" on
+   * an employee that already has one (we never show or pre-fill the existing
+   * hash — it's set-only). */
+  public showPasswordFields = false;
   private existingScheduleId: string | null = null;
 
   public avatarFileId: string | null = null;
@@ -155,6 +159,13 @@ export class EmployeeFormModalComponent implements OnInit {
 
   public dismiss(): void {
     void this.modalCtrl.dismiss(false);
+  }
+
+  /** Reveal password inputs for an employee that already has one — overwrites
+   * the existing hash on save. The admin is warned via section-hint. */
+  public revealPasswordFields(): void {
+    this.showPasswordFields = true;
+    this.cdr.markForCheck();
   }
 
   // ── Schedule helpers (same as department) ──────────────────────────────────

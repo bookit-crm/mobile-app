@@ -75,27 +75,53 @@
         </ion-label>
       </ion-list-header>
 
-      <ion-item>
-        <ion-label position="stacked">{{ (isEditMode ? 'MGR_NEW_PASSWORD_LABEL' : 'MGR_PASSWORD_LABEL') | translate }}</ion-label>
-        <ion-input formControlName="password" type="password" [placeholder]="(isEditMode ? 'MGR_PWD_LEAVE_BLANK' : 'MGR_PWD_MIN_HINT') | translate"></ion-input>
-      </ion-item>
-      @if (form.get('password')?.invalid && form.get('password')?.touched) {
-        <ion-note color="danger" class="field-error">
-          @if (form.get('password')?.errors?.['required']) { {{ 'MGR_PASSWORD_REQUIRED' | translate }} }
-          @else if (form.get('password')?.errors?.['minlength']) { {{ 'MGR_PASSWORD_MIN_LENGTH' | translate }} }
-          @else { {{ 'MGR_PASSWORD_PATTERN' | translate }} }
-        </ion-note>
-      }
+      @if (isEditMode && manager?.hasPassword && !showPasswordFields) {
+        <!-- Existing manager has a password — show status badge + "set new" button.
+             We never show the bcrypt hash, so the admin has to overwrite it
+             entirely if they want to rotate it. -->
+        <ion-item lines="none" class="pwd-status-item">
+          <ion-icon name="checkmark-circle" color="success" slot="start"></ion-icon>
+          <ion-label>
+            <h3 class="pwd-status-title">{{ 'EMP_PWD_STATUS_ACTIVE' | translate }}</h3>
+            <p class="pwd-status-hint">{{ 'EMP_PWD_STATUS_HINT' | translate }}</p>
+          </ion-label>
+        </ion-item>
+        <div class="profile-actions">
+          <ion-button expand="block" fill="outline" (click)="revealPasswordFields()">
+            <ion-icon name="key-outline" slot="start"></ion-icon>
+            {{ 'EMP_PWD_SET_NEW' | translate }}
+          </ion-button>
+        </div>
+      } @else {
+        @if (isEditMode && manager?.hasPassword) {
+          <ion-note color="warning" class="section-hint pwd-warning">
+            <ion-icon name="warning-outline"></ion-icon>
+            {{ 'EMP_PWD_OVERWRITE_WARNING' | translate }}
+          </ion-note>
+        }
 
-      <ion-item>
-        <ion-label position="stacked">{{ (isEditMode ? 'MGR_CONFIRM_NEW_PASSWORD_LABEL' : 'MGR_CONFIRM_PASSWORD_LABEL') | translate }}</ion-label>
-        <ion-input formControlName="confirmPassword" type="password" [placeholder]="'MGR_CONFIRM_PLACEHOLDER' | translate"></ion-input>
-      </ion-item>
-      @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" class="field-error">{{ 'MGR_PASSWORDS_MISMATCH' | translate }}</ion-note>
-      }
-      @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
-        <ion-note color="danger" class="field-error">{{ 'MGR_CONFIRM_REQUIRED' | translate }}</ion-note>
+        <ion-item>
+          <ion-label position="stacked">{{ (isEditMode ? 'MGR_NEW_PASSWORD_LABEL' : 'MGR_PASSWORD_LABEL') | translate }}</ion-label>
+          <ion-input formControlName="password" type="password" [placeholder]="(isEditMode ? 'MGR_PWD_LEAVE_BLANK' : 'MGR_PWD_MIN_HINT') | translate"></ion-input>
+        </ion-item>
+        @if (form.get('password')?.invalid && form.get('password')?.touched) {
+          <ion-note color="danger" class="field-error">
+            @if (form.get('password')?.errors?.['required']) { {{ 'MGR_PASSWORD_REQUIRED' | translate }} }
+            @else if (form.get('password')?.errors?.['minlength']) { {{ 'MGR_PASSWORD_MIN_LENGTH' | translate }} }
+            @else { {{ 'MGR_PASSWORD_PATTERN' | translate }} }
+          </ion-note>
+        }
+
+        <ion-item>
+          <ion-label position="stacked">{{ (isEditMode ? 'MGR_CONFIRM_NEW_PASSWORD_LABEL' : 'MGR_CONFIRM_PASSWORD_LABEL') | translate }}</ion-label>
+          <ion-input formControlName="confirmPassword" type="password" [placeholder]="'MGR_CONFIRM_PLACEHOLDER' | translate"></ion-input>
+        </ion-item>
+        @if (form.get('confirmPassword')?.errors?.['passwordMismatch'] && form.get('confirmPassword')?.touched) {
+          <ion-note color="danger" class="field-error">{{ 'MGR_PASSWORDS_MISMATCH' | translate }}</ion-note>
+        }
+        @if (form.get('confirmPassword')?.errors?.['required'] && form.get('confirmPassword')?.touched) {
+          <ion-note color="danger" class="field-error">{{ 'MGR_CONFIRM_REQUIRED' | translate }}</ion-note>
+        }
       }
 
       <!-- ── Зарплатная ставка ───────────────────────────── -->
@@ -142,8 +168,7 @@
       <h3 class="schedule-header__title">{{ 'DEPT_WORKING_HOURS' | translate }}</h3>
     </div>
 
-    <ion-card class="schedule-card">
-      <ion-card-content>
+    <div>
         @for (row of scheduleRows(); track row.day) {
           <div class="schedule-row" [class.schedule-row--disabled]="!row.enabled">
 
@@ -191,8 +216,7 @@
 
           </div>
         }
-      </ion-card-content>
-    </ion-card>
+    </div>
   </div>
 
 </ion-content>

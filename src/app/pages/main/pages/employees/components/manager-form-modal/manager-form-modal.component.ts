@@ -58,6 +58,10 @@ export class ManagerFormModalComponent implements OnInit {
 
   public isSubmitting = false;
   public isEditMode = false;
+  /** When editing an existing manager who already has a password, hide the
+   * password inputs behind a "Set new password" button. The hash never leaves
+   * the server, so we can't pre-fill it. */
+  public showPasswordFields = false;
   private existingScheduleId: string | null = null;
 
   public avatarFileId: string | null = null;
@@ -102,6 +106,11 @@ export class ManagerFormModalComponent implements OnInit {
 
   public dismiss(): void {
     void this.modalCtrl.dismiss(false);
+  }
+
+  public revealPasswordFields(): void {
+    this.showPasswordFields = true;
+    this.cdr.markForCheck();
   }
 
   // ── Schedule helpers ───────────────────────────────────────────────────────
