@@ -18,7 +18,11 @@ import { AccountSettingsModalComponent } from '@core/components/account-settings
 import { NotificationsService } from '@core/services/notifications.service';
 import { WebsocketService } from '@core/services/websocket.service';
 import { ISideMenuItem } from './models/side-menu-item.interface';
-import { ADMIN_MENU_CONFIG, MANAGER_MENU_CONFIG } from './constants/side-menu-config';
+import {
+  ADMIN_MENU_CONFIG,
+  EMPLOYEE_MENU_CONFIG,
+  MANAGER_MENU_CONFIG,
+} from './constants/side-menu-config';
 import { take } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -54,7 +58,12 @@ export class SideMenuComponent implements OnInit {
 
   public menuItems: Signal<ISideMenuItem[]> = computed(() => {
     const role   = this.supervisorService.authUserSignal()?.role;
-    const base   = role === EUserRole.MANAGER ? MANAGER_MENU_CONFIG : ADMIN_MENU_CONFIG;
+    const base   =
+      role === EUserRole.EMPLOYEE
+        ? EMPLOYEE_MENU_CONFIG
+        : role === EUserRole.MANAGER
+          ? MANAGER_MENU_CONFIG
+          : ADMIN_MENU_CONFIG;
     const unread = this.wsService.unreadCount;
 
     const withBadge = base

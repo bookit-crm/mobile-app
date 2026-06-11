@@ -178,3 +178,16 @@ ion-content {
 ion-list-header {
   margin-top: 16px;
 }
+
+.field-error {
+  display: block;
+  padding: 4px 16px 0;
+  font-size: 0.78rem;
+}
+
+.section-hint {
+  display: block;
+  padding: 2px 16px 6px;
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}

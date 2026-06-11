@@ -146,6 +146,10 @@ export class AppointmentsPage {
   public readonly isManager = computed(
     () => this.supervisorService.authUserSignal()?.role === EUserRole.MANAGER,
   );
+  /** Employee sees only their own appointments (scoped server-side) */
+  public readonly isEmployee = computed(
+    () => this.supervisorService.authUserSignal()?.role === EUserRole.EMPLOYEE,
+  );
   /**
    * Manager OR admin on single-location plan → hide department filter,
    * auto-set the only department.
@@ -492,8 +496,8 @@ export class AppointmentsPage {
   }
 
   private loadFilterOptions(): void {
-    if (this.isManager()) {
-      // Manager: department comes from their profile — auto-set filter immediately
+    if (this.isManager() || this.isEmployee()) {
+      // Manager/Employee: department comes from their profile — auto-set filter immediately
       const dept = this.supervisorService.authUserSignal()?.department;
       const deptId = dept ? (typeof dept === 'string' ? dept : dept._id) : '';
       if (deptId) {
@@ -513,10 +517,17 @@ export class AppointmentsPage {
           this.cdr.markForCheck();
         });
     }
-    this.employeeService
-      .getEmployees({ limit: 100 })
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((res) => { this.employees.set(res.results); this.cdr.markForCheck(); });
+    if (this.isEmployee()) {
+      // Employees list endpoint is closed for the Employee role — the only
+      // possible "employee filter" value is themselves anyway.
+      const self = this.supervisorService.authUserSignal();
+      if (self) this.employees.set([self as unknown as IEmployee]);
+    } else {
+      this.employeeService
+        .getEmployees({ limit: 100 })
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe((res) => { this.employees.set(res.results); this.cdr.markForCheck(); });
+    }
     this.clientsService
       .getClients({ limit: 100 })
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))

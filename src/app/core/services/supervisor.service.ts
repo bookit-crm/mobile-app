@@ -19,20 +19,27 @@ export class SupervisorService extends HttpHelper {
     () => this.authUserSignal()?.role === EUserRole.MANAGER,
   );
 
+  public isEmployee: Signal<boolean> = computed(
+    () => this.authUserSignal()?.role === EUserRole.EMPLOYEE,
+  );
+
   /**
    * true если пользователь фактически работает с одним департаментом:
-   * - Manager привязан к одному департаменту
+   * - Manager/Employee привязаны к одному департаменту
    * - Admin/Owner на плане с лимитом 1 локация
    */
   public singleDepartmentMode: Signal<boolean> = computed(
-    () => this.isManager() || this.subscriptionService.isSingleLocationPlan(),
+    () =>
+      this.isManager() ||
+      this.isEmployee() ||
+      this.subscriptionService.isSingleLocationPlan(),
   );
 
   /**
    * Эффективный departmentId для single-department mode.
    */
   public effectiveDepartmentId: Signal<string | null> = computed(() => {
-    if (this.isManager()) {
+    if (this.isManager() || this.isEmployee()) {
       const dept = this.authUserSignal()?.department;
       if (!dept) return null;
       return typeof dept === 'string' ? dept : dept._id;

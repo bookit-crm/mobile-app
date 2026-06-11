@@ -10,9 +10,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  AbstractControl,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { IonicModule, ModalController, ToastController } from '@ionic/angular';
@@ -25,6 +27,7 @@ import { IService } from '@core/models/appointment.interface';
 import { IDepartment } from '@core/models/department.interface';
 import { ISchedulePayload, IScheduleRow, DAY_KEY_MAP, DAY_ORDER } from '@core/models/schedule.interface';
 import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
+import { ValidatorsHelper } from '@core/helpers/validators.helper';
 import { EmployeeService } from '@core/services/employee.service';
 import { SchedulesService } from '@core/services/schedules.service';
 import { ServicesService } from '@core/services/services.service';
@@ -111,15 +114,32 @@ export class EmployeeFormModalComponent implements OnInit {
     salaryRateType: new FormControl<ESalaryRateType | null>(null),
     baseAmount: new FormControl<number | null>(null),
     commissionPercent: new FormControl<number | null>(null),
+    // Optional app credentials — setting a password enables mobile login
+    password: new FormControl('', [
+      Validators.minLength(10),
+      Validators.pattern(ValidatorsHelper.userPasswordReg),
+    ]),
+    confirmPassword: new FormControl(''),
   });
 
   ngOnInit(): void {
     this.isEditMode = !!this.employee?._id;
     this.avatarUrl = this.employee?.avatar?.url ?? null;
     this.avatarFileId = this.employee?.avatar?._id ?? null;
+    this.form.addValidators(this.passwordMatchValidator);
     this.populateForm();
     this.loadServicesForDepartment();
     this.loadSchedule();
+  }
+
+  private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirmPassword')?.value;
+    if (password && password !== confirmPassword) {
+      control.get('confirmPassword')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    }
+    return null;
   }
 
   public onAvatarUploaded(dto: IFileDTO): void {
@@ -245,6 +265,11 @@ export class EmployeeFormModalComponent implements OnInit {
       commissionPercent: raw.commissionPercent ?? undefined,
       avatar: this.avatarFileId ?? undefined,
     };
+
+    // Optional: password enables mobile-app login for this employee
+    if (raw.password) {
+      payload['password'] = raw.password;
+    }
 
     const save$ = this.isEditMode && this.employee?._id
       ? this.employeeService.patchEmployee(this.employee._id, payload as unknown as Partial<IEmployee>)

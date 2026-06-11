@@ -140,13 +140,20 @@ export class CalendarPage implements OnInit {
     () => this.supervisorService.authUserSignal()?.role === EUserRole.MANAGER,
   );
 
+  /** Employee видит только свой календарь в своём филиале */
+  public readonly isEmployee = computed(
+    () => this.supervisorService.authUserSignal()?.role === EUserRole.EMPLOYEE,
+  );
+
   /** Create/edit/delete requires active subscription */
   public readonly canCreateAppointment = computed(
     () => this.subscriptionService.isActive(),
   );
 
-  /** Manager или admin с одним департаментом — скрываем выбор департамента */
-  public readonly singleDepartmentMode = computed(() => this.isManager());
+  /** Manager/Employee или admin с одним департаментом — скрываем выбор департамента */
+  public readonly singleDepartmentMode = computed(
+    () => this.isManager() || this.isEmployee(),
+  );
 
   /** Для Manager — берём департамент прямо из профиля */
   private readonly managerDepartmentId = computed(() => {
@@ -478,6 +485,24 @@ export class CalendarPage implements OnInit {
   }
 
   private initEmployees(): void {
+    // Wait for the profile on cold start — the role decides which path
+    // is allowed (employees list is closed server-side for Employee).
+    const user = this.supervisorService.authUserSignal();
+    if (!user) {
+      this.supervisorService
+        .getSelf()
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => this.initEmployees());
+      return;
+    }
+
+    // Employee role: single column with the employee themselves.
+    if (this.isEmployee()) {
+      this.employees.set([user as unknown as IEmployee]);
+      this.cdr.markForCheck();
+      return;
+    }
+
     const deptId = this.effectiveDepartmentId;
     // ⚠ The backend defaults `limit` to 10 when not supplied
     // (employee.service.ts: `parseInt(limit, 10) || 10`). The desktop client

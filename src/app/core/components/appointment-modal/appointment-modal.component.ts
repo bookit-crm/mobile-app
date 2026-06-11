@@ -826,13 +826,22 @@ export class AppointmentModalComponent implements OnInit {
   }
 
   private loadEmployeesAndServices(deptId: string): void {
-    this.employeeService
-      .getEmployees({ departmentId: deptId, limit: 50 })
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
-      .subscribe((res) => {
-        this.employees.set(res.results);
-        this.cdr.markForCheck();
-      });
+    // Employee role: list endpoint is closed server-side — they only ever
+    // book themselves, so the picker holds exactly one option (self).
+    const authUser = this.supervisorService.authUserSignal();
+    if (authUser?.role === EUserRole.EMPLOYEE) {
+      this.employees.set([authUser as unknown as IEmployee]);
+      this.form?.get('employeeId')?.setValue(authUser._id);
+      this.cdr.markForCheck();
+    } else {
+      this.employeeService
+        .getEmployees({ departmentId: deptId, limit: 50 })
+        .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe((res) => {
+          this.employees.set(res.results);
+          this.cdr.markForCheck();
+        });
+    }
     this.servicesService
       .getServices({ departmentId: deptId, limit: 100 })
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))

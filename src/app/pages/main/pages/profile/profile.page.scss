@@ -1,0 +1,149 @@
+.avatar-row {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 8px;
+}
+
+.profile-dept {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  color: var(--bk-grey-200, #767676);
+  font-size: 0.85rem;
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+.field-error {
+  display: block;
+  padding: 4px 16px 0;
+  font-size: 0.78rem;
+}
+
+.section-hint {
+  display: block;
+  padding: 2px 16px 8px;
+  font-size: 0.8rem;
+  color: var(--bk-grey-200, #767676);
+}
+
+.profile-actions {
+  padding: 12px 16px;
+
+  &--last {
+    padding-bottom: 32px;
+  }
+}
+
+ion-list-header {
+  margin-top: 16px;
+}
+
+// ── Schedule editor (same look as employee form) ──────────
+.schedule-card {
+  margin: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--ion-color-step-100, #ececec);
+  padding: 4px 14px;
+}
+
+.schedule-row {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--ion-color-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &--disabled {
+    opacity: 0.55;
+  }
+
+  &__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__name {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  &__day {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--ion-text-color);
+    min-width: 40px;
+  }
+
+  &__time-summary {
+    font-size: 0.78rem;
+    color: var(--bk-orange-600, #ea580c);
+    font-weight: 500;
+  }
+
+  &__closed-label {
+    font-size: 0.78rem;
+    color: var(--ion-color-medium);
+    font-style: italic;
+  }
+
+  &__times {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.time-field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__label {
+    font-size: 0.72rem;
+    color: var(--ion-color-medium);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+
+  &__native-input {
+    width: 100%;
+    min-height: 38px;
+    padding: 0 10px;
+    border: 1.5px solid var(--ion-color-medium);
+    border-radius: 8px;
+    background: transparent;
+    font-size: 0.9rem;
+    color: var(--ion-text-color);
+    font-family: inherit;
+    box-sizing: border-box;
+    outline: none;
+
+    &:focus {
+      border-color: var(--bk-orange-500, #ff7407);
+    }
+
+    &::-webkit-datetime-edit-ampm-field {
+      display: none;
+    }
+  }
+}
+
+.time-field__separator {
+  width: 12px;
+  flex-shrink: 0;
+  margin-top: 20px;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+  text-align: center;
+}
