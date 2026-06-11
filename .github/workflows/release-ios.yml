@@ -15,6 +15,24 @@ on:
         required: false
         default: ''
         type: string
+      distribution:
+        description: 'TestFlight distribution'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - external
+      external_group:
+        description: 'External Testing group name (required if distribution = external)'
+        required: false
+        default: ''
+        type: string
+      whats_new:
+        description: 'What to Test notes for external testers'
+        required: false
+        default: 'Bug fixes and improvements'
+        type: string
 
 concurrency:
   group: mobile-ios-release
@@ -24,7 +42,7 @@ jobs:
   release:
     name: Build and upload to TestFlight
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 90
 
     steps:
       - name: Checkout
@@ -117,6 +135,9 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           APP_VERSION: ${{ inputs.version_name }}
+          DISTRIBUTION: ${{ inputs.distribution }}
+          EXTERNAL_GROUP: ${{ inputs.external_group }}
+          WHATS_NEW: ${{ inputs.whats_new }}
         working-directory: ios/App
         run: bundle exec fastlane ${{ github.event.inputs.lane }}
 

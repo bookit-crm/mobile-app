@@ -35,9 +35,24 @@ platform :ios do
       },
     )
 
-    upload_to_testflight(
-      api_key: api_key,
-      skip_waiting_for_build_processing: true,
-    )
+    distribution = (ENV["DISTRIBUTION"] || "internal").strip
+
+    if distribution == "external"
+      group_name = ENV["EXTERNAL_GROUP"].to_s.strip
+      UI.user_error!("external_group input is required when distribution = external") if group_name.empty?
+
+      upload_to_testflight(
+        api_key: api_key,
+        groups: [group_name],
+        distribute_external: true,
+        notify_external_testers: true,
+        changelog: ENV["WHATS_NEW"],
+      )
+    else
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: true,
+      )
+    end
   end
 end
