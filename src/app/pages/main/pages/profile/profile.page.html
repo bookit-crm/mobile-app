@@ -18,6 +18,15 @@
     ></app-image-picker>
   </div>
 
+  @if (departmentName()) {
+    <!-- Branch badge under the avatar — same display as before; the field
+         is read-only so a badge reads cleaner than a fake form input. -->
+    <div class="profile-dept">
+      <ion-icon name="business-outline"></ion-icon>
+      <span>{{ departmentName() }}</span>
+    </div>
+  }
+
   <form [formGroup]="form">
     <ion-list lines="full">
       <!-- ── Personal info ───────────────────────────────── -->
@@ -74,14 +83,6 @@
           <span class="dob-placeholder">{{ 'SELECT_DATE_OF_BIRTH' | translate }}</span>
         }
       </ion-item>
-
-      @if (departmentName()) {
-        <ion-item class="profile-branch-item">
-          <ion-label position="stacked">{{ 'PROFILE_BRANCH' | translate }}</ion-label>
-          <ion-input [value]="departmentName()" readonly></ion-input>
-          <ion-icon name="business-outline" slot="end" color="medium"></ion-icon>
-        </ion-item>
-      }
 
       <div class="profile-actions">
         <ion-button
