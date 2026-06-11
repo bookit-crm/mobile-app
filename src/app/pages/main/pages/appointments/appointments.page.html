@@ -68,18 +68,20 @@
           </ion-item>
         }
 
-        <!-- Employee -->
-        <ion-item>
-          <ion-label position="stacked" class="filter-label">{{ 'FILTER_EMPLOYEE' | translate }}</ion-label>
-          <ion-select [(ngModel)]="tempEmployee" [placeholder]="'ALL_EMPLOYEES' | translate" interface="action-sheet">
-            <ion-select-option value="">{{ 'ALL_EMPLOYEES' | translate }}</ion-select-option>
-            @for (emp of employees(); track emp._id) {
-              <ion-select-option [value]="emp._id">
-                {{ getEmployeeDisplayName(emp) }}
-              </ion-select-option>
-            }
-          </ion-select>
-        </ion-item>
+        <!-- Employee (hidden for Employee role — they only see their own appointments) -->
+        @if (!isEmployee()) {
+          <ion-item>
+            <ion-label position="stacked" class="filter-label">{{ 'FILTER_EMPLOYEE' | translate }}</ion-label>
+            <ion-select [(ngModel)]="tempEmployee" [placeholder]="'ALL_EMPLOYEES' | translate" interface="action-sheet">
+              <ion-select-option value="">{{ 'ALL_EMPLOYEES' | translate }}</ion-select-option>
+              @for (emp of employees(); track emp._id) {
+                <ion-select-option [value]="emp._id">
+                  {{ getEmployeeDisplayName(emp) }}
+                </ion-select-option>
+              }
+            </ion-select>
+          </ion-item>
+        }
 
         <!-- Client -->
         <ion-item>

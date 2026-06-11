@@ -2,6 +2,7 @@
 import { Observable, tap } from 'rxjs';
 import { HttpHelper } from '@core/helpers/http-helper';
 import { EUserRole } from '@core/enums/e-user-role';
+import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { ISupervisor, ISupervisorList } from '@core/models/supervisor.interface';
 import { SubscriptionService } from './subscription.service';
 import { DepartmentService } from './department.service';
@@ -12,6 +13,23 @@ export class SupervisorService extends HttpHelper {
   private readonly departmentService = inject(DepartmentService);
 
   public authUserSignal: WritableSignal<ISupervisor | null> = signal(null);
+
+  constructor() {
+    super();
+    // Pre-populate role from JWT so the side-menu renders correctly before getSelf() resolves.
+    try {
+      const token = localStorage.getItem(ELocalStorageKeys.AUTH_TOKEN);
+      if (token) {
+        const parts = token.split('.');
+        if (parts.length >= 2) {
+          const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+          if (payload?.role) {
+            this.authUserSignal.set({ role: payload.role, _id: payload._id ?? payload.sub } as ISupervisor);
+          }
+        }
+      }
+    } catch { /* malformed token — getSelf() will overwrite with the real object */ }
+  }
   public supervisorsSignal: WritableSignal<ISupervisorList | null> = signal(null);
   public currentManagerSignal: WritableSignal<ISupervisor | null> = signal(null);
 

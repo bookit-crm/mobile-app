@@ -8,6 +8,7 @@ export interface IClient {
   description?: string;
   lastVisitDate?: string;
   lastVisitEmployee?: { firstName: string; lastName: string };
+  lastVisitDepartment?: { _id: string; name?: string } | null;
   created?: string;
 }
 

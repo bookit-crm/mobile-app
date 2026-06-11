@@ -293,6 +293,14 @@ export class AppointmentModalComponent implements OnInit {
     this.form.get('clientId')?.setValue(client._id);
     this.clientSearch = client.fullName;
     this.selectedClientNameSignal.set(client.fullName);
+
+    // Admin: если отдел ещё не выбран, авто-подставляем из lastVisitDepartment клиента
+    if (!this.singleDepartmentMode() && !this.currentDepartmentId() && client.lastVisitDepartment?._id) {
+      const deptId = client.lastVisitDepartment._id;
+      this.form.get('departmentId')?.setValue(deptId);
+      this.onDepartmentChange(deptId, false); // false = не сбрасываем клиента
+    }
+
     this.cdr.markForCheck();
   }
 
@@ -308,7 +316,16 @@ export class AppointmentModalComponent implements OnInit {
     return this.form.get('clientId')?.value === id;
   }
 
-  public onDepartmentChange(deptId: string): void {
+  public onDepartmentChange(deptId: string, resetClient = true): void {
+    if (resetClient) {
+      this.form.get('clientId')?.setValue('');
+      this.clientSearch = '';
+      this.selectedClientNameSignal.set('');
+      this.clientsOffset = 0;
+      this.isLoadingClients = false;
+      this.clients.set([]);
+      this.filteredClients.set([]);
+    }
     this.form.get('employeeId')?.setValue('');
     this.form.get('serviceIds')?.setValue([]);
     this.form.get('promoCode')?.setValue(null);
@@ -321,10 +338,11 @@ export class AppointmentModalComponent implements OnInit {
     this.totalPrice.set(0);
     this.totalDuration.set(0);
     this.selectedSlot.set(null);
-    this.selectedServiceIds.set([]); // сброс signal при смене департамента
+    this.selectedServiceIds.set([]);
     this.currentDepartmentId.set(deptId || null);
     if (deptId) {
       this.loadEmployeesAndServices(deptId);
+      this.loadClients();
     }
   }
 
@@ -719,6 +737,7 @@ export class AppointmentModalComponent implements OnInit {
             offset: 0,
             limit: this.paginationLimit,
             ...(term ? { search: term } : {}),
+            ...this.getClientDeptFilter(),
           });
         }),
         takeUntilDestroyed(this.destroyRef),
@@ -734,12 +753,22 @@ export class AppointmentModalComponent implements OnInit {
       });
   }
 
+  /** Returns departmentId filter to pass to getClients, scoping the list to the active branch. */
+  private getClientDeptFilter(): Record<string, unknown> {
+    if (this.singleDepartmentMode()) {
+      const deptId = this.supervisorService.effectiveDepartmentId() ?? this.managerDepartmentId();
+      return deptId ? { departmentId: deptId } : {};
+    }
+    const deptId = this.currentDepartmentId();
+    return deptId ? { departmentId: deptId } : {};
+  }
+
   private loadClients(): void {
     if (this.isLoadingClients) return;
     this.isLoadingClients = true;
 
     this.clientsService
-      .getClients({ offset: this.clientsOffset, limit: this.paginationLimit })
+      .getClients({ offset: this.clientsOffset, limit: this.paginationLimit, ...this.getClientDeptFilter() })
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe((res) => {
         const incoming = res.results || [];

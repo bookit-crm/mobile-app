@@ -156,7 +156,7 @@ export class AppointmentsPage {
    * Mirrors desktop SupervisorsService.singleDepartmentMode.
    */
   public readonly singleDepartmentMode = computed(
-    () => this.isManager() || this.subscriptionService.isSingleLocationPlan(),
+    () => this.isManager() || this.isEmployee() || this.subscriptionService.isSingleLocationPlan(),
   );
   /** Create/edit/delete requires active subscription */
   public readonly canCreateAppointment = computed(
@@ -181,7 +181,7 @@ export class AppointmentsPage {
   public readonly activeFiltersCount = computed(() => {
     let n = 0;
     if (!this.singleDepartmentMode() && this.departmentFilter()) n++;
-    if (this.employeeFilter()) n++;
+    if (!this.isEmployee() && this.employeeFilter()) n++;
     if (this.clientFilter()) n++;
     if (this.dateFrom() || this.dateTo()) n++;
     return n;

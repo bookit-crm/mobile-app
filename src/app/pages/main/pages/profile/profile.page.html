@@ -56,10 +56,10 @@
         <ion-note color="danger" class="field-error">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
       }
 
-      <app-phone-input
-        [label]="'PHONE' | translate"
-        formControlName="phone"
-      ></app-phone-input>
+      <ion-item class="phone-item">
+        <ion-label position="stacked">{{ 'PHONE' | translate }}</ion-label>
+        <app-phone-input formControlName="phone"></app-phone-input>
+      </ion-item>
 
       <ion-item>
         <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
@@ -99,8 +99,7 @@
       </ion-list-header>
       <ion-note class="section-hint">{{ 'PROFILE_SCHEDULE_HINT' | translate }}</ion-note>
 
-      <div class="schedule-card">
-        @for (row of scheduleRows(); track row.day) {
+      @for (row of scheduleRows(); track row.day) {
           <div class="schedule-row" [class.schedule-row--disabled]="!row.enabled">
             <div class="schedule-row__top">
               <div class="schedule-row__name">
@@ -143,7 +142,6 @@
             }
           </div>
         }
-      </div>
 
       <div class="profile-actions profile-actions--last">
         <ion-button
