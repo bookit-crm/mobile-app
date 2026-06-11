@@ -5,6 +5,7 @@ import { inject } from '@angular/core';
 import { ViewWillEnter } from '@ionic/angular';
 import { switchMap, take } from 'rxjs';
 import { AuthService } from '@core/services/auth.service';
+import { SupervisorService } from '@core/services/supervisor.service';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { ValidatorsHelper } from '@core/helpers/validators.helper';
 import { environment } from 'src/environments/environment';
@@ -26,6 +27,7 @@ export class LoginPage implements OnInit, ViewWillEnter {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private supervisorService = inject(SupervisorService);
   private router = inject(Router);
 
   public ngOnInit(): void {
@@ -100,7 +102,12 @@ export class LoginPage implements OnInit, ViewWillEnter {
           }
           localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, res.auth_token);
           localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, res.refresh_token);
-          this.router.navigate(['/main']);
+          // Pre-load user before navigating so the side-menu renders with the
+          // correct role from the very first frame (no admin→employee flash).
+          this.supervisorService.getSelf().pipe(take(1)).subscribe({
+            complete: () => this.router.navigate(['/main']),
+            error: () => this.router.navigate(['/main']),
+          });
         },
         error: err => {
           this.isLoading = false;
