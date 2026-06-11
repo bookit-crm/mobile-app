@@ -49,5 +49,7 @@
 	<string>Мікрофон потрібен для голосових повідомлень AI-асистенту</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Розпізнавання мовлення використовується для перетворення голосу в текст</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
