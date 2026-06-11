@@ -10,6 +10,11 @@ on:
         type: choice
         options:
           - beta
+      version_name:
+        description: 'User-visible version (e.g. 1.0.5). Leave empty to keep current.'
+        required: false
+        default: ''
+        type: string
 
 concurrency:
   group: mobile-ios-release
@@ -111,6 +116,7 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APP_VERSION: ${{ inputs.version_name }}
         working-directory: ios/App
         run: bundle exec fastlane ${{ github.event.inputs.lane }}
 

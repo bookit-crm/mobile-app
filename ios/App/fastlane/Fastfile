@@ -10,6 +10,13 @@ platform :ios do
       in_house: false,
     )
 
+    if ENV["APP_VERSION"] && !ENV["APP_VERSION"].empty?
+      increment_version_number(
+        xcodeproj: "App.xcodeproj",
+        version_number: ENV["APP_VERSION"],
+      )
+    end
+
     latest_build = latest_testflight_build_number(api_key: api_key)
     increment_build_number(
       xcodeproj: "App.xcodeproj",
