@@ -41,23 +41,35 @@
   <ion-footer>
     @let user = authUser();
     @if (user) {
-      <div class="profile-block" (click)="openAccountSettings()" role="button" aria-label="Account settings">
-        <!-- Avatar: фото или инициалы -->
-        <div class="profile-block__avatar">
-          @if (user.avatar?.url) {
-            <img [src]="user.avatar!.url" alt="avatar" />
-          } @else {
-            <div class="profile-block__avatar-initials">{{ initials() }}</div>
-          }
-        </div>
+      @if (isEmployee()) {
+        <!-- Employees have a dedicated /main/profile page in the menu, so the
+             footer doubles as a logout shortcut instead of opening the account
+             settings modal (which duplicates the profile page). -->
+        <ion-menu-toggle [autoHide]="false">
+          <div class="profile-logout-row" (click)="logout()" role="button" aria-label="Log out">
+            <ion-icon name="log-out-outline"></ion-icon>
+            <span>{{ 'LOG_OUT' | translate }}</span>
+          </div>
+        </ion-menu-toggle>
+      } @else {
+        <div class="profile-block" (click)="openAccountSettings()" role="button" aria-label="Account settings">
+          <!-- Avatar: фото или инициалы -->
+          <div class="profile-block__avatar">
+            @if (user.avatar?.url) {
+              <img [src]="user.avatar!.url" alt="avatar" />
+            } @else {
+              <div class="profile-block__avatar-initials">{{ initials() }}</div>
+            }
+          </div>
 
-        <div class="profile-block__info">
-          <p class="profile-block__name">{{ user.firstName }} {{ user.lastName }}</p>
-          <p class="profile-block__role">{{ ('ROLE_' + user.role) | translate }}</p>
-        </div>
+          <div class="profile-block__info">
+            <p class="profile-block__name">{{ user.firstName }} {{ user.lastName }}</p>
+            <p class="profile-block__role">{{ ('ROLE_' + user.role) | translate }}</p>
+          </div>
 
-        <ion-icon name="settings-outline" class="profile-block__settings-icon"></ion-icon>
-      </div>
+          <ion-icon name="settings-outline" class="profile-block__settings-icon"></ion-icon>
+        </div>
+      }
     }
   </ion-footer>
 </ion-menu>

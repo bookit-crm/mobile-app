@@ -29,27 +29,29 @@ ion-list-header {
   margin-top: 16px;
 }
 
-// Phone input lives inside an ion-item so its label/padding visually matches
-// the other stacked-label fields. Strip the wrapper border and align padding
-// to ion-item's content area; suppress the internal label since ion-label
-// provides it.
-.phone-item {
-  --inner-padding-end: 0;
+// Phone input keeps its own label; we just give it the same 16px horizontal
+// padding ion-item uses so it lines up with the other fields. Strip the
+// wrapper border so it visually matches the borderless ion-input rows.
+.phone-field {
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--ion-color-step-150, #ececec);
 
   ::ng-deep app-phone-input {
-    width: 100%;
-    margin: 6px 0 4px;
+    .phone-label {
+      font-size: 0.78rem;
+      color: var(--ion-color-medium, #92949c);
+      margin-bottom: 4px;
+    }
 
     .phone-wrapper {
       border: none;
       border-radius: 0;
       padding-left: 0;
-      height: 40px;
+      height: 36px;
       align-items: center;
     }
 
     .country-btn { padding-left: 0; }
-    .phone-label { display: none; }
   }
 }
 

@@ -49,10 +49,17 @@
         <ion-note color="danger" class="field-error">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
       }
 
-      <ion-item class="phone-item">
-        <ion-label position="stacked">{{ 'PHONE' | translate }}</ion-label>
-        <app-phone-input formControlName="phone"></app-phone-input>
-      </ion-item>
+      <!-- Phone input keeps its own internal label — wrapping it in an
+           ion-item left it visually flush-left because the slotted custom
+           component didn't pick up ion-item's --padding-start. A plain padded
+           wrapper avoids that quirk while still matching the visual rhythm
+           of the surrounding fields. -->
+      <div class="phone-field">
+        <app-phone-input
+          [label]="'PHONE' | translate"
+          formControlName="phone"
+        ></app-phone-input>
+      </div>
 
       <ion-item class="dob-item">
         <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>

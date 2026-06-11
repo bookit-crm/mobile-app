@@ -198,3 +198,26 @@ ion-menu {
     font-size: 18px;
   }
 }
+
+// Footer logout row for the Employee role — replaces .profile-block since
+// employees have a dedicated profile page in the menu.
+.profile-logout-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  color: var(--bk-stroke);
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  ion-icon {
+    font-size: 22px;
+    color: var(--bk-orange-500, #ff7407);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}

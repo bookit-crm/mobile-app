@@ -49,6 +49,12 @@ export class SideMenuComponent implements OnInit {
 
   public authUser = this.supervisorService.authUserSignal;
 
+  /** Employees have a dedicated /main/profile page in the menu, so we show a
+   * logout shortcut in the footer instead of the profile-block. */
+  public readonly isEmployee = computed(
+    () => this.authUser()?.role === EUserRole.EMPLOYEE,
+  );
+
   /** Инициалы для mock-аватарки */
   public readonly initials = computed(() => {
     const u = this.authUser();
