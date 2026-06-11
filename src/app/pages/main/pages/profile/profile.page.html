@@ -1,0 +1,163 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'MENU_PROFILE' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Avatar -->
+  <div class="avatar-row">
+    <app-image-picker
+      shape="circle"
+      [imageUrl]="avatarUrl"
+      (fileUploaded)="onAvatarUploaded($event)"
+      (fileRemoved)="onAvatarRemoved()"
+    ></app-image-picker>
+  </div>
+
+  @if (departmentName()) {
+    <div class="profile-dept">
+      <ion-icon name="business-outline"></ion-icon>
+      <span>{{ departmentName() }}</span>
+    </div>
+  }
+
+  <form [formGroup]="form">
+    <ion-list lines="full">
+      <!-- ── Personal info ───────────────────────────────── -->
+      <ion-list-header>
+        <ion-label><strong>{{ 'PROFILE_PERSONAL_INFO' | translate }}</strong></ion-label>
+      </ion-list-header>
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_FIRST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="firstName" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+        <ion-note color="danger" class="field-error">{{ 'FIRST_NAME_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_LAST_NAME_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="lastName" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+        <ion-note color="danger" class="field-error">{{ 'LAST_NAME_REQUIRED' | translate }}</ion-note>
+      }
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'EMP_EMAIL_LABEL' | translate }}</ion-label>
+        <ion-input formControlName="email" type="email" clearInput></ion-input>
+      </ion-item>
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <ion-note color="danger" class="field-error">{{ 'EMP_EMAIL_REQUIRED' | translate }}</ion-note>
+      }
+
+      <app-phone-input
+        [label]="'PHONE' | translate"
+        formControlName="phone"
+      ></app-phone-input>
+
+      <ion-item>
+        <ion-label position="stacked">{{ 'DATE_OF_BIRTH' | translate }}</ion-label>
+        <ion-input formControlName="dateOfBirth" type="date"></ion-input>
+      </ion-item>
+
+      <div class="profile-actions">
+        <ion-button
+          expand="block"
+          (click)="submitProfile()"
+          [disabled]="isSaving()"
+        >
+          @if (isSaving()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            {{ 'SAVE' | translate }}
+          }
+        </ion-button>
+      </div>
+
+      <!-- ── Security ────────────────────────────────────── -->
+      <ion-list-header>
+        <ion-label><strong>{{ 'PROFILE_SECURITY' | translate }}</strong></ion-label>
+      </ion-list-header>
+      <ion-note class="section-hint">{{ 'PROFILE_PWD_HINT' | translate }}</ion-note>
+
+      <div class="profile-actions">
+        <ion-button expand="block" fill="outline" (click)="startPasswordChange()">
+          <ion-icon name="key-outline" slot="start"></ion-icon>
+          {{ 'PROFILE_CHANGE_PASSWORD' | translate }}
+        </ion-button>
+      </div>
+
+      <!-- ── Work schedule ───────────────────────────────── -->
+      <ion-list-header>
+        <ion-label><strong>{{ 'PROFILE_WORK_SCHEDULE' | translate }}</strong></ion-label>
+      </ion-list-header>
+      <ion-note class="section-hint">{{ 'PROFILE_SCHEDULE_HINT' | translate }}</ion-note>
+
+      <div class="schedule-card">
+        @for (row of scheduleRows(); track row.day) {
+          <div class="schedule-row" [class.schedule-row--disabled]="!row.enabled">
+            <div class="schedule-row__top">
+              <div class="schedule-row__name">
+                <span class="schedule-row__day">{{ row.label }}</span>
+                @if (row.enabled) {
+                  <span class="schedule-row__time-summary">{{ timeSummary(row) }}</span>
+                } @else {
+                  <span class="schedule-row__closed-label">{{ 'DS_NOT_WORKING' | translate }}</span>
+                }
+              </div>
+              <ion-toggle
+                color="warning"
+                [checked]="row.enabled"
+                (ionChange)="toggleDay(row.day, $event)"
+              ></ion-toggle>
+            </div>
+
+            @if (row.enabled) {
+              <div class="schedule-row__times">
+                <div class="time-field">
+                  <span class="time-field__label">{{ 'FROM_TIME' | translate }}</span>
+                  <input
+                    class="time-field__native-input"
+                    type="time"
+                    [value]="row.from"
+                    (change)="updateTimeNative(row.day, 'from', $event)"
+                  />
+                </div>
+                <span class="time-field__separator">—</span>
+                <div class="time-field">
+                  <span class="time-field__label">{{ 'TO_TIME' | translate }}</span>
+                  <input
+                    class="time-field__native-input"
+                    type="time"
+                    [value]="row.to"
+                    (change)="updateTimeNative(row.day, 'to', $event)"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="profile-actions profile-actions--last">
+        <ion-button
+          expand="block"
+          (click)="saveSchedule()"
+          [disabled]="isSavingSchedule()"
+        >
+          @if (isSavingSchedule()) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            {{ 'PROFILE_SAVE_SCHEDULE' | translate }}
+          }
+        </ion-button>
+      </div>
+    </ion-list>
+  </form>
+</ion-content>

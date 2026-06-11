@@ -1,0 +1,161 @@
+.eh-loading {
+  display: flex;
+  justify-content: center;
+  padding-top: 40vh;
+}
+
+.eh-wrap {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// ── Greeting ──────────────────────────────────────────────
+.eh-greeting {
+  &__title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+
+  &__sub {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: var(--bk-grey-200, #767676);
+  }
+}
+
+// ── Stats grid ────────────────────────────────────────────
+.eh-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.eh-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--ion-color-step-50, #f7f7f7);
+  border: 1px solid var(--ion-color-step-100, #ececec);
+
+  &--accent {
+    background: rgba(255, 116, 7, 0.1);
+    border-color: rgba(255, 116, 7, 0.35);
+
+    .eh-stat__value {
+      color: var(--bk-orange-500, #ff7407);
+    }
+  }
+
+  &__value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+
+  &__label {
+    font-size: 0.78rem;
+    color: var(--bk-grey-200, #767676);
+  }
+}
+
+// ── Sections ──────────────────────────────────────────────
+.eh-section {
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &__title {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+}
+
+// ── Appointment cards ─────────────────────────────────────
+.eh-appt {
+  position: relative;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--ion-color-step-50, #f7f7f7);
+  border: 1px solid var(--ion-color-step-100, #ececec);
+  margin-bottom: 10px;
+
+  &--current {
+    background: rgba(255, 116, 7, 0.08);
+    border-color: rgba(255, 116, 7, 0.4);
+  }
+
+  &__badge {
+    display: inline-block;
+    margin-bottom: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--bk-basic-black, #100f0f);
+    background: var(--bk-orange-500, #ff7407);
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  &__day {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--bk-orange-500, #ff7407);
+    text-transform: capitalize;
+  }
+
+  &__time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  &__client {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--ion-text-color);
+  }
+
+  &__services {
+    margin-top: 2px;
+    font-size: 0.8rem;
+    color: var(--bk-grey-200, #767676);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// ── Empty state ───────────────────────────────────────────
+.eh-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 0;
+  color: var(--bk-grey-200, #767676);
+
+  ion-icon {
+    font-size: 36px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+  }
+}

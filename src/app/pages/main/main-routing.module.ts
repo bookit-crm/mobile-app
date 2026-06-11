@@ -88,6 +88,21 @@ const routes: Routes = [
         loadChildren: () =>
           import('./pages/departments/departments.module').then(m => m.DepartmentsPageModule),
       },
+      {
+        path: 'employee-home',
+        loadChildren: () =>
+          import('./pages/employee-home/employee-home.module').then(m => m.EmployeeHomePageModule),
+      },
+      {
+        path: 'performance',
+        loadChildren: () =>
+          import('./pages/performance/performance.module').then(m => m.PerformancePageModule),
+      },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./pages/profile/profile.module').then(m => m.ProfilePageModule),
+      },
     ],
   },
 ];

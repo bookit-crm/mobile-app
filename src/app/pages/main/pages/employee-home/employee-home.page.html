@@ -1,0 +1,102 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'MENU_DASHBOARD' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (isLoading()) {
+    <div class="eh-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else {
+    <div class="eh-wrap">
+      <!-- Greeting -->
+      <div class="eh-greeting">
+        <h2 class="eh-greeting__title">
+          {{ 'EH_GREETING' | translate: { name: firstName() } }}
+        </h2>
+        <p class="eh-greeting__sub">{{ 'EH_GREETING_SUB' | translate }}</p>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="eh-stats">
+        <div class="eh-stat eh-stat--accent">
+          <span class="eh-stat__value">
+            {{ todayEarnings() | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+          <span class="eh-stat__label">{{ 'EH_TODAY_EARNINGS' | translate }}</span>
+        </div>
+        <div class="eh-stat">
+          <span class="eh-stat__value">{{ completedToday() }}</span>
+          <span class="eh-stat__label">{{ 'EH_COMPLETED' | translate }}</span>
+        </div>
+        <div class="eh-stat">
+          <span class="eh-stat__value">{{ visitsToday() }}</span>
+          <span class="eh-stat__label">{{ 'EH_VISITS_TODAY' | translate }}</span>
+        </div>
+        <div class="eh-stat">
+          <span class="eh-stat__value">{{ remainingToday() }}</span>
+          <span class="eh-stat__label">{{ 'EH_REMAINING_TODAY' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Current appointment -->
+      @if (currentAppointment(); as current) {
+        <div class="eh-section">
+          <h3 class="eh-section__title">{{ 'EH_CURRENT_APPT' | translate }}</h3>
+          <div class="eh-appt eh-appt--current">
+            <div class="eh-appt__badge">{{ 'EH_IN_PROGRESS' | translate }}</div>
+            <div class="eh-appt__time">{{ formatTimeRange(current) }}</div>
+            <div class="eh-appt__client">
+              {{ current.client?.fullName || current.clientName }}
+            </div>
+            @if (servicesLabel(current)) {
+              <div class="eh-appt__services">{{ servicesLabel(current) }}</div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Upcoming appointments -->
+      <div class="eh-section">
+        <div class="eh-section__head">
+          <h3 class="eh-section__title">{{ 'EH_NEXT_APPTS' | translate }}</h3>
+          <ion-button fill="clear" size="small" (click)="goToCalendar()">
+            {{ 'EH_SEE_MORE' | translate }}
+            <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+
+        @if (nextAppointments().length === 0) {
+          <div class="eh-empty">
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+            <p>{{ 'EH_NO_UPCOMING' | translate }}</p>
+          </div>
+        } @else {
+          @for (appt of nextAppointments(); track appt._id) {
+            <div class="eh-appt">
+              <div class="eh-appt__row">
+                <span class="eh-appt__day">{{ formatDayLabel(appt) }}</span>
+                <span class="eh-appt__time">{{ formatTimeRange(appt) }}</span>
+              </div>
+              <div class="eh-appt__client">
+                {{ appt.client?.fullName || appt.clientName }}
+              </div>
+              @if (servicesLabel(appt)) {
+                <div class="eh-appt__services">{{ servicesLabel(appt) }}</div>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+</ion-content>

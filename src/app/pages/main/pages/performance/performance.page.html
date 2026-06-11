@@ -1,0 +1,173 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'MENU_PERFORMANCE' | translate }}</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <div class="bk-tabs">
+      @for (opt of periodOptions; track opt.value) {
+        <button
+          class="bk-tab-btn"
+          [class.bk-tab-btn--active]="period() === opt.value"
+          (click)="onPeriodChange(opt.value)"
+        >
+          <span>{{ opt.label | translate }}</span>
+        </button>
+      }
+    </div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (isLoading()) {
+    <div class="perf-loading">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (stats(); as s) {
+    <div class="perf-wrap">
+      <!-- Summary cards -->
+      <div class="perf-stats">
+        <div class="perf-stat perf-stat--accent">
+          <span class="perf-stat__value">
+            {{ s.summary.totalRevenue | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+          <span class="perf-stat__label">{{ 'PERF_REVENUE' | translate }}</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-stat__value">{{ s.summary.completedCount }}</span>
+          <span class="perf-stat__label">{{ 'PERF_COMPLETED' | translate }}</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-stat__value">
+            {{ s.summary.avgTicketValue | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+          <span class="perf-stat__label">{{ 'PERF_AVG_TICKET' | translate }}</span>
+        </div>
+        <div class="perf-stat">
+          <span class="perf-stat__value">{{ s.summary.uniqueClients }}</span>
+          <span class="perf-stat__label">{{ 'PERF_CLIENTS' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Revenue trend (mini bar chart) -->
+      @if (trendBars().length > 0) {
+        <div class="perf-section">
+          <h3 class="perf-section__title">{{ 'PERF_TREND' | translate }}</h3>
+          <div class="perf-trend">
+            @for (bar of trendBars(); track bar.label) {
+              <div class="perf-trend__col">
+                <div class="perf-trend__bar-area">
+                  <div
+                    class="perf-trend__bar"
+                    [style.height.%]="bar.heightPct"
+                    [title]="bar.revenue"
+                  ></div>
+                </div>
+                <span class="perf-trend__label">{{ formatTrendLabel(bar.label) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Top services -->
+      @if (topServiceBars().length > 0) {
+        <div class="perf-section">
+          <h3 class="perf-section__title">{{ 'PERF_TOP_SERVICES' | translate }}</h3>
+          @for (svc of topServiceBars(); track svc.name) {
+            <div class="perf-svc">
+              <div class="perf-svc__head">
+                <span class="perf-svc__name">{{ svc.name }}</span>
+                <span class="perf-svc__count">
+                  {{ svc.count }} · {{ svc.revenue | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+              <div class="perf-svc__track">
+                <div class="perf-svc__fill" [style.width.%]="svc.widthPct"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Payroll -->
+      @if (canShowPayroll && payroll(); as p) {
+        <div class="perf-section">
+          <h3 class="perf-section__title">{{ 'PERF_PAYROLL' | translate }}</h3>
+
+          <!-- Rate config -->
+          <div class="perf-rate">
+            <div class="perf-rate__row">
+              <span class="perf-rate__label">{{ 'EMP_RATE_TYPE' | translate }}</span>
+              <span class="perf-rate__value">{{ rateTypeLabel(p.rate.salaryRateType) }}</span>
+            </div>
+            @if (p.rate.baseAmount != null) {
+              <div class="perf-rate__row">
+                <span class="perf-rate__label">{{ 'EMP_BASE_AMOUNT' | translate }}</span>
+                <span class="perf-rate__value">
+                  {{ p.rate.baseAmount | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+            }
+            @if (p.rate.commissionPercent != null) {
+              <div class="perf-rate__row">
+                <span class="perf-rate__label">{{ 'EMP_COMMISSION_PCT' | translate }}</span>
+                <span class="perf-rate__value">{{ p.rate.commissionPercent }}%</span>
+              </div>
+            }
+          </div>
+
+          <!-- Periods -->
+          @if (p.periods.length === 0) {
+            <div class="perf-empty">
+              <ion-icon name="briefcase-outline"></ion-icon>
+              <p>{{ 'PERF_NO_PAYROLL' | translate }}</p>
+            </div>
+          } @else {
+            @for (period of p.periods; track period._id) {
+              <div class="perf-period">
+                <div class="perf-period__head">
+                  <span class="perf-period__range">
+                    {{ formatPeriodRange(period.periodStart, period.periodEnd) }}
+                  </span>
+                  <span
+                    class="perf-period__status"
+                    [class.perf-period__status--paid]="period.status === 'paid'"
+                  >
+                    {{ (period.status === 'paid' ? 'PERF_STATUS_PAID' : 'PERF_STATUS_OPEN') | translate }}
+                  </span>
+                </div>
+                <div class="perf-period__grid">
+                  <div class="perf-period__cell">
+                    <span class="perf-period__cell-label">{{ 'PERF_ACCRUED' | translate }}</span>
+                    <span class="perf-period__cell-value">
+                      {{ period.accruedCommission | currency: 'USD' : 'symbol' : '1.0-0' }}
+                    </span>
+                  </div>
+                  <div class="perf-period__cell">
+                    <span class="perf-period__cell-label">{{ 'PERF_VISITS_IN_PERIOD' | translate }}</span>
+                    <span class="perf-period__cell-value">{{ period.lineItemCount }}</span>
+                  </div>
+                  @if (period.status === 'paid') {
+                    <div class="perf-period__cell">
+                      <span class="perf-period__cell-label">{{ 'PERF_PAYOUT' | translate }}</span>
+                      <span class="perf-period__cell-value perf-period__cell-value--paid">
+                        {{ period.totalPayout | currency: 'USD' : 'symbol' : '1.0-0' }}
+                      </span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  }
+</ion-content>

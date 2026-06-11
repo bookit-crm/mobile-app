@@ -25,10 +25,33 @@ import {
 } from '@core/models/dashboard.interface';
 import { Observable } from 'rxjs';
 
+export interface IEmployeeSelfStats {
+  summary: {
+    totalRevenue: number;
+    completedCount: number;
+    totalCount: number;
+    canceledCount: number;
+    avgTicketValue: number;
+    uniqueClients: number;
+  };
+  trend: Array<{ label: string; visits: number; revenue: number }>;
+  topServices: Array<{ name: string; count: number; revenue: number }>;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class DashboardService extends HttpHelper {
+  /** Performance stats for the logged-in employee (Performance page) */
+  public getEmployeeSelfStats(
+    filters?: IBaseQueries,
+  ): Observable<IEmployeeSelfStats> {
+    return this.httpGetRequest<IEmployeeSelfStats>(
+      'api/dashboard/employee/self/',
+      filters,
+    );
+  }
+
   public getKpis(filters?: IBaseQueries): Observable<IDashboardKpis> {
     return this.httpGetRequest<IDashboardKpis>('api/dashboard/kpis/', filters);
   }

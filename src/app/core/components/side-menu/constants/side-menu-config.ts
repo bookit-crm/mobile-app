@@ -20,6 +20,21 @@ export const ADMIN_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'MENU_SUPPORT',        url: '/main/support',        icon: 'headset-outline' },
 ];
 
+/**
+ * Employee role: reduced surface — own dashboard, own calendar/appointments,
+ * notifications addressed to them, performance stats and profile.
+ * Routes are scoped server-side; admin pages are 403 for employees.
+ */
+export const EMPLOYEE_MENU_CONFIG: ISideMenuItem[] = [
+  { title: 'MENU_DASHBOARD',      url: '/main/employee-home', icon: 'pie-chart-outline' },
+  { title: 'MENU_CALENDAR',       url: '/main/calendar',      icon: 'calendar-outline' },
+  { title: 'MENU_APPOINTMENTS',   url: '/main/appointments',  icon: 'clipboard-outline' },
+  { title: 'MENU_PERFORMANCE',    url: '/main/performance',   icon: 'trending-up-outline' },
+  { title: 'MENU_NOTIFICATION',   url: '/main/notification',  icon: 'notifications-outline', useSeparator: true },
+  { title: 'MENU_PROFILE',        url: '/main/profile',       icon: 'person-circle-outline' },
+  { title: 'MENU_FAQ',            url: '/main/faq',           icon: 'help-circle-outline' },
+];
+
 export const MANAGER_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'MENU_DASHBOARD',      url: '/main/dashboard',      icon: 'pie-chart-outline' },
   { title: 'MENU_CALENDAR',       url: '/main/calendar',       icon: 'calendar-outline' },

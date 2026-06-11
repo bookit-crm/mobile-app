@@ -21,11 +21,38 @@ export interface IPaginatedPayrollLineItems {
   count: number;
 }
 
+export interface ISelfPayrollPeriod {
+  _id: string;
+  periodStart: string;
+  periodEnd: string;
+  status: string;
+  totalBase: number;
+  totalCommission: number;
+  totalPayout: number;
+  paidAt: string | null;
+  accruedCommission: number;
+  lineItemCount: number;
+}
+
+export interface ISelfPayroll {
+  rate: {
+    salaryRateType: string | null;
+    baseAmount: number | null;
+    commissionPercent: number | null;
+  };
+  periods: ISelfPayrollPeriod[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class PayrollService extends HttpHelper {
   public readonly periodsSignal: WritableSignal<IPaginatedPayrollPeriods | null> = signal(null);
   public readonly lineItemsSignal: WritableSignal<IPaginatedPayrollLineItems | null> = signal(null);
   public readonly monthStatusesSignal: WritableSignal<IMonthStatus[]> = signal([]);
+
+  /** Payroll info for the logged-in employee (Performance page) */
+  public getSelfPayroll(): Observable<ISelfPayroll> {
+    return this.httpGetRequest<ISelfPayroll>('api/payroll/self/');
+  }
 
   public getPeriods(filters?: Record<string, unknown>): Observable<IPaginatedPayrollPeriods> {
     return this.httpGetRequest<IPaginatedPayrollPeriods>('api/payroll/periods/', filters ?? {}).pipe(
