@@ -144,20 +144,24 @@ ion-list-header {
     font-style: italic;
   }
 
+  // Two-input row laid out with grid (1fr auto 1fr): the two time fields
+  // are guaranteed equal-width and elastic, the separator gets its
+  // natural width, and align-items: end keeps the inputs + separator on
+  // the same baseline while the labels float at the top of each column.
+  // Grid is more deterministic than flex here — `flex: 1 1 0` was
+  // permitting subtle width drift on narrow screens that made the right
+  // input look like it had no right padding.
   &__times {
-    // Bottom-align so the separator and inputs sit on the same baseline —
-    // the separator can be its own flex item with a fixed height that
-    // matches the input, instead of relying on a margin-top fudge factor
-    // that bled the dash onto the input edges on narrow screens.
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    column-gap: 12px;
     margin-top: 10px;
+    width: 100%;
   }
 }
 
 .time-field {
-  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -193,21 +197,29 @@ ion-list-header {
   }
 }
 
-// Use a flex container with align-items: center to vertically center the
-// dash character against the input baseline. The previous `line-height:
-// 38px` trick relied on font baseline metrics that pushed the dash to the
-// lower third of the cell on iOS, making it look like it bled onto the
-// input border. Flex centering snaps it to the exact midpoint regardless
-// of the system font.
+// Replace the em-dash text with a CSS-rendered horizontal line. The
+// em-dash sits on the baseline, which on iOS dropped the glyph into the
+// lower third of the input row (the original "тире наезжает на поля"
+// complaint). A `::after` block is positioned with flex centering, so
+// it lands exactly at the vertical midpoint of the input — no font
+// metrics involved. The "—" stays in the DOM as text for screen readers
+// but is hidden visually via font-size: 0.
 .time-field__separator {
-  flex: 0 0 auto;
+  align-self: end;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
-  padding: 0 4px;
-  font-size: 1rem;
-  line-height: 1;
-  color: var(--ion-color-medium);
-  font-weight: 600;
+  font-size: 0;
+  line-height: 0;
+  color: transparent;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--ion-color-medium);
+  }
 }
