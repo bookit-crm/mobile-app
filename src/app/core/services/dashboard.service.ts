@@ -27,14 +27,29 @@ import { Observable } from 'rxjs';
 
 export interface IEmployeeSelfStats {
   summary: {
+    /** Gross service revenue across completed visits (what the salon billed) */
     totalRevenue: number;
+    /** What the employee actually takes home, after rate type is applied */
+    myEarnings: number;
+    /** Commission portion of myEarnings — the slice tied to completed visits */
+    myCommission: number;
+    /** Monthly fixed base from the employee's rate config (raw, not pro-rated) */
+    baseAmount: number;
+    commissionPercent: number;
+    /** "fixed" | "commission" | "fixed_plus_commission" | "base_or_commission" | null */
+    salaryRateType: string | null;
     completedCount: number;
     totalCount: number;
     canceledCount: number;
     avgTicketValue: number;
     uniqueClients: number;
   };
-  trend: Array<{ label: string; visits: number; revenue: number }>;
+  trend: Array<{
+    label: string;
+    visits: number;
+    revenue: number;
+    commission: number;
+  }>;
   topServices: Array<{ name: string; count: number; revenue: number }>;
 }
 

@@ -26,13 +26,19 @@
         <p class="eh-greeting__sub">{{ 'EH_GREETING_SUB' | translate }}</p>
       </div>
 
-      <!-- Stats grid -->
+      <!-- Stats grid — the accent tile now shows what the employee
+           actually takes home (commission portion of today's tickets),
+           not gross service revenue. Variable-pay accounts also get a
+           secondary "Service revenue" tile so the gross is still visible. -->
       <div class="eh-stats">
         <div class="eh-stat eh-stat--accent">
           <span class="eh-stat__value">
             {{ todayEarnings() | currency: 'USD' : 'symbol' : '1.0-0' }}
           </span>
           <span class="eh-stat__label">{{ 'EH_TODAY_EARNINGS' | translate }}</span>
+          @if (hasVariablePay() && authUser()?.commissionPercent) {
+            <span class="eh-stat__hint">{{ authUser()!.commissionPercent }}%</span>
+          }
         </div>
         <div class="eh-stat">
           <span class="eh-stat__value">{{ completedToday() }}</span>
@@ -46,13 +52,27 @@
           <span class="eh-stat__value">{{ remainingToday() }}</span>
           <span class="eh-stat__label">{{ 'EH_REMAINING_TODAY' | translate }}</span>
         </div>
+        @if (hasVariablePay()) {
+          <div class="eh-stat eh-stat--wide">
+            <span class="eh-stat__value">
+              {{ todayGrossRevenue() | currency: 'USD' : 'symbol' : '1.0-0' }}
+            </span>
+            <span class="eh-stat__label">{{ 'EH_TODAY_GROSS' | translate }}</span>
+          </div>
+        }
       </div>
 
       <!-- Current appointment -->
       @if (currentAppointment(); as current) {
         <div class="eh-section">
           <h3 class="eh-section__title">{{ 'EH_CURRENT_APPT' | translate }}</h3>
-          <div class="eh-appt eh-appt--current">
+          <div
+            class="eh-appt eh-appt--current eh-appt--clickable"
+            role="button"
+            tabindex="0"
+            (click)="openAppointment(current)"
+            (keydown.enter)="openAppointment(current)"
+          >
             <div class="eh-appt__badge">{{ 'EH_IN_PROGRESS' | translate }}</div>
             <div class="eh-appt__time">{{ formatTimeRange(current) }}</div>
             <div class="eh-appt__client">
@@ -82,7 +102,13 @@
           </div>
         } @else {
           @for (appt of nextAppointments(); track appt._id) {
-            <div class="eh-appt">
+            <div
+              class="eh-appt eh-appt--clickable"
+              role="button"
+              tabindex="0"
+              (click)="openAppointment(appt)"
+              (keydown.enter)="openAppointment(appt)"
+            >
               <div class="eh-appt__row">
                 <span class="eh-appt__day">{{ formatDayLabel(appt) }}</span>
                 <span class="eh-appt__time">{{ formatTimeRange(appt) }}</span>

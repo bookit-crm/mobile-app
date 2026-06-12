@@ -22,6 +22,20 @@ import { SubscriptionService } from '@core/services/subscription.service';
 type PeriodKey = 'today' | 'week' | 'month' | 'quarter' | 'halfyear' | 'year';
 
 /**
+ * Round a raw step to a "nice" 1/2/5 × 10^k value so axis labels read
+ * cleanly (e.g. 20 / 50 / 100 / 200) instead of 17.5 / 35 / 70 / 140.
+ */
+function niceTickStep(raw: number): number {
+  if (!isFinite(raw) || raw <= 0) return 1;
+  const pow = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / pow;
+  if (norm < 1.5) return 1 * pow;
+  if (norm < 3) return 2 * pow;
+  if (norm < 7) return 5 * pow;
+  return 10 * pow;
+}
+
+/**
  * Employee performance page: own stats (revenue, visits, top services,
  * daily trend) + payroll info (rate, accrued commission, payout status).
  */
@@ -43,6 +57,8 @@ export class PerformancePage implements OnInit {
   public period = signal<PeriodKey>('month');
   public stats = signal<IEmployeeSelfStats | null>(null);
   public payroll = signal<ISelfPayroll | null>(null);
+  /** Index of the bar that currently has its tooltip visible. -1 = none. */
+  public activeBarIdx = signal<number>(-1);
 
   public readonly periodOptions: Array<{ value: PeriodKey; label: string }> = [
     { value: 'today', label: 'PERF_PERIOD_TODAY' },
@@ -56,15 +72,83 @@ export class PerformancePage implements OnInit {
   /** Payroll module is feature-gated per subscription */
   public canShowPayroll = this.subscriptionService.hasFeature('expensesPayroll');
 
-  /** Trend bars normalized to the max revenue in range (0–100%) */
+  /**
+   * Trend bars normalized to the day with the highest commission for the
+   * period. We chart commission (the variable, performance-driven part of
+   * pay) instead of gross revenue — that's what the employee feels day to
+   * day. For pure-Fixed accounts we fall back to visit count so the chart
+   * is not empty.
+   */
   public trendBars = computed(() => {
     const trend = this.stats()?.trend ?? [];
-    const max = Math.max(...trend.map((p) => p.revenue), 1);
-    return trend.map((p) => ({
+    const rateType = this.stats()?.summary.salaryRateType ?? null;
+    const useVisits = rateType === 'fixed';
+    const series = trend.map((p) => ({
+      label: p.label,
+      visits: p.visits,
+      revenue: p.revenue,
+      commission: p.commission,
+      barValue: useVisits ? p.visits : p.commission,
+    }));
+    const max = Math.max(...series.map((p) => p.barValue), 1);
+    return series.map((p) => ({
       ...p,
-      heightPct: Math.max(4, Math.round((p.revenue / max) * 100)),
+      heightPct: p.barValue > 0
+        ? Math.max(6, Math.round((p.barValue / max) * 100))
+        : 0,
     }));
   });
+
+  /**
+   * 5 evenly-spaced gridlines + value labels for the trend chart Y-axis.
+   * Top tick = max bar value rounded up, bottom = 0. Matches what
+   * `trendBars` normalizes against so the labels line up with bar heights.
+   */
+  public trendAxis = computed(() => {
+    const bars = this.trendBars();
+    if (bars.length === 0) return { ticks: [] as number[], isCurrency: false };
+    const rateType = this.stats()?.summary.salaryRateType ?? null;
+    const isCurrency = rateType !== 'fixed';
+    const max = Math.max(...bars.map((b) => b.barValue), 1);
+    // Round the top tick to a "nice" number so labels read like $10 / $20
+    // rather than $7.31. Step counts work for both small and large maxes.
+    const step = niceTickStep(max / 4);
+    const top = Math.ceil(max / step) * step;
+    const ticks: number[] = [];
+    for (let v = top; v >= 0; v -= step) ticks.push(v);
+    return { ticks, isCurrency };
+  });
+
+  /** Y-axis label formatter that matches the bar's underlying unit. */
+  public formatAxisTick(value: number, isCurrency: boolean): string {
+    if (isCurrency) {
+      return value >= 1000
+        ? `$${Math.round(value / 100) / 10}k`
+        : `$${Math.round(value)}`;
+    }
+    return String(Math.round(value));
+  }
+
+  /** Tooltip label for a bar — same logic as the axis unit. */
+  public formatBarTooltip(bar: {
+    label: string;
+    visits: number;
+    revenue: number;
+    commission: number;
+    barValue: number;
+  }): string {
+    const date = this.formatTrendLabel(bar.label);
+    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
+    const money = (n: number) =>
+      n.toLocaleString(lang, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      });
+    return `${date}: ${money(bar.commission)} · ${bar.visits} ${this.t.instant(
+      'PERF_VISITS',
+    )}`;
+  }
 
   /** Top services normalized to the most frequent one */
   public topServiceBars = computed(() => {
@@ -88,8 +172,40 @@ export class PerformancePage implements OnInit {
     if (this.period() === value) return;
     this.period.set(value);
     this.isLoading.set(true);
+    this.activeBarIdx.set(-1);
     this.loadData();
   }
+
+  /** Tap a bar to surface a tooltip; tap again to dismiss. */
+  public toggleBar(idx: number): void {
+    this.activeBarIdx.set(this.activeBarIdx() === idx ? -1 : idx);
+  }
+
+  /**
+   * Short breakdown line shown under the "What I earned" card so the
+   * employee can see WHY the number is what it is (e.g. "$500 base +
+   * $20 commission"). Hidden when there's no useful breakdown to show
+   * (pure Fixed or pure Commission), since the card value already says it.
+   */
+  public earningsBreakdown = computed<string | null>(() => {
+    const s = this.stats()?.summary;
+    if (!s) return null;
+    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
+    const money = (n: number) =>
+      n.toLocaleString(lang, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0,
+      });
+    switch (s.salaryRateType) {
+      case 'fixed_plus_commission':
+        return `${money(s.baseAmount)} + ${money(s.myCommission)}`;
+      case 'base_or_commission':
+        return `max(${money(s.baseAmount)}, ${money(s.myCommission)})`;
+      default:
+        return null;
+    }
+  });
 
   public formatTrendLabel(label: string): string {
     // label = YYYY-MM-DD

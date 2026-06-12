@@ -31,13 +31,28 @@
     </div>
   } @else if (stats(); as s) {
     <div class="perf-wrap">
-      <!-- Summary cards -->
+      <!-- Summary cards — the accent card shows "what I take home" (rate +
+           commission), not gross service revenue. Commission gets its own
+           tile so the employee can see the variable part of their pay at a
+           glance. -->
       <div class="perf-stats">
         <div class="perf-stat perf-stat--accent">
           <span class="perf-stat__value">
-            {{ s.summary.totalRevenue | currency: 'USD' : 'symbol' : '1.0-0' }}
+            {{ s.summary.myEarnings | currency: 'USD' : 'symbol' : '1.0-0' }}
           </span>
-          <span class="perf-stat__label">{{ 'PERF_REVENUE' | translate }}</span>
+          <span class="perf-stat__label">{{ 'PERF_MY_EARNINGS' | translate }}</span>
+          @if (earningsBreakdown(); as bd) {
+            <span class="perf-stat__hint">{{ bd }}</span>
+          }
+        </div>
+        <div class="perf-stat">
+          <span class="perf-stat__value">
+            {{ s.summary.myCommission | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+          <span class="perf-stat__label">{{ 'PERF_COMMISSION_EARNED' | translate }}</span>
+          @if (s.summary.commissionPercent) {
+            <span class="perf-stat__hint">{{ s.summary.commissionPercent }}%</span>
+          }
         </div>
         <div class="perf-stat">
           <span class="perf-stat__value">{{ s.summary.completedCount }}</span>
@@ -50,28 +65,64 @@
           <span class="perf-stat__label">{{ 'PERF_AVG_TICKET' | translate }}</span>
         </div>
         <div class="perf-stat">
+          <span class="perf-stat__value">
+            {{ s.summary.totalRevenue | currency: 'USD' : 'symbol' : '1.0-0' }}
+          </span>
+          <span class="perf-stat__label">{{ 'PERF_REVENUE_GROSS' | translate }}</span>
+        </div>
+        <div class="perf-stat">
           <span class="perf-stat__value">{{ s.summary.uniqueClients }}</span>
           <span class="perf-stat__label">{{ 'PERF_CLIENTS' | translate }}</span>
         </div>
       </div>
 
-      <!-- Revenue trend (mini bar chart) -->
+      <!-- Commission trend — the bar height tracks per-day commission
+           earnings (or visit count for pure-Fixed accounts). A 5-line Y
+           axis on the left makes the magnitude legible; tapping a bar
+           opens a tooltip with the exact figure. -->
       @if (trendBars().length > 0) {
         <div class="perf-section">
           <h3 class="perf-section__title">{{ 'PERF_TREND' | translate }}</h3>
-          <div class="perf-trend">
-            @for (bar of trendBars(); track bar.label) {
-              <div class="perf-trend__col">
-                <div class="perf-trend__bar-area">
-                  <div
-                    class="perf-trend__bar"
-                    [style.height.%]="bar.heightPct"
-                    [title]="bar.revenue"
-                  ></div>
-                </div>
-                <span class="perf-trend__label">{{ formatTrendLabel(bar.label) }}</span>
+          <div class="perf-trend perf-trend--with-axis">
+            <div class="perf-trend__yaxis">
+              @for (tick of trendAxis().ticks; track tick) {
+                <span class="perf-trend__yaxis-tick">
+                  {{ formatAxisTick(tick, trendAxis().isCurrency) }}
+                </span>
+              }
+            </div>
+            <div class="perf-trend__plot">
+              <div class="perf-trend__gridlines">
+                @for (tick of trendAxis().ticks; track tick) {
+                  <div class="perf-trend__gridline"></div>
+                }
               </div>
-            }
+              <div class="perf-trend__cols">
+                @for (bar of trendBars(); track bar.label; let i = $index) {
+                  <button
+                    type="button"
+                    class="perf-trend__col"
+                    [class.perf-trend__col--active]="activeBarIdx() === i"
+                    (click)="toggleBar(i)"
+                  >
+                    <div class="perf-trend__bar-area">
+                      <div
+                        class="perf-trend__bar"
+                        [style.height.%]="bar.heightPct"
+                      ></div>
+                      @if (activeBarIdx() === i) {
+                        <div class="perf-trend__tooltip">
+                          {{ formatBarTooltip(bar) }}
+                        </div>
+                      }
+                    </div>
+                    <span class="perf-trend__label">
+                      {{ formatTrendLabel(bar.label) }}
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
           </div>
         </div>
       }

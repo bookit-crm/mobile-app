@@ -46,6 +46,15 @@
     font-size: 0.78rem;
     color: var(--bk-grey-200, #767676);
   }
+
+  // Tiny helper line under the value — e.g. "base + commission" or the
+  // commission %, so the employee can see how the headline number was
+  // built without opening the payroll detail.
+  &__hint {
+    font-size: 0.72rem;
+    color: var(--bk-grey-200, #767676);
+    line-height: 1.2;
+  }
 }
 
 // ── Sections ──────────────────────────────────────────────
@@ -60,14 +69,71 @@
 
 // ── Trend mini chart ──────────────────────────────────────
 .perf-trend {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
   padding: 12px;
   border-radius: 14px;
   background: var(--ion-color-step-50, #f7f7f7);
   border: 1px solid var(--ion-color-step-100, #ececec);
-  overflow-x: auto;
+
+  // Layout: [Y axis ticks] [scrollable plot area]. The axis stays fixed
+  // while the bars scroll, so the legend remains visible for long ranges.
+  &--with-axis {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px;
+  }
+
+  // 96px bar area + 14px label gutter — keep these in sync so the gridlines
+  // and the bars share the same vertical extent. Used by both the Y axis
+  // labels and the gridlines themselves.
+  $bar-area: 96px;
+
+  &__yaxis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: $bar-area;
+    padding-block: 0;
+    margin-bottom: 20px; // line up with the bottom of the bar area, above labels
+  }
+
+  &__yaxis-tick {
+    font-size: 0.62rem;
+    color: var(--bk-grey-200, #767676);
+    line-height: 1;
+    text-align: end;
+    transform: translateY(-50%);
+
+    &:first-child { transform: translateY(0); }
+    &:last-child  { transform: translateY(-100%); }
+  }
+
+  &__plot {
+    position: relative;
+    min-width: 0;
+  }
+
+  &__gridlines {
+    position: absolute;
+    inset: 0 0 20px 0; // matches bar-area + label gutter from the cols below
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+
+  &__gridline {
+    height: 0;
+    border-top: 1px dashed var(--ion-color-step-150, #e3e3e3);
+  }
+
+  &__cols {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   &__col {
     flex: 1 0 28px;
@@ -75,10 +141,23 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    font: inherit;
+    color: inherit;
+
+    &--active .perf-trend__bar {
+      background: var(--bk-orange-600, #ea580c);
+      box-shadow: 0 0 0 2px rgba(255, 116, 7, 0.18);
+    }
   }
 
   &__bar-area {
-    height: 96px;
+    position: relative;
+    height: $bar-area;
     width: 100%;
     display: flex;
     align-items: flex-end;
@@ -90,6 +169,34 @@
     max-width: 18px;
     border-radius: 6px 6px 2px 2px;
     background: var(--bk-orange-500, #ff7407);
+    transition: background-color 0.15s;
+  }
+
+  &__tooltip {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: var(--ion-text-color, #100f0f);
+    color: var(--ion-color-light, #fff);
+    font-size: 0.7rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    z-index: 2;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--ion-text-color, #100f0f);
+    }
   }
 
   &__label {

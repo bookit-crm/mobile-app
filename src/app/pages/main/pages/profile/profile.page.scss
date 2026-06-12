@@ -11,7 +11,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding-bottom: 12px;
+  padding-bottom: 0;
   color: var(--bk-grey-200, #767676);
   font-size: 0.85rem;
 
@@ -43,23 +43,33 @@
 
 ion-list-header {
   margin-top: 16px;
+
+  // First section ("Personal info") sits directly under the avatar +
+  // branch badge — collapse the default top margin so the spacing matches
+  // the rhythm of the surrounding fields instead of leaving a big gap.
+  &:first-of-type {
+    margin-top: 0;
+    --padding-top: 0;
+  }
 }
 
 // Phone input keeps its own label; we just give it the same 16px horizontal
 // padding ion-item uses so it lines up with the other fields, and re-style
-// the internal label to match the dark, slightly-larger look of the
-// neighbouring stacked ion-labels (First Name, Email, etc.).
+// the internal label to match the neighbouring stacked ion-labels
+// (First Name, Email, etc.) — Ionic 8 stacked labels are 0.875rem (14px)
+// with 4px margin-bottom and inherit the item's text color.
 .phone-field {
   padding: 10px 16px 12px;
   border-bottom: 1px solid var(--ion-color-step-150, #ececec);
 
   ::ng-deep app-phone-input {
     .phone-label {
-      font-size: 12px;
-      line-height: 16px;
+      font-size: 0.875rem;
+      line-height: 1.2;
       color: var(--ion-text-color, #000);
       font-weight: 400;
-      margin: 0 0 6px;
+      margin: 0 0 4px;
+      letter-spacing: 0;
     }
 
     .phone-wrapper {
@@ -135,9 +145,13 @@ ion-list-header {
   }
 
   &__times {
+    // Bottom-align so the separator and inputs sit on the same baseline —
+    // the separator can be its own flex item with a fixed height that
+    // matches the input, instead of relying on a margin-top fudge factor
+    // that bled the dash onto the input edges on narrow screens.
     display: flex;
-    align-items: center;
-    gap: 8px;
+    align-items: flex-end;
+    gap: 12px;
     margin-top: 10px;
   }
 }
@@ -180,9 +194,10 @@ ion-list-header {
 }
 
 .time-field__separator {
-  width: 12px;
-  flex-shrink: 0;
-  margin-top: 20px;
+  flex: 0 0 auto;
+  height: 38px;
+  line-height: 38px;
+  padding: 0 2px;
   color: var(--ion-color-medium);
   font-weight: 600;
   text-align: center;

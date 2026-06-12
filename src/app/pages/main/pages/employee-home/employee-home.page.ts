@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { forkJoin, take } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import {
@@ -15,6 +16,8 @@ import {
 } from '@core/models/appointment.interface';
 import { AppointmentsService } from '@core/services/appointments.service';
 import { SupervisorService } from '@core/services/supervisor.service';
+import { AppointmentViewModalComponent } from '@core/components/appointment-view-modal/appointment-view-modal.component';
+import { ESalaryRateType } from '@core/enums/e-salary-rate-type';
 
 /**
  * Employee dashboard: today's stats (earnings / completed / visits),
@@ -34,6 +37,7 @@ export class EmployeeHomePage implements OnInit {
   private readonly supervisorService = inject(SupervisorService);
   private readonly router = inject(Router);
   private readonly t = inject(TranslateService);
+  private readonly modalCtrl = inject(ModalController);
 
   public readonly AppointmentStatus = AppointmentStatus;
 
@@ -47,12 +51,58 @@ export class EmployeeHomePage implements OnInit {
 
   public firstName = computed(() => this.authUser()?.firstName ?? '');
 
-  /** Sum of completed appointments' totals for today */
-  public todayEarnings = computed(() =>
+  /**
+   * What the employee actually earns from today's completed visits — the
+   * commission portion of each ticket, not the gross. Pure-Fixed accounts
+   * don't accrue per-visit; the daily card stays at 0 (the monthly base
+   * still shows up on the Performance page where the period context makes
+   * it meaningful).
+   */
+  public todayEarnings = computed(() => {
+    const user = this.authUser();
+    const completed = this.todayAppointments().filter(
+      (a) => a.status === AppointmentStatus.Completed,
+    );
+    const gross = completed.reduce((sum, a) => sum + (a.totalPrice || 0), 0);
+    const rateType = user?.salaryRateType;
+    const pct = (user?.commissionPercent ?? 0) / 100;
+    if (
+      rateType === ESalaryRateType.Commission ||
+      rateType === ESalaryRateType.FixedPlusCommission ||
+      rateType === ESalaryRateType.BaseOrCommission
+    ) {
+      return gross * pct;
+    }
+    if (rateType === ESalaryRateType.Fixed) {
+      // Fixed-rate employees don't earn variable pay per visit; the daily
+      // tile would be misleading if it showed the gross service revenue.
+      return 0;
+    }
+    // No rate configured — surface the gross so the tile is not blank.
+    return gross;
+  });
+
+  /** Gross service revenue for today — exposed for the secondary tile. */
+  public todayGrossRevenue = computed(() =>
     this.todayAppointments()
       .filter((a) => a.status === AppointmentStatus.Completed)
       .reduce((sum, a) => sum + (a.totalPrice || 0), 0),
   );
+
+  /**
+   * Whether the employee's pay model includes a variable component —
+   * drives the gross-revenue tile copy ("Service revenue" makes sense to
+   * an employee whose payout depends on it; would be noise for a fixed-rate
+   * account).
+   */
+  public hasVariablePay = computed(() => {
+    const rt = this.authUser()?.salaryRateType;
+    return (
+      rt === ESalaryRateType.Commission ||
+      rt === ESalaryRateType.FixedPlusCommission ||
+      rt === ESalaryRateType.BaseOrCommission
+    );
+  });
 
   public completedToday = computed(
     () =>
@@ -121,6 +171,22 @@ export class EmployeeHomePage implements OnInit {
 
   public goToCalendar(): void {
     void this.router.navigate(['/main/calendar']);
+  }
+
+  /** Open the shared appointment preview modal — same one the calendar uses */
+  public async openAppointment(appt: IAppointment): Promise<void> {
+    if (!appt?._id) return;
+    const modal = await this.modalCtrl.create({
+      component: AppointmentViewModalComponent,
+      componentProps: { appointmentId: appt._id },
+      breakpoints: [0, 1],
+      initialBreakpoint: 1,
+    });
+    await modal.present();
+    const { data } = await modal.onWillDismiss<{ saved?: boolean }>();
+    if (data?.saved) {
+      this.loadData();
+    }
   }
 
   public formatTimeRange(appt: IAppointment): string {

@@ -15,17 +15,22 @@
 
 .view-header-title {
   --color: var(--ion-text-color);
-  // iOS mode auto-centers ion-title via absolute positioning + text-align;
-  // pin the content to the left so the status dot + label + date sit
-  // flush with the left edge (matches the rest of the modal's content).
+  // iOS mode pins ion-title with `position: absolute; left/right: 0` AND
+  // `padding-inline: 90px` so it can center inside the toolbar. Both fight
+  // any text-align override. Switch to relative + reset padding so the
+  // status dot + label + date sit flush-left, in line with the rest of the
+  // modal content.
+  position: relative;
   text-align: start;
   --padding-start: 0;
   --padding-end: 0;
+  padding-inline: 0;
 
   // The inner shadow-DOM toolbar-title part keeps its own text-align: center
   // in iOS mode — pierce it via ::part to make the override stick.
   &::part(toolbar-title) {
     text-align: start;
+    padding-inline: 0;
   }
 
   .view-status-row {
@@ -35,13 +40,6 @@
     gap: 10px;
     padding-inline-start: 4px;
   }
-}
-
-.view-status-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-inline-start: 16px;
 }
 
 .view-status-dot {
