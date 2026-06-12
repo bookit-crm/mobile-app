@@ -79,48 +79,64 @@
       <!-- Commission trend — the bar height tracks per-day commission
            earnings (or visit count for pure-Fixed accounts). A 5-line Y
            axis on the left makes the magnitude legible; tapping a bar
-           opens a tooltip with the exact figure. -->
+           updates the info banner above the chart (a floating tooltip on
+           the bar itself got clipped by the scrollable cols container). -->
       @if (trendBars().length > 0) {
         <div class="perf-section">
           <h3 class="perf-section__title">{{ 'PERF_TREND' | translate }}</h3>
-          <div class="perf-trend perf-trend--with-axis">
-            <div class="perf-trend__yaxis">
-              @for (tick of trendAxis().ticks; track tick) {
-                <span class="perf-trend__yaxis-tick">
-                  {{ formatAxisTick(tick, trendAxis().isCurrency) }}
+          <div class="perf-trend">
+            <div
+              class="perf-trend__info"
+              [class.perf-trend__info--placeholder]="activeBarIdx() === -1"
+            >
+              @if (activeBar(); as ab) {
+                <span class="perf-trend__info-date">{{ formatTrendLabel(ab.label) }}</span>
+                <span class="perf-trend__info-value">
+                  {{ trendAxis().isCurrency
+                      ? (ab.commission | currency: 'USD' : 'symbol' : '1.0-0')
+                      : ab.visits }}
                 </span>
+                <span class="perf-trend__info-meta">
+                  · {{ ab.visits }} {{ 'PERF_VISITS' | translate }}
+                </span>
+              } @else {
+                {{ 'PERF_TAP_BAR_HINT' | translate }}
               }
             </div>
-            <div class="perf-trend__plot">
-              <div class="perf-trend__gridlines">
+            <div class="perf-trend__chart">
+              <div class="perf-trend__yaxis">
                 @for (tick of trendAxis().ticks; track tick) {
-                  <div class="perf-trend__gridline"></div>
+                  <span class="perf-trend__yaxis-tick">
+                    {{ formatAxisTick(tick, trendAxis().isCurrency) }}
+                  </span>
                 }
               </div>
-              <div class="perf-trend__cols">
-                @for (bar of trendBars(); track bar.label; let i = $index) {
-                  <button
-                    type="button"
-                    class="perf-trend__col"
-                    [class.perf-trend__col--active]="activeBarIdx() === i"
-                    (click)="toggleBar(i)"
-                  >
-                    <div class="perf-trend__bar-area">
-                      <div
-                        class="perf-trend__bar"
-                        [style.height.%]="bar.heightPct"
-                      ></div>
-                      @if (activeBarIdx() === i) {
-                        <div class="perf-trend__tooltip">
-                          {{ formatBarTooltip(bar) }}
-                        </div>
-                      }
-                    </div>
-                    <span class="perf-trend__label">
-                      {{ formatTrendLabel(bar.label) }}
-                    </span>
-                  </button>
-                }
+              <div class="perf-trend__plot">
+                <div class="perf-trend__gridlines">
+                  @for (tick of trendAxis().ticks; track tick) {
+                    <div class="perf-trend__gridline"></div>
+                  }
+                </div>
+                <div class="perf-trend__cols">
+                  @for (bar of trendBars(); track bar.label; let i = $index) {
+                    <button
+                      type="button"
+                      class="perf-trend__col"
+                      [class.perf-trend__col--active]="activeBarIdx() === i"
+                      (click)="toggleBar(i)"
+                    >
+                      <div class="perf-trend__bar-area">
+                        <div
+                          class="perf-trend__bar"
+                          [style.height.%]="bar.heightPct"
+                        ></div>
+                      </div>
+                      <span class="perf-trend__label">
+                        {{ formatTrendLabel(bar.label) }}
+                      </span>
+                    </button>
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -214,6 +230,52 @@
                     </div>
                   }
                 </div>
+
+                <!-- Per-appointment breakdown — opens on toggle so the
+                     period card stays compact when the employee just
+                     wants the totals. -->
+                @if (period.lineItems.length > 0) {
+                  <button
+                    type="button"
+                    class="perf-period__toggle"
+                    (click)="toggleExpandedPeriod(period._id)"
+                  >
+                    <ion-icon
+                      [name]="expandedPeriodId() === period._id
+                        ? 'chevron-up-outline'
+                        : 'chevron-down-outline'"
+                    ></ion-icon>
+                    <span>
+                      {{ (expandedPeriodId() === period._id
+                          ? 'PERF_HIDE_BREAKDOWN'
+                          : 'PERF_SHOW_BREAKDOWN') | translate }}
+                    </span>
+                  </button>
+                  @if (expandedPeriodId() === period._id) {
+                    <ul class="perf-li-list">
+                      @for (li of period.lineItems; track li._id) {
+                        <li class="perf-li">
+                          <div class="perf-li__main">
+                            <span class="perf-li__date">
+                              {{ formatLineItemDate(li.appointmentDate) }}
+                            </span>
+                            @if (li.serviceNames) {
+                              <span class="perf-li__svc">{{ li.serviceNames }}</span>
+                            }
+                          </div>
+                          <div class="perf-li__amounts">
+                            <span class="perf-li__commission">
+                              {{ li.commissionAmount | currency: 'USD' : 'symbol' : '1.2-2' }}
+                            </span>
+                            <span class="perf-li__base">
+                              {{ li.servicePrice | currency: 'USD' : 'symbol' : '1.0-0' }} · {{ li.appliedRatePercent }}%
+                            </span>
+                          </div>
+                        </li>
+                      }
+                    </ul>
+                  }
+                }
               </div>
             }
           }

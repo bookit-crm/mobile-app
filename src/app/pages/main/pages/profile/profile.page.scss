@@ -193,12 +193,21 @@ ion-list-header {
   }
 }
 
+// Use a flex container with align-items: center to vertically center the
+// dash character against the input baseline. The previous `line-height:
+// 38px` trick relied on font baseline metrics that pushed the dash to the
+// lower third of the cell on iOS, making it look like it bled onto the
+// input border. Flex centering snaps it to the exact midpoint regardless
+// of the system font.
 .time-field__separator {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 38px;
-  line-height: 38px;
-  padding: 0 2px;
+  padding: 0 4px;
+  font-size: 1rem;
+  line-height: 1;
   color: var(--ion-color-medium);
   font-weight: 600;
-  text-align: center;
 }

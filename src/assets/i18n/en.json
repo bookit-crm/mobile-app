@@ -1079,6 +1079,7 @@
   "PERF_AVG_TICKET": "Avg. ticket",
   "PERF_CLIENTS": "Clients served",
   "PERF_VISITS": "visits",
+  "PERF_TAP_BAR_HINT": "Tap a bar to see the day's details",
   "PERF_TREND": "Commission by day",
   "PERF_TOP_SERVICES": "Top services",
   "PERF_PAYROLL": "Payroll",
@@ -1089,6 +1090,8 @@
   "PERF_ACCRUED": "Accrued",
   "PERF_VISITS_IN_PERIOD": "Visits",
   "PERF_PAYOUT": "Payout",
+  "PERF_SHOW_BREAKDOWN": "Show per-visit breakdown",
+  "PERF_HIDE_BREAKDOWN": "Hide breakdown",
 
   "PROFILE_PERSONAL_INFO": "Personal info",
   "PROFILE_BRANCH": "Branch",

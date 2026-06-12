@@ -69,14 +69,51 @@
 
 // ── Trend mini chart ──────────────────────────────────────
 .perf-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   padding: 12px;
   border-radius: 14px;
   background: var(--ion-color-step-50, #f7f7f7);
   border: 1px solid var(--ion-color-step-100, #ececec);
 
-  // Layout: [Y axis ticks] [scrollable plot area]. The axis stays fixed
-  // while the bars scroll, so the legend remains visible for long ranges.
-  &--with-axis {
+  // Info banner above the chart — shows the date/value of the active bar
+  // (or a "tap a bar" hint when nothing is selected). Lives outside the
+  // scrollable cols container, so it can never be clipped.
+  &__info {
+    min-height: 22px;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+    font-size: 0.82rem;
+    color: var(--ion-text-color);
+
+    &--placeholder {
+      color: var(--bk-grey-200, #767676);
+      font-style: italic;
+      font-size: 0.78rem;
+    }
+  }
+
+  &__info-date {
+    font-weight: 600;
+  }
+
+  &__info-value {
+    font-weight: 700;
+    color: var(--bk-orange-500, #ff7407);
+  }
+
+  &__info-meta {
+    color: var(--bk-grey-200, #767676);
+    font-size: 0.78rem;
+  }
+
+  // Chart grid: [Y axis ticks] [scrollable plot area]. The axis stays
+  // fixed while the bars scroll, so the legend remains visible for long
+  // ranges.
+  &__chart {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 8px;
@@ -170,33 +207,6 @@
     border-radius: 6px 6px 2px 2px;
     background: var(--bk-orange-500, #ff7407);
     transition: background-color 0.15s;
-  }
-
-  &__tooltip {
-    position: absolute;
-    bottom: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 6px 8px;
-    border-radius: 8px;
-    background: var(--ion-text-color, #100f0f);
-    color: var(--ion-color-light, #fff);
-    font-size: 0.7rem;
-    line-height: 1.2;
-    white-space: nowrap;
-    z-index: 2;
-    pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      border: 4px solid transparent;
-      border-top-color: var(--ion-text-color, #100f0f);
-    }
   }
 
   &__label {
@@ -332,6 +342,87 @@
     &--paid {
       color: #16a34a;
     }
+  }
+
+  // Toggle that opens the per-appointment breakdown.
+  &__toggle {
+    margin-top: 12px;
+    padding: 6px 0 2px;
+    width: 100%;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bk-orange-500, #ff7407);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    ion-icon { font-size: 1rem; }
+  }
+}
+
+// ── Line-item breakdown ───────────────────────────────────
+.perf-li-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--ion-color-step-100, #ececec);
+}
+
+.perf-li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ion-color-step-100, #ececec);
+
+  &:last-child { border-bottom: none; }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  &__date {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--ion-text-color);
+  }
+
+  &__svc {
+    font-size: 0.72rem;
+    color: var(--bk-grey-200, #767676);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__amounts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  &__commission {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--bk-orange-500, #ff7407);
+  }
+
+  &__base {
+    font-size: 0.7rem;
+    color: var(--bk-grey-200, #767676);
   }
 }
 

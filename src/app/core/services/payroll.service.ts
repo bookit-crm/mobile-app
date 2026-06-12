@@ -21,6 +21,17 @@ export interface IPaginatedPayrollLineItems {
   count: number;
 }
 
+export interface ISelfPayrollLineItem {
+  _id: string;
+  appointmentId: string | null;
+  appointmentDate: string | null;
+  /** Comma-joined service names from the appointment (no trailing space) */
+  serviceNames: string;
+  servicePrice: number;
+  commissionAmount: number;
+  appliedRatePercent: number;
+}
+
 export interface ISelfPayrollPeriod {
   _id: string;
   periodStart: string;
@@ -32,6 +43,8 @@ export interface ISelfPayrollPeriod {
   paidAt: string | null;
   accruedCommission: number;
   lineItemCount: number;
+  /** Per-appointment breakdown — what the employee earned from each visit */
+  lineItems: ISelfPayrollLineItem[];
 }
 
 export interface ISelfPayroll {

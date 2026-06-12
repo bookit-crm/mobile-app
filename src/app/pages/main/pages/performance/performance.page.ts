@@ -59,6 +59,8 @@ export class PerformancePage implements OnInit {
   public payroll = signal<ISelfPayroll | null>(null);
   /** Index of the bar that currently has its tooltip visible. -1 = none. */
   public activeBarIdx = signal<number>(-1);
+  /** Period whose per-appointment breakdown is expanded. null = collapsed. */
+  public expandedPeriodId = signal<string | null>(null);
 
   public readonly periodOptions: Array<{ value: PeriodKey; label: string }> = [
     { value: 'today', label: 'PERF_PERIOD_TODAY' },
@@ -182,6 +184,17 @@ export class PerformancePage implements OnInit {
   }
 
   /**
+   * The currently-tapped bar (or null when nothing selected). The chart
+   * info banner reads from this — keeps the template logic-free and gives
+   * us a single source of truth for the selected state.
+   */
+  public activeBar = computed(() => {
+    const idx = this.activeBarIdx();
+    if (idx < 0) return null;
+    return this.trendBars()[idx] ?? null;
+  });
+
+  /**
    * Short breakdown line shown under the "What I earned" card so the
    * employee can see WHY the number is what it is (e.g. "$500 base +
    * $20 commission"). Hidden when there's no useful breakdown to show
@@ -218,6 +231,31 @@ export class PerformancePage implements OnInit {
     const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
     const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
     return `${new Date(start).toLocaleDateString(lang, opts)} – ${new Date(end).toLocaleDateString(lang, opts)}`;
+  }
+
+  /**
+   * Day + time, used in the per-appointment breakdown list. Returns an
+   * em-dash for line items whose appointment was deleted (the line item
+   * survives the deletion so the employee's earnings history stays
+   * intact, but we have no date to show).
+   */
+  public formatLineItemDate(iso: string | null | undefined): string {
+    if (!iso) return '—';
+    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
+    const date = new Date(iso);
+    return `${date.toLocaleDateString(lang, {
+      day: 'numeric',
+      month: 'short',
+    })} · ${date.toLocaleTimeString(lang, {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })}`;
+  }
+
+  /** Expand / collapse the line-item breakdown for a payroll period. */
+  public toggleExpandedPeriod(id: string): void {
+    this.expandedPeriodId.set(this.expandedPeriodId() === id ? null : id);
   }
 
   public rateTypeLabel(type: string | null): string {

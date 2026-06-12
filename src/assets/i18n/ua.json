@@ -1076,6 +1076,7 @@
   "PERF_AVG_TICKET": "Середній чек",
   "PERF_CLIENTS": "Клієнтів обслужено",
   "PERF_VISITS": "візитів",
+  "PERF_TAP_BAR_HINT": "Натисніть стовпчик, щоб побачити деталі дня",
   "PERF_TREND": "Комісія по днях",
   "PERF_TOP_SERVICES": "Топ послуг",
   "PERF_PAYROLL": "Зарплата",
@@ -1086,6 +1087,8 @@
   "PERF_ACCRUED": "Нараховано",
   "PERF_VISITS_IN_PERIOD": "Візитів",
   "PERF_PAYOUT": "Виплата",
+  "PERF_SHOW_BREAKDOWN": "Показати по візитах",
+  "PERF_HIDE_BREAKDOWN": "Сховати розклад",
 
   "PROFILE_PERSONAL_INFO": "Особисті дані",
   "PROFILE_BRANCH": "Філіал",
