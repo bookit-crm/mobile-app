@@ -139,22 +139,30 @@
               <div class="schedule-row__times">
                 <div class="time-field">
                   <span class="time-field__label">{{ 'FROM_TIME' | translate }}</span>
-                  <input
-                    class="time-field__native-input"
-                    type="time"
-                    [value]="row.from"
-                    (change)="updateTimeNative(row.day, 'from', $event)"
-                  />
+                  <!-- The bordered box is a wrapper div, NOT the input itself:
+                       iOS 17+ native time inputs have a fixed intrinsic size
+                       and ignore width, overflowing whatever you set. The box
+                       defines the visible field and clips the input inside. -->
+                  <div class="time-field__box">
+                    <input
+                      class="time-field__native-input"
+                      type="time"
+                      [value]="row.from"
+                      (change)="updateTimeNative(row.day, 'from', $event)"
+                    />
+                  </div>
                 </div>
                 <span class="time-field__separator">—</span>
                 <div class="time-field">
                   <span class="time-field__label">{{ 'TO_TIME' | translate }}</span>
-                  <input
-                    class="time-field__native-input"
-                    type="time"
-                    [value]="row.to"
-                    (change)="updateTimeNative(row.day, 'to', $event)"
-                  />
+                  <div class="time-field__box">
+                    <input
+                      class="time-field__native-input"
+                      type="time"
+                      [value]="row.to"
+                      (change)="updateTimeNative(row.day, 'to', $event)"
+                    />
+                  </div>
                 </div>
               </div>
             }

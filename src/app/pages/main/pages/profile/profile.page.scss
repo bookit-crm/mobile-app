@@ -144,20 +144,19 @@ ion-list-header {
     font-style: italic;
   }
 
-  // Two-input row laid out with grid (1fr auto 1fr): the two time fields
-  // are guaranteed equal-width and elastic, the separator gets its
-  // natural width, and align-items: end keeps the inputs + separator on
-  // the same baseline while the labels float at the top of each column.
-  // Grid is more deterministic than flex here — `flex: 1 1 0` was
-  // permitting subtle width drift on narrow screens that made the right
-  // input look like it had no right padding.
+  // Two-input row laid out with grid: two equal rubber columns + an auto
+  // column for the dash. minmax(0, 1fr) — NOT bare 1fr — is the load-
+  // bearing part: bare 1fr means minmax(auto, 1fr), and the auto minimum
+  // let the track grow to the iOS time input's intrinsic width, pushing
+  // the right field flush against the screen edge and sliding the dash
+  // onto the left field. A zero minimum hard-clamps both tracks to the
+  // fair share of the row no matter what the native control wants.
   &__times {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: end;
     column-gap: 12px;
     margin-top: 10px;
-    width: 100%;
   }
 }
 
@@ -174,21 +173,50 @@ ion-list-header {
     letter-spacing: 0.3px;
   }
 
-  &__native-input {
-    width: 100%;
-    min-height: 38px;
-    padding: 0 10px;
+  // The visible "input" is this wrapper div, sized purely by the grid
+  // track. iOS 17+ renders native time inputs as a fixed-size pill that
+  // ignores author width — so the border/radius live here and the real
+  // control is clipped inside, never able to distort the layout.
+  &__box {
+    height: 38px;
+    display: flex;
+    align-items: center;
     border: 1.5px solid var(--ion-color-medium);
     border-radius: 8px;
+    background: transparent;
+    overflow: hidden;
+    box-sizing: border-box;
+
+    &:focus-within {
+      border-color: var(--bk-orange-500, #ff7407);
+    }
+  }
+
+  &__native-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    margin: 0;
+    padding: 0 8px;
+    border: none;
+    outline: none;
     background: transparent;
     font-size: 0.9rem;
     color: var(--ion-text-color);
     font-family: inherit;
     box-sizing: border-box;
-    outline: none;
+    text-align: center;
+    // Strip the native pill chrome — with the default appearance the
+    // control keeps its own fixed width/background and ignores ours.
+    -webkit-appearance: none;
+    appearance: none;
 
-    &:focus {
-      border-color: var(--bk-orange-500, #ff7407);
+    // iOS renders the value through this pseudo-element; plain
+    // text-align on the input is ignored there.
+    &::-webkit-date-and-time-value {
+      text-align: center;
+      margin: 0;
     }
 
     &::-webkit-datetime-edit-ampm-field {

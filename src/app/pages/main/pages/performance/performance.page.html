@@ -234,7 +234,10 @@
                 <!-- Per-appointment breakdown — opens on toggle so the
                      period card stays compact when the employee just
                      wants the totals. -->
-                @if (period.lineItems.length > 0) {
+                <!-- Optional chaining: an older API build doesn't include
+                     lineItems in the response, and a hard .length read on
+                     undefined kills change detection for the whole card. -->
+                @if (period.lineItems?.length) {
                   <button
                     type="button"
                     class="perf-period__toggle"
