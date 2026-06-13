@@ -100,6 +100,25 @@ export class AiChatService {
         if (!line.startsWith('data: ')) return;
         try {
           const data = JSON.parse(line.slice(6));
+          // Server-side proxy error event (e.g. core-api can't reach the AI
+          // server). The HTTP status is still 200 — the error rides inside
+          // the SSE body — so surface it here, otherwise the bubble would
+          // just sit empty. Show the reason so prod issues are diagnosable.
+          if (data.error) {
+            this.messages.update((msgs) =>
+              msgs.map((m) =>
+                m.id === assistantId
+                  ? {
+                      ...m,
+                      text: `Помилка з'єднання з AI. Спробуй ще раз. (${data.error})`,
+                      isStreaming: false,
+                      toolCall: undefined,
+                    }
+                  : m,
+              ),
+            );
+            return;
+          }
           if (data.type === 'start') {
             this.conversationId = data.conversationId;
           } else if (data.type === 'text') {
@@ -143,6 +162,26 @@ export class AiChatService {
         } else {
           throw err;
         }
+      }
+
+      // Stream completed without throwing but produced nothing — e.g. a
+      // 200 with an empty / non-SSE body (a reverse proxy that swallowed
+      // the stream, or CapacitorHttp returning no data). Don't leave the
+      // bubble spinning silently; surface a diagnostic.
+      const finalMsg = this.messages().find((m) => m.id === assistantId);
+      if (finalMsg && finalMsg.isStreaming && !finalMsg.text.trim()) {
+        this.messages.update((msgs) =>
+          msgs.map((m) =>
+            m.id === assistantId
+              ? {
+                  ...m,
+                  text: "Помилка з'єднання з AI. Спробуй ще раз. (порожня відповідь)",
+                  isStreaming: false,
+                  toolCall: undefined,
+                }
+              : m,
+          ),
+        );
       }
     } catch (err: any) {
       const isAborted = err?.name === 'AbortError';
@@ -316,7 +355,15 @@ export class AiChatService {
     const msg: string = err?.message ?? '';
     if (msg === 'NETWORK') return ' (мережа)';
     if (msg.startsWith('HTTP_')) return ` (${msg.replace('HTTP_', 'код ')})`;
-    return '';
+    // Unknown error — e.g. a native CapacitorHttp rejection. Surface a
+    // short raw form so a tester's screenshot tells us what actually
+    // threw (native errors carry their reason in message / error / name).
+    const raw = (msg || err?.error || err?.name || '')
+      .toString()
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 80);
+    return raw ? ` (${raw})` : '';
   }
 
   stopStreaming(): void {
