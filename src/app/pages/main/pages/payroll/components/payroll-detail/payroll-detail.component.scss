@@ -128,6 +128,15 @@
   color: var(--ion-color-dark);
   padding: 8px 0;
   outline: none;
+  // iOS renders <input type="date"> with the value horizontally centered
+  // (and right-drifting) by default. Pin it to the start so it lines up
+  // with the field label above it, like every other form control.
+  text-align: left;
+
+  &::-webkit-date-and-time-value {
+    text-align: left;
+    margin: 0;
+  }
 }
 
 // ── Paid info ────────────────────────────────────────────────────────────────

@@ -1,7 +1,8 @@
-import { NgModule } from '@angular/core';
+import { LOCALE_ID, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { angularLocaleFor } from '@core/helpers/locale.helper';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -31,6 +32,14 @@ import { ErrorInterceptor } from '@core/interceptors/error.interceptor';
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     { provide: HTTP_INTERCEPTORS, useClass: ApiInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    // Default locale for plain `| date` / `| currency` pipes, seeded from
+    // the persisted language so dates come up localized on launch. Pipes
+    // that must follow a *live* language switch use LocalizedDatePipe
+    // instead (LOCALE_ID is fixed for the app's lifetime).
+    {
+      provide: LOCALE_ID,
+      useFactory: () => angularLocaleFor(localStorage.getItem('app_lang')),
+    },
     {
       provide: TRANSLATE_HTTP_LOADER_CONFIG,
       useValue: { prefix: './assets/i18n/', suffix: '.json' },

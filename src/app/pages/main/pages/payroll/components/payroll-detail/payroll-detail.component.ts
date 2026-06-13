@@ -9,7 +9,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlertController, IonicModule, ModalController, ToastController } from '@ionic/angular';
@@ -18,11 +18,12 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { EPaymentMethod, EPayrollLineItemStatus, EPayrollPeriodStatus } from '@core/enums/e-payroll';
 import { IPayrollLineItem, IPayrollPeriod, IPayrollPeriodSummary, IPayoutPayload } from '@core/models/payroll.interface';
 import { PayrollService, IPaginatedPayrollLineItems } from '@core/services/payroll.service';
+import { LocalizedDatePipe } from '@core/pipes/localized-date.pipe';
 
 @Component({
   selector: 'app-payroll-detail',
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule, CurrencyPipe, DatePipe, TranslateModule],
+  imports: [CommonModule, IonicModule, FormsModule, ReactiveFormsModule, CurrencyPipe, LocalizedDatePipe, TranslateModule],
   templateUrl: './payroll-detail.component.html',
   styleUrls: ['./payroll-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,

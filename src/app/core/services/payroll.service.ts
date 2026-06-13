@@ -43,8 +43,11 @@ export interface ISelfPayrollPeriod {
   paidAt: string | null;
   accruedCommission: number;
   lineItemCount: number;
-  /** Per-appointment breakdown — what the employee earned from each visit */
-  lineItems: ISelfPayrollLineItem[];
+  /**
+   * Per-appointment breakdown — what the employee earned from each visit.
+   * Optional: an older API build (pre per-visit breakdown) omits it.
+   */
+  lineItems?: ISelfPayrollLineItem[];
 }
 
 export interface ISelfPayroll {

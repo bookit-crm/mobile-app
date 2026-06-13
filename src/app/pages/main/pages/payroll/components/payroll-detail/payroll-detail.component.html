@@ -58,7 +58,7 @@
     <!-- Period dates -->
     <div class="info-row">
       <ion-icon name="calendar-outline"></ion-icon>
-      <span>{{ period()!.periodStart | date: 'dd MMM yyyy' }} — {{ period()!.periodEnd | date: 'dd MMM yyyy' }}</span>
+      <span>{{ period()!.periodStart | localizedDate: 'dd MMM yyyy' }} — {{ period()!.periodEnd | localizedDate: 'dd MMM yyyy' }}</span>
     </div>
 
     <!-- Summary cards -->
@@ -139,7 +139,7 @@
       <div class="paid-info">
         <ion-icon name="checkmark-circle" color="success"></ion-icon>
         <div>
-          <p>{{ 'PAY_PAID_ON' | translate }} {{ period()!.paidAt | date: 'dd MMM yyyy' }}</p>
+          <p>{{ 'PAY_PAID_ON' | translate }} {{ period()!.paidAt | localizedDate: 'dd MMM yyyy' }}</p>
           @if (period()!.paymentNote) {
             <p class="paid-note">{{ period()!.paymentNote }}</p>
           }
@@ -198,7 +198,7 @@
             <h3>{{ item.appointment.services[0]?.name ?? ('PAY_APPOINTMENT_FALLBACK' | translate) }}</h3>
             <p>
               <ion-icon name="calendar-outline"></ion-icon>
-              {{ item.appointment.startDate | date: 'dd/MM/yyyy' }}
+              {{ item.appointment.startDate | localizedDate: 'dd/MM/yyyy' }}
             </p>
             <p>
               {{ 'PAY_ITEM_PRICE' | translate }}: {{ item.servicePrice | currency: 'USD' }}

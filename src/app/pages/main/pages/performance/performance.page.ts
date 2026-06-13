@@ -6,9 +6,11 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { formatDate } from '@angular/common';
 import { forkJoin, of, take } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { angularLocaleFor } from '@core/helpers/locale.helper';
 import {
   DashboardService,
   IEmployeeSelfStats,
@@ -220,17 +222,19 @@ export class PerformancePage implements OnInit {
     }
   });
 
+  /** Angular locale id (CLDR-backed) for the current app language. */
+  private get locale(): string {
+    return angularLocaleFor(this.t.currentLang);
+  }
+
   public formatTrendLabel(label: string): string {
-    // label = YYYY-MM-DD
-    const date = new Date(`${label}T00:00:00`);
-    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
-    return date.toLocaleDateString(lang, { day: 'numeric', month: 'short' });
+    // label = YYYY-MM-DD. formatDate uses Angular's bundled CLDR data so
+    // Ukrainian month names render on iOS (native Intl falls back to en).
+    return formatDate(`${label}T00:00:00`, 'd MMM', this.locale);
   }
 
   public formatPeriodRange(start: string, end: string): string {
-    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
-    const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
-    return `${new Date(start).toLocaleDateString(lang, opts)} – ${new Date(end).toLocaleDateString(lang, opts)}`;
+    return `${formatDate(start, 'd MMM', this.locale)} – ${formatDate(end, 'd MMM', this.locale)}`;
   }
 
   /**
@@ -241,16 +245,7 @@ export class PerformancePage implements OnInit {
    */
   public formatLineItemDate(iso: string | null | undefined): string {
     if (!iso) return '—';
-    const lang = this.t.currentLang === 'ua' ? 'uk-UA' : 'en-US';
-    const date = new Date(iso);
-    return `${date.toLocaleDateString(lang, {
-      day: 'numeric',
-      month: 'short',
-    })} · ${date.toLocaleTimeString(lang, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    })}`;
+    return `${formatDate(iso, 'd MMM', this.locale)} · ${formatDate(iso, 'HH:mm', this.locale)}`;
   }
 
   /** Expand / collapse the line-item breakdown for a payroll period. */

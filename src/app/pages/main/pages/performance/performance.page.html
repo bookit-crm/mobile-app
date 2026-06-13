@@ -256,7 +256,7 @@
                   </button>
                   @if (expandedPeriodId() === period._id) {
                     <ul class="perf-li-list">
-                      @for (li of period.lineItems; track li._id) {
+                      @for (li of period.lineItems ?? []; track li._id) {
                         <li class="perf-li">
                           <div class="perf-li__main">
                             <span class="perf-li__date">
