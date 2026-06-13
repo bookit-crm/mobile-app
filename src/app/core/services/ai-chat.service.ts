@@ -1,4 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { firstValueFrom } from 'rxjs';
 import { ELocalStorageKeys } from '@core/enums/e-local-storage-keys';
 import { AuthService } from './auth.service';
@@ -124,7 +125,7 @@ export class AiChatService {
       };
 
       try {
-        await this.streamChat(this.getToken(), body, onLine);
+        await this.runChat(this.getToken(), body, onLine);
       } catch (err: any) {
         // 401 — token expired: refresh once and retry the stream.
         if (err?.message === 'UNAUTHORIZED') {
@@ -138,7 +139,7 @@ export class AiChatService {
           }
           localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, tokens.auth_token);
           localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, tokens.refresh_token);
-          await this.streamChat(tokens.auth_token, body, onLine);
+          await this.runChat(tokens.auth_token, body, onLine);
         } else {
           throw err;
         }
@@ -169,6 +170,61 @@ export class AiChatService {
       this.isStreaming.set(false);
       this.activeXhr = null;
     }
+  }
+
+  /**
+   * Dispatch the chat request to the transport that works on the current
+   * platform:
+   *  - Native (iOS/Android): `CapacitorHttp` — a native URLSession/OkHttp
+   *    request that bypasses the WebView entirely. The WebView's fetch/XHR
+   *    failed against the SSE endpoint on device with a bare network error
+   *    ("(мережа)") — most likely the streaming `text/event-stream`
+   *    response or its CORS handling not surviving WKWebView — even though
+   *    ordinary API calls to the same host work. The native client has no
+   *    CORS and reads the full response, so it's reliable; the trade-off is
+   *    the answer arrives once at the end instead of token-by-token.
+   *  - Web (browser / `ionic serve`): the XHR stream below, for live typing.
+   */
+  private runChat(
+    token: string,
+    body: string,
+    onLine: (line: string) => void,
+  ): Promise<void> {
+    return Capacitor.isNativePlatform()
+      ? this.nativeChat(token, body, onLine)
+      : this.streamChat(token, body, onLine);
+  }
+
+  /**
+   * Native (Capacitor) chat request. Sends the message over the platform's
+   * native HTTP stack and parses the buffered SSE body once it completes.
+   * No live streaming, but it actually reaches the server on device.
+   */
+  private async nativeChat(
+    token: string,
+    body: string,
+    onLine: (line: string) => void,
+  ): Promise<void> {
+    const res = await CapacitorHttp.post({
+      url: `${this.aiUrl}/api/ai/chat`,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      data: JSON.parse(body),
+      responseType: 'text',
+      readTimeout: 120000,
+      connectTimeout: 30000,
+    });
+
+    if (res.status === 401) throw new Error('UNAUTHORIZED');
+    if (res.status < 200 || res.status >= 300) {
+      throw new Error(`HTTP_${res.status}`);
+    }
+
+    const text =
+      typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? '');
+    for (const line of text.split('\n')) onLine(line);
   }
 
   /**
@@ -269,6 +325,46 @@ export class AiChatService {
     this.isStreaming.set(false);
   }
 
+  /**
+   * GET JSON from the AI gateway, native-aware. The non-streaming AI calls
+   * (history, usage) hit the same host that the chat does, so they need the
+   * same native transport on device — see {@link runChat}. Returns null on
+   * any non-2xx / failure; callers degrade gracefully.
+   */
+  private async apiGetJson<T>(path: string): Promise<T | null> {
+    const token = this.getToken();
+    if (!token) return null;
+    const url = `${this.aiUrl}${path}`;
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      if (Capacitor.isNativePlatform()) {
+        const res = await CapacitorHttp.get({ url, headers, responseType: 'json' });
+        if (res.status < 200 || res.status >= 300) return null;
+        return (res.data ?? null) as T;
+      }
+      const res = await fetch(url, { headers });
+      if (!res.ok) return null;
+      return (await res.json()) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  /** DELETE on the AI gateway, native-aware. Swallows failures. */
+  private async apiDelete(path: string): Promise<void> {
+    const token = this.getToken();
+    if (!token) return;
+    const url = `${this.aiUrl}${path}`;
+    const headers = { Authorization: `Bearer ${token}` };
+    try {
+      if (Capacitor.isNativePlatform()) {
+        await CapacitorHttp.delete({ url, headers });
+        return;
+      }
+      await fetch(url, { method: 'DELETE', headers });
+    } catch {}
+  }
+
   clearConversation(): void {
     this.messages.set([]);
     this.conversationId = null;
@@ -287,14 +383,7 @@ export class AiChatService {
   }
 
   async deleteConversation(id: string): Promise<void> {
-    const token = this.getToken();
-    if (!token) return;
-    try {
-      await fetch(`${this.aiUrl}/api/ai/history/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
-    } catch {}
+    await this.apiDelete(`/api/ai/history/${id}`);
     this.conversations.update((list) => list.filter((c) => c.id !== id));
     if (this.conversationId === id) {
       this.messages.set([]);
@@ -326,27 +415,18 @@ export class AiChatService {
 
   /** Authoritative usage + daily cap from the AI add-on subscription. */
   async loadUsageFromServer(): Promise<void> {
-    const token = this.getToken();
-    if (!token) return;
-    try {
-      const res = await fetch(`${this.aiUrl}/api/ai/usage`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-      const data: { used: number; limit: number } = await res.json();
-      this.usedToday.set(data.used ?? 0);
-      this.dailyLimit.set(data.limit === -1 ? 999999 : data.limit ?? 0);
-    } catch {}
+    const data = await this.apiGetJson<{ used: number; limit: number }>(
+      '/api/ai/usage',
+    );
+    if (!data) return;
+    this.usedToday.set(data.used ?? 0);
+    this.dailyLimit.set(data.limit === -1 ? 999999 : data.limit ?? 0);
   }
 
   async loadHistory(): Promise<void> {
-    const token = this.getToken();
-    if (!token) return;
+    const data = await this.apiGetJson<any[]>('/api/ai/history');
+    if (!data) return;
     try {
-      const res = await fetch(`${this.aiUrl}/api/ai/history`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data: any[] = await res.json();
       const seen = new Set<string>();
       const convs: AiConversation[] = data
         .filter((c) => {
