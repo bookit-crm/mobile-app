@@ -47,7 +47,8 @@ export class AiChatService {
   );
 
   private conversationId: string | null = null;
-  private abortController: AbortController | null = null;
+  /** Active streaming request, so stopStreaming() / a new send can abort it. */
+  private activeXhr: XMLHttpRequest | null = null;
 
   constructor() {
     this.loadHistory();
@@ -84,8 +85,6 @@ export class AiChatService {
     this.messages.update((msgs) => [...msgs, assistantMsg]);
     this.isStreaming.set(true);
 
-    this.abortController = new AbortController();
-
     try {
       const body = JSON.stringify({
         message: text.trim(),
@@ -93,75 +92,55 @@ export class AiChatService {
         timezoneOffset: -new Date().getTimezoneOffset() / 60,
       });
 
-      let response = await fetch(`${this.aiUrl}/api/ai/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${this.getToken()}` },
-        body,
-        signal: this.abortController.signal,
-      });
+      // Parse one SSE line ("data: {...}") and apply it to the streaming
+      // assistant message. Shared by the initial request and the post-
+      // refresh retry.
+      const onLine = (line: string): void => {
+        if (!line.startsWith('data: ')) return;
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.type === 'start') {
+            this.conversationId = data.conversationId;
+          } else if (data.type === 'text') {
+            this.messages.update((msgs) =>
+              msgs.map((m) => (m.id === assistantId ? { ...m, text: m.text + data.text } : m)),
+            );
+          } else if (data.type === 'tool_call') {
+            this.messages.update((msgs) =>
+              msgs.map((m) => (m.id === assistantId ? { ...m, toolCall: data.tool } : m)),
+            );
+          } else if (data.type === 'done') {
+            this.messages.update((msgs) =>
+              msgs.map((m) =>
+                m.id === assistantId ? { ...m, isStreaming: false, toolCall: undefined } : m,
+              ),
+            );
+            // Sync real usage (credits) from server after the AI responds.
+            void this.loadUsageFromServer();
+          }
+        } catch {
+          // skip invalid JSON
+        }
+      };
 
-      // 401 — token expired: refresh and retry once
-      if (response.status === 401) {
-        const refreshToken = this.getRefreshToken();
-        if (refreshToken) {
+      try {
+        await this.streamChat(this.getToken(), body, onLine);
+      } catch (err: any) {
+        // 401 — token expired: refresh once and retry the stream.
+        if (err?.message === 'UNAUTHORIZED') {
+          const refreshToken = this.getRefreshToken();
+          if (!refreshToken) throw new Error('SESSION_EXPIRED');
+          let tokens;
           try {
-            const tokens = await firstValueFrom(this.authService.refreshToken(refreshToken));
-            localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, tokens.auth_token);
-            localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, tokens.refresh_token);
-            response = await fetch(`${this.aiUrl}/api/ai/chat`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${tokens.auth_token}`,
-              },
-              body,
-            });
+            tokens = await firstValueFrom(this.authService.refreshToken(refreshToken));
           } catch {
             throw new Error('SESSION_EXPIRED');
           }
+          localStorage.setItem(ELocalStorageKeys.AUTH_TOKEN, tokens.auth_token);
+          localStorage.setItem(ELocalStorageKeys.REFRESH_TOKEN, tokens.refresh_token);
+          await this.streamChat(tokens.auth_token, body, onLine);
         } else {
-          throw new Error('SESSION_EXPIRED');
-        }
-      }
-
-      if (!response.body) throw new Error('No response body');
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.type === 'start') {
-              this.conversationId = data.conversationId;
-            } else if (data.type === 'text') {
-              this.messages.update((msgs) =>
-                msgs.map((m) => (m.id === assistantId ? { ...m, text: m.text + data.text } : m)),
-              );
-            } else if (data.type === 'tool_call') {
-              this.messages.update((msgs) =>
-                msgs.map((m) => (m.id === assistantId ? { ...m, toolCall: data.tool } : m)),
-              );
-            } else if (data.type === 'done') {
-              this.messages.update((msgs) =>
-                msgs.map((m) =>
-                  m.id === assistantId ? { ...m, isStreaming: false, toolCall: undefined } : m,
-                ),
-              );
-              // Sync real usage (credits) from server after the AI responds.
-              void this.loadUsageFromServer();
-            }
-          } catch {
-            // skip invalid JSON
-          }
+          throw err;
         }
       }
     } catch (err: any) {
@@ -176,21 +155,117 @@ export class AiChatService {
                   ? ''
                   : isExpired
                     ? '⛔ Сесія закінчилась. Будь ласка, перезайдіть в систему.'
-                    : 'Помилка з\'єднання з AI. Спробуй ще раз.',
+                    : `Помилка з'єднання з AI. Спробуй ще раз.${this.errorHint(err)}`,
                 isStreaming: false,
                 toolCall: undefined,
               }
             : m,
         ),
       );
+      // Full reason to the console for Safari Web Inspector / Xcode during
+      // the prod-vs-dev investigation — the on-screen hint is the short form.
+      if (!isAborted) console.error('[AiChat] stream failed:', err);
     } finally {
       this.isStreaming.set(false);
+      this.activeXhr = null;
     }
   }
 
+  /**
+   * Streams the SSE chat response over XMLHttpRequest instead of fetch().
+   *
+   * Why XHR: on iOS the WKWebView's `fetch()` does not reliably expose a
+   * readable `response.body` stream — on device `response.body` came back
+   * null, so the old code threw "No response body" and surfaced the
+   * "Помилка з'єднання з AI" error, even though the very same code worked
+   * in the browser/emulator. XHR's progressive `responseText` + onprogress
+   * is supported in WKWebView and desktop browsers alike, so the stream
+   * behaves identically on device and in dev.
+   *
+   * Resolves when the response completes. Rejects with:
+   *  - Error('UNAUTHORIZED') on HTTP 401 (caller refreshes + retries),
+   *  - an AbortError-named error when aborted (stop / new message),
+   *  - Error('NETWORK' | 'HTTP_xxx') otherwise.
+   */
+  private streamChat(
+    token: string,
+    body: string,
+    onLine: (line: string) => void,
+  ): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      this.activeXhr = xhr;
+
+      let processed = 0; // chars of responseText already parsed
+      let buffer = ''; // carries the trailing partial line between events
+      let ok = false;
+      let statusChecked = false;
+
+      const checkStatus = (): boolean => {
+        if (statusChecked) return ok;
+        if (xhr.readyState < XMLHttpRequest.HEADERS_RECEIVED) return false;
+        statusChecked = true;
+        ok = xhr.status >= 200 && xhr.status < 300;
+        if (xhr.status === 401) {
+          reject(new Error('UNAUTHORIZED'));
+          xhr.abort();
+        }
+        return ok;
+      };
+
+      const drain = (): void => {
+        if (!checkStatus() || !ok) return;
+        const full = xhr.responseText;
+        if (full.length <= processed) return;
+        buffer += full.slice(processed);
+        processed = full.length;
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // last item may be an incomplete line
+        for (const line of lines) onLine(line);
+      };
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState >= XMLHttpRequest.HEADERS_RECEIVED) checkStatus();
+      };
+      xhr.onprogress = drain;
+      xhr.onload = () => {
+        if (xhr.status === 401) return; // already rejected in checkStatus
+        if (xhr.status >= 200 && xhr.status < 300) {
+          ok = true;
+          drain();
+          if (buffer.trim()) onLine(buffer);
+          resolve();
+        } else {
+          reject(new Error(`HTTP_${xhr.status}`));
+        }
+      };
+      xhr.onerror = () => reject(new Error('NETWORK'));
+      xhr.onabort = () =>
+        reject(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+
+      xhr.open('POST', `${this.aiUrl}/api/ai/chat`, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      xhr.send(body);
+    });
+  }
+
+  /**
+   * Short, user-visible reason code appended to the connection-error
+   * message. Lets a tester tell us the failure mode (network vs HTTP
+   * status) from a screenshot without needing console access. Kept terse
+   * and parenthesised so it reads as a diagnostic, not a scary dump.
+   */
+  private errorHint(err: any): string {
+    const msg: string = err?.message ?? '';
+    if (msg === 'NETWORK') return ' (мережа)';
+    if (msg.startsWith('HTTP_')) return ` (${msg.replace('HTTP_', 'код ')})`;
+    return '';
+  }
+
   stopStreaming(): void {
-    this.abortController?.abort();
-    this.abortController = null;
+    this.activeXhr?.abort();
+    this.activeXhr = null;
     this.isStreaming.set(false);
   }
 
