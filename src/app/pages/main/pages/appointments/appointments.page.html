@@ -163,7 +163,7 @@
     <ion-list lines="none">
       @for (appt of appointments(); track appt._id) {
         <ion-item-sliding>
-          <ion-item [button]="true" [detail]="false">
+          <ion-item [button]="true" [detail]="false" (click)="onCardClick(appt, $event)">
             <ion-label>
               <div class="appt-header">
                 <h2 class="appt-client">{{ appt.clientName || appt.client?.fullName || '—' }}</h2>

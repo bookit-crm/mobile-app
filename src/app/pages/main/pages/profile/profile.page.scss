@@ -89,6 +89,18 @@ ion-list-header {
 // doesn't intercept taps to open the picker.
 .dob-item {
   position: relative;
+  // Pin the content start to a known offset. iOS and md item defaults differ
+  // (20 vs 16px), so the overlay's fixed `left` didn't line up with the
+  // stacked label — the placeholder drifted right of the title. Forcing both
+  // the item padding and the input's own start padding to a shared value
+  // makes the title, the faux placeholder and the picked date value all share
+  // one left edge.
+  --padding-start: 16px;
+  --inner-padding-start: 0;
+
+  ion-input {
+    --padding-start: 0;
+  }
 
   .dob-placeholder {
     position: absolute;

@@ -277,6 +277,21 @@ export class AppointmentsPage {
   }
 
   // ── CRUD actions ──────────────────────────────────────────────────────────
+
+  /**
+   * Tapping the card body opens the edit modal (matching the swipe "Edit"
+   * action) for users who can edit. Read-only users (inactive
+   * subscription) fall back to the preview modal instead of getting an
+   * upsell alert on every tap.
+   */
+  public async onCardClick(appt: IAppointment, event: Event): Promise<void> {
+    if (this.canCreateAppointment()) {
+      await this.openEditModal(appt, event);
+    } else {
+      await this.openViewModal(appt);
+    }
+  }
+
   public async openViewModal(appt: IAppointment): Promise<void> {
     const res = await this.modalGuard.open<{ saved?: boolean }>({
       component: AppointmentViewModalComponent,
