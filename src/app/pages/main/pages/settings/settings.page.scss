@@ -1,0 +1,63 @@
+.settings-wrap {
+  padding: 16px;
+}
+
+.settings-section {
+  &__title {
+    margin: 8px 0 4px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--ion-text-color);
+  }
+
+  &__hint {
+    margin: 0 0 14px;
+    font-size: 0.85rem;
+    color: var(--bk-grey-200, #767676);
+  }
+}
+
+// ── Language selector ─────────────────────────────────────
+.lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--ion-color-step-100, #ececec);
+  background: var(--ion-color-step-50, #f7f7f7);
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, background-color 0.15s;
+
+  &--active {
+    border-color: var(--bk-orange-500, #ff7407);
+    background: rgba(255, 116, 7, 0.1);
+  }
+
+  &__label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--ion-text-color);
+  }
+
+  &__check {
+    font-size: 22px;
+    color: var(--bk-orange-500, #ff7407);
+    flex-shrink: 0;
+  }
+
+  &__radio {
+    font-size: 22px;
+    color: var(--bk-grey-200, #767676);
+    flex-shrink: 0;
+  }
+}

@@ -32,6 +32,7 @@ export const EMPLOYEE_MENU_CONFIG: ISideMenuItem[] = [
   { title: 'MENU_PERFORMANCE',    url: '/main/performance',   icon: 'trending-up-outline' },
   { title: 'MENU_NOTIFICATION',   url: '/main/notification',  icon: 'notifications-outline', useSeparator: true },
   { title: 'MENU_PROFILE',        url: '/main/profile',       icon: 'person-circle-outline' },
+  { title: 'MENU_SETTINGS',       url: '/main/settings',      icon: 'settings-outline' },
   { title: 'MENU_FAQ',            url: '/main/faq',           icon: 'help-circle-outline' },
 ];
 

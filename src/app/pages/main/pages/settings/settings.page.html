@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>{{ 'MENU_SETTINGS' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="settings-wrap">
+    <!-- ── Language ─────────────────────────────────────── -->
+    <section class="settings-section">
+      <h2 class="settings-section__title">{{ 'SETTINGS_LANGUAGE' | translate }}</h2>
+      <p class="settings-section__hint">{{ 'SETTINGS_LANGUAGE_HINT' | translate }}</p>
+
+      <div class="lang-list">
+        @for (lang of languages; track lang.code) {
+          <button
+            type="button"
+            class="lang-item"
+            [class.lang-item--active]="currentLang() === lang.code"
+            (click)="selectLanguage(lang.code)"
+          >
+            <span class="lang-item__label">{{ lang.label }}</span>
+            @if (currentLang() === lang.code) {
+              <ion-icon name="checkmark-circle" class="lang-item__check"></ion-icon>
+            } @else {
+              <ion-icon name="ellipse-outline" class="lang-item__radio"></ion-icon>
+            }
+          </button>
+        }
+      </div>
+    </section>
+  </div>
+</ion-content>

@@ -1049,6 +1049,11 @@
   "MENU_SUPPORT":        "Support",
   "MENU_PERFORMANCE":    "Performance",
   "MENU_PROFILE":        "Profile",
+  "MENU_SETTINGS":       "Settings",
+
+  "SETTINGS_LANGUAGE": "Language",
+  "SETTINGS_LANGUAGE_HINT": "Choose the language of the app interface.",
+  "SETTINGS_LANGUAGE_SAVED": "Language updated",
 
   "EH_GREETING": "Hi, {{name}} 👋",
   "EH_GREETING_SUB": "Here's your day at a glance",

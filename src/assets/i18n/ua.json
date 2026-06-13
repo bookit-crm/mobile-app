@@ -1046,6 +1046,11 @@
   "MENU_SUPPORT":        "Підтримка",
   "MENU_PERFORMANCE":    "Результати",
   "MENU_PROFILE":        "Профіль",
+  "MENU_SETTINGS":       "Налаштування",
+
+  "SETTINGS_LANGUAGE": "Мова",
+  "SETTINGS_LANGUAGE_HINT": "Оберіть мову інтерфейсу застосунку.",
+  "SETTINGS_LANGUAGE_SAVED": "Мову змінено",
 
   "EH_GREETING": "Привіт, {{name}} 👋",
   "EH_GREETING_SUB": "Ось ваш день одним поглядом",
